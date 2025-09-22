@@ -1,0 +1,356 @@
+.pdf-export {
+  font-family: 'Jost', Arial, sans-serif;
+  background-color: #555555;
+  margin: 0;
+  padding: 0;
+}
+
+.page {
+  background-color: #ffffff;
+  border-radius: 1mm;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+  width: 210mm;
+  height: 297mm;
+  margin: 10mm auto;
+  box-sizing: border-box;
+  position: relative; // establish stacking context for pseudo-element
+  overflow: hidden;
+
+  &::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-size: cover;
+    background-repeat: no-repeat;
+    background-position: center;
+    opacity: 0.7; // 50% opacity
+    z-index: 0; // behind content
+    border-radius: inherit; // match page rounding
+    pointer-events: none;
+
+  }
+
+/*   &.first-page::before {
+    background-image: url('images/1.jpg') !important;
+  }
+
+  &.even::before {
+    background-image: url('images/2.jpg');
+  }
+
+  &.odd::before {
+    background-image: url('images/3.jpg');
+  } */
+
+  &.answer-key::before {
+    background-image: url('images/7.jpg');
+  }
+
+  &>* {
+    position: relative;
+    z-index: 1; // ensure content is above the background
+  }
+
+  // Mebi logo in header
+  .header {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    height: 28mm;
+
+    .stripes {
+      position: absolute;
+      z-index: 2;
+    }
+
+
+    .mebi_logo {
+      position: absolute;
+      height: auto;
+      z-index: 2;
+    }
+
+    .test-type {
+      position: absolute;
+      top: 11.7mm;
+      left: 18.4mm;
+      font-size: 8mm;
+      font-weight: 700;
+      color: #ffffff;
+      z-index: 4;
+    }
+
+    .page-bar {
+      height: 10.5mm;
+      width: 100%;
+      background: #e0ebf7;
+      margin: 17.2mm 0 0 0;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      font-size: 3.8mm;
+      font-weight: 600;
+      z-index: 1;
+    }
+
+  }
+
+  .content {
+    padding: 2mm 10mm;
+    height: 248mm;
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+
+    .left-column {
+      width: 50%;
+    }
+
+    .right-column {
+      width: 50%;
+    }
+
+    .divider {
+      width: 1px;
+      background-color: #848486;
+      margin: 2mm 0 0 0;
+    }
+  }
+
+  .footer {
+    height: 20mm;
+
+    .ogm-title {
+      font-size: 2.9mm;
+      font-weight: 500;
+      color: #333333;
+      position: absolute;
+      top: 3.3mm;
+    }
+
+    .ribbon {
+      position: absolute;
+      top: 0.6mm;
+      width: 37.5mm;
+      z-index: 1;
+    }
+
+    .stripes {
+      position: absolute;
+      bottom: -3mm;
+      width: 15.3mm;
+      z-index: 2;
+      rotate: 184deg;
+    }
+
+    .page-number {
+      font-size: 4.9mm;
+      font-weight: 500;
+      color: white;
+      position: absolute;
+      bottom: 11mm;
+      z-index: 3;
+      width: 9mm;
+      text-align: center;
+    }
+  }
+
+
+  &.first-page {
+    .header {
+      .mebi_logo {
+        top: 2mm !important;
+        width: 18.6mm !important;
+        right: 8.5mm !important;
+      }
+
+      .stripes {
+        top: 0 !important;
+        left: 0 !important;
+        rotate: unset !important;
+        width: 16.4mm !important;
+      }
+
+      .ribbon {
+        position: absolute;
+        top: 13mm;
+        left: 0;
+        z-index: 1;
+        width: 37.5mm;
+      }
+
+      .first-page-title {
+        font-size: 5.03mm;
+        font-weight: 700;
+        margin: 2.7mm 0 0 0;
+        padding: 0;
+        color: #333333;
+      }
+
+      .first-page-subtitle {
+        font-size: 3.8mm;
+        font-weight: 600;
+        font-style: italic;
+        margin: -1mm 0 0 0;
+        padding: 0;
+        color: #7e2990;
+      }
+
+      .first-page-bar {
+        height: 13.5mm;
+        width: 100%;
+        background: #e0ebf7;
+        display: flex;
+        flex-direction: column;
+
+        .lesson-name {
+          margin: 1mm 0 0 37.6mm;
+          padding: 0;
+          font-weight: 600;
+        }
+
+        .subject-name {
+          margin: 0 0 0 37.6mm;
+          padding: 0;
+          font-weight: 400;
+          font-size: 3.8mm;
+        }
+
+        .qr-code {
+          position: absolute;
+          bottom: 0.9mm;
+          right: 11.9mm;
+          width: 11.8mm;
+          height: 11.8mm;
+          background: #ffffff;
+          box-sizing: border-box;
+          padding: .2mm;
+          border-radius: .6mm;
+          box-shadow: 1px 1px 2px 0px #00000063;
+
+          img {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+          }
+        }
+      }
+    }
+  }
+
+
+  &.odd {
+    .header {
+      .mebi_logo {
+        top: 4.4mm;
+        width: 15.8mm;
+        right: 13.3mm;
+      }
+
+      .stripes {
+        top: -1.6mm;
+        left: -4.2mm;
+        rotate: unset;
+        width: 18mm;
+      }
+    }
+
+    .footer{
+
+      .ogm-title {
+        left: 13.3mm;
+      }
+
+      .ribbon {
+        right: -57px;
+        rotate: 180deg;
+      }
+
+      .stripes {
+        right: -6mm;
+      }
+
+      .page-number { 
+        right: 11mm;
+      }
+    }
+  }
+
+  &.even {
+    .header {
+      .mebi_logo {
+        top: 4.4mm;
+        width: 15.8mm;
+        left: 13.3mm;
+      }
+
+      .stripes {
+        top: -8mm;
+        right: -4.3mm;
+        rotate: 166deg;
+        width: 18mm;
+      }
+    }
+
+    .footer{
+
+      .ogm-title {
+        right: 13.6mm;
+      }
+
+      .ribbon {
+        left: -57px;
+        transform: scaleY(-1);
+      }
+
+      .stripes {
+        left: -6mm;
+        transform: scaleX(-1);
+      }
+
+      .page-number {
+        left: 11mm;
+      }
+    }
+  }
+
+  &.answer-key {
+    .content {
+
+      display: flex;
+      flex-direction: column;
+      justify-content: flex-start;
+
+      .answer-key-title {
+        font-size: 3.5mm;
+        font-weight: 700;
+        margin: 11.5mm 3mm 0 3mm;
+        color: #ffffff;
+        background: #7e2a8f;
+        height: 7mm;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+      }
+
+      .answers {
+        display: flex;
+        flex-direction: row;
+        align-items: center;
+        margin: 0 3mm 0 3mm;
+
+        .question {
+          font-size: 3mm;
+          font-weight: 500;
+          color: #333333;
+          margin: 1mm 0;
+          width: 10%;
+        }
+      }
+    }
+  }
+
+}

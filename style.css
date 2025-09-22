@@ -1,0 +1,285 @@
+.pdf-export {
+  font-family: "Jost", Arial, sans-serif;
+  background-color: #555555;
+  margin: 0;
+  padding: 0;
+}
+
+.page {
+  background-color: #ffffff;
+  border-radius: 1mm;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+  width: 210mm;
+  height: 297mm;
+  margin: 10mm auto;
+  box-sizing: border-box;
+  position: relative;
+  overflow: hidden;
+  /*   &.first-page::before {
+      background-image: url('images/1.jpg') !important;
+    }
+
+    &.even::before {
+      background-image: url('images/2.jpg');
+    }
+
+    &.odd::before {
+      background-image: url('images/3.jpg');
+    } */
+}
+.page::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-size: cover;
+  background-repeat: no-repeat;
+  background-position: center;
+  opacity: 0.7;
+  z-index: 0;
+  border-radius: inherit;
+  pointer-events: none;
+}
+.page.answer-key::before {
+  background-image: url("images/7.jpg");
+}
+.page > * {
+  position: relative;
+  z-index: 1;
+}
+.page .header {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  height: 28mm;
+}
+.page .header .stripes {
+  position: absolute;
+  z-index: 2;
+}
+.page .header .mebi_logo {
+  position: absolute;
+  height: auto;
+  z-index: 2;
+}
+.page .header .test-type {
+  position: absolute;
+  top: 11.7mm;
+  left: 18.4mm;
+  font-size: 8mm;
+  font-weight: 700;
+  color: #ffffff;
+  z-index: 4;
+}
+.page .header .page-bar {
+  height: 10.5mm;
+  width: 100%;
+  background: #e0ebf7;
+  margin: 17.2mm 0 0 0;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-size: 3.8mm;
+  font-weight: 600;
+  z-index: 1;
+}
+.page .content {
+  padding: 2mm 10mm;
+  height: 248mm;
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+}
+.page .content .left-column {
+  width: 50%;
+}
+.page .content .right-column {
+  width: 50%;
+}
+.page .content .divider {
+  width: 1px;
+  background-color: #848486;
+  margin: 2mm 0 0 0;
+}
+.page .footer {
+  height: 20mm;
+}
+.page .footer .ogm-title {
+  font-size: 2.9mm;
+  font-weight: 500;
+  color: #333333;
+  position: absolute;
+  top: 3.3mm;
+}
+.page .footer .ribbon {
+  position: absolute;
+  top: 0.6mm;
+  width: 37.5mm;
+  z-index: 1;
+}
+.page .footer .stripes {
+  position: absolute;
+  bottom: -3mm;
+  width: 15.3mm;
+  z-index: 2;
+  rotate: 184deg;
+}
+.page .footer .page-number {
+  font-size: 4.9mm;
+  font-weight: 500;
+  color: white;
+  position: absolute;
+  bottom: 11mm;
+  z-index: 3;
+  width: 9mm;
+  text-align: center;
+}
+.page.first-page .header .mebi_logo {
+  top: 2mm !important;
+  width: 18.6mm !important;
+  right: 8.5mm !important;
+}
+.page.first-page .header .stripes {
+  top: 0 !important;
+  left: 0 !important;
+  rotate: unset !important;
+  width: 16.4mm !important;
+}
+.page.first-page .header .ribbon {
+  position: absolute;
+  top: 13mm;
+  left: 0;
+  z-index: 1;
+  width: 37.5mm;
+}
+.page.first-page .header .first-page-title {
+  font-size: 5.03mm;
+  font-weight: 700;
+  margin: 2.7mm 0 0 0;
+  padding: 0;
+  color: #333333;
+}
+.page.first-page .header .first-page-subtitle {
+  font-size: 3.8mm;
+  font-weight: 600;
+  font-style: italic;
+  margin: -1mm 0 0 0;
+  padding: 0;
+  color: #7e2990;
+}
+.page.first-page .header .first-page-bar {
+  height: 13.5mm;
+  width: 100%;
+  background: #e0ebf7;
+  display: flex;
+  flex-direction: column;
+}
+.page.first-page .header .first-page-bar .lesson-name {
+  margin: 1mm 0 0 37.6mm;
+  padding: 0;
+  font-weight: 600;
+}
+.page.first-page .header .first-page-bar .subject-name {
+  margin: 0 0 0 37.6mm;
+  padding: 0;
+  font-weight: 400;
+  font-size: 3.8mm;
+}
+.page.first-page .header .first-page-bar .qr-code {
+  position: absolute;
+  bottom: 0.9mm;
+  right: 11.9mm;
+  width: 11.8mm;
+  height: 11.8mm;
+  background: #ffffff;
+  box-sizing: border-box;
+  padding: 0.2mm;
+  border-radius: 0.6mm;
+  box-shadow: 1px 1px 2px 0px rgba(0, 0, 0, 0.3882352941);
+}
+.page.first-page .header .first-page-bar .qr-code img {
+  width: 100%;
+  height: 100%;
+  -o-object-fit: contain;
+     object-fit: contain;
+}
+.page.odd .header .mebi_logo {
+  top: 4.4mm;
+  width: 15.8mm;
+  right: 13.3mm;
+}
+.page.odd .header .stripes {
+  top: -1.6mm;
+  left: -4.2mm;
+  rotate: unset;
+  width: 18mm;
+}
+.page.odd .footer .ogm-title {
+  left: 13.3mm;
+}
+.page.odd .footer .ribbon {
+  right: -57px;
+  rotate: 180deg;
+}
+.page.odd .footer .stripes {
+  right: -6mm;
+}
+.page.odd .footer .page-number {
+  right: 11mm;
+}
+.page.even .header .mebi_logo {
+  top: 4.4mm;
+  width: 15.8mm;
+  left: 13.3mm;
+}
+.page.even .header .stripes {
+  top: -8mm;
+  right: -4.3mm;
+  rotate: 166deg;
+  width: 18mm;
+}
+.page.even .footer .ogm-title {
+  right: 13.6mm;
+}
+.page.even .footer .ribbon {
+  left: -57px;
+  transform: scaleY(-1);
+}
+.page.even .footer .stripes {
+  left: -6mm;
+  transform: scaleX(-1);
+}
+.page.even .footer .page-number {
+  left: 11mm;
+}
+.page.answer-key .content {
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+}
+.page.answer-key .content .answer-key-title {
+  font-size: 3.5mm;
+  font-weight: 700;
+  margin: 11.5mm 3mm 0 3mm;
+  color: #ffffff;
+  background: #7e2a8f;
+  height: 7mm;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+.page.answer-key .content .answers {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  margin: 0 3mm 0 3mm;
+}
+.page.answer-key .content .answers .question {
+  font-size: 3mm;
+  font-weight: 500;
+  color: #333333;
+  margin: 1mm 0;
+  width: 10%;
+}/*# sourceMappingURL=style.css.map */
