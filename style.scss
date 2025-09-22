@@ -99,13 +99,15 @@
       width: 50%;
       display: flex;
       flex-direction: column;
+      gap: 10mm;
+      justify-content: space-between;
 
       .question {
         display: flex;
         flex-direction: row;
         align-items: flex-start;
         justify-content: flex-end;
-        margin-bottom: 10mm;
+
 
         .question-number {
           font-size: 3.5mm;
@@ -253,7 +255,6 @@
       }
     }
   }
-
 
   &.odd {
     .header {
