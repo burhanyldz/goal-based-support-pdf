@@ -53,7 +53,7 @@ function qs(sel, root = document) { return root.querySelector(sel); }
 				<img src="images/mebi.svg" alt="MEBİ Logo" class="mebi_logo">
 				<img src="images/stripes.png" class="stripes">
 				<img src="images/ribbon.png" class="ribbon">
-				<div class="test-type">TYT</div>
+				<div class="test-type">${escapeHtml(data.testType || '')}</div>
 				<span class="first-page-title">HEDEF TEMELLİ DESTEK EĞİTİMİ</span>
 				<span class="first-page-subtitle">OKUL ADI OKUL ADI OKUL ADI</span>
 				<div class="first-page-bar">

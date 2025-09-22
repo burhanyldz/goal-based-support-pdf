@@ -1,8 +1,9 @@
 {
     "qrCodeUrl": "https://mebi.eba.gov.tr",
-    "schoolName": "ÖRNEK LİSESİ",
-    "lessonName": "MATEMATİK",
-    "subjectName": "Trigonometri",
+    "schoolName": "Avcılar Firüzköy Çok Programlı Anadolu Lisesi",
+    "lessonName": "Din Kültürü ve Ahlak Bilgisi",
+    "subjectName": "temel dini bilgiler",
+    "testType": "tyt",
     "questions": [
         {
             "imageUrl": "https://mebi.eba.gov.tr/upload/question/image/a38109a62f.png",
