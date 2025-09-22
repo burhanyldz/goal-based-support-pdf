@@ -4,7 +4,40 @@
 (function () {
 	const LETTERS = ['A', 'B', 'C', 'D', 'E'];
 
-	function qs(sel, root = document) { return root.querySelector(sel); }
+// QR initializer: prefer local QRious (qrious.min.js) if loaded, otherwise fallback to external image
+function initQRCodeOnPage(page, data) {
+	try {
+		const qrContainer = page.querySelector('.first-page-bar .qr-code');
+		if (!qrContainer) return;
+		qrContainer.innerHTML = '';
+
+		if (!data || !data.qrCodeUrl) return;
+
+		// create canvas to render QR
+		const canvas = document.createElement('canvas');
+		canvas.style.width = '100%';
+		canvas.style.height = '100%';
+		qrContainer.appendChild(canvas);
+
+		if (window.QRious) {
+			// use QRious if available (local script included in index.html)
+			new QRious({ element: canvas, value: String(data.qrCodeUrl), size: 256 });
+		} else {
+			// fallback: external QR image (reliable) — only used if QRious not present
+			const img = document.createElement('img');
+			img.src = `https://api.qrserver.com/v1/create-qr-code/?size=256x256&data=${encodeURIComponent(String(data.qrCodeUrl))}`;
+			img.style.width = '100%';
+			img.style.height = '100%';
+			qrContainer.innerHTML = '';
+			qrContainer.appendChild(img);
+		}
+	} catch (e) {
+		// fail silently
+		console.error('initQRCodeOnPage error', e);
+	}
+}
+
+function qs(sel, root = document) { return root.querySelector(sel); }
 
 	function createEl(tag, cls, attrs = {}) {
 		const el = document.createElement(tag);
@@ -44,6 +77,8 @@
 		// set school name in title area
 		const subtitle = qs('.first-page-subtitle', page);
 		if (subtitle) subtitle.textContent = data.schoolName || '';
+
+		// QR will be initialized after the page is appended (initQRCodeOnPage)
 		return page;
 	}
 
@@ -231,6 +266,8 @@
     root.innerHTML = '';		// create first page and append
 		const firstPage = createFirstPage(data);
 		root.appendChild(firstPage);
+		// initialize QR code area (prefers local QRious if available)
+		try { initQRCodeOnPage(firstPage, data); } catch (e) { /* silent */ }
 
 		const pagesState = {
 			data,

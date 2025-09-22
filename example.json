@@ -1,11 +1,11 @@
 {
-    "qrCodeUrl": "https://eba.gov.tr",
+    "qrCodeUrl": "https://mebi.eba.gov.tr",
     "schoolName": "ÖRNEK LİSESİ",
     "lessonName": "MATEMATİK",
     "subjectName": "Trigonometri",
     "questions": [
         {
-            "imageUrl": "https://mebi.eba.gov.tr/upload/question//image/a38109a62f.png",
+            "imageUrl": "https://mebi.eba.gov.tr/upload/question/image/a38109a62f.png",
             "questionNumber": 1
         },
         {
