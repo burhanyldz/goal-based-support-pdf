@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Goal Based Support PDF</title>
+    <title>PDF Oluştur - Hedef Temelli Destek Eğitimi</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Jost:ital,wght@0,100..900;1,100..900&display=swap" rel="stylesheet">
@@ -12,6 +12,49 @@
 </head>
 
 <body class="pdf-export">
+    <!-- Fixed top toolbar -->
+    <div class="top-toolbar" role="toolbar" aria-label="Page toolbar">
+        <div class="toolbar-inner">
+            <div class="toolbar-title">PDF Oluştur</div>
+            <div class="toolbar-actions">
+                <button id="edit-meta-btn" class="btn btn-primary" type="button">Düzenle</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Edit modal -->
+    <div id="edit-modal" class="modal-overlay" aria-hidden="true">
+        <div class="modal" role="dialog" aria-modal="true" aria-labelledby="edit-modal-title">
+            <header class="modal-header">
+                <h3 id="edit-modal-title">Sayfa Bilgilerini Düzenle</h3>
+                <button class="modal-close" id="edit-modal-close" aria-label="Kapat">×</button>
+            </header>
+            <div class="modal-body">
+                <label>
+                    Okul Adı
+                    <input id="input-schoolName" type="text" placeholder="Okul adı">
+                </label>
+                <label>
+                    Ders Adı
+                    <input id="input-lessonName" type="text" placeholder="Ders adı">
+                </label>
+                <label>
+                    Konu
+                    <input id="input-subjectName" type="text" placeholder="Konu">
+                </label>
+                <label>
+                    Test Türü
+                    <select id="select-testType">
+                        <!-- options populated dynamically -->
+                    </select>
+                </label>
+            </div>
+            <footer class="modal-footer">
+                <button id="modal-cancel" class="btn">İptal</button>
+                <button id="modal-save" class="btn btn-primary">Kaydet</button>
+            </footer>
+        </div>
+    </div>
     <div id="pdf-root"></div>
     <script src="qrious.min.js"></script>
     <script src="script.js"></script>
@@ -23,14 +66,92 @@
                 // In real usage, this would be your backend API endpoint
                 const response = await fetch('example.json');
                 const data = await response.json();
+                // store globally for modal binding and future re-render
+                window._pdfData = data;
                 
                 // Render the PDF preview with the fetched data
                 PDFPreview.render(data);
+                // wire up toolbar/modal after initial render
+                initEditModal();
             } catch (error) {
                 console.error('Failed to fetch data:', error);
                 // Handle error - could show a message to user
             }
         });
+
+        // Modal wiring: open, populate, save
+        function initEditModal() {
+            const editBtn = document.getElementById('edit-meta-btn');
+            const modal = document.getElementById('edit-modal');
+            const closeBtn = document.getElementById('edit-modal-close');
+            const cancelBtn = document.getElementById('modal-cancel');
+            const saveBtn = document.getElementById('modal-save');
+
+            const inputSchool = document.getElementById('input-schoolName');
+            const inputLesson = document.getElementById('input-lessonName');
+            const inputSubject = document.getElementById('input-subjectName');
+            const selectTest = document.getElementById('select-testType');
+
+            function openModal() {
+                const data = window._pdfData || {};
+                inputSchool.value = data.schoolName || '';
+                inputLesson.value = data.lessonName || '';
+                inputSubject.value = data.subjectName || '';
+
+                // populate select with availableTestTypes and an empty option
+                selectTest.innerHTML = '';
+                const emptyOpt = document.createElement('option');
+                emptyOpt.value = '';
+                emptyOpt.textContent = '(Boş bırakarak kaldır)';
+                selectTest.appendChild(emptyOpt);
+                const arr = Array.isArray(data.availableTestTypes) ? data.availableTestTypes : [];
+                arr.forEach(t => {
+                    const o = document.createElement('option');
+                    o.value = t;
+                    o.textContent = t.toUpperCase();
+                    selectTest.appendChild(o);
+                });
+                selectTest.value = data.testType || '';
+
+                modal.setAttribute('aria-hidden', 'false');
+                modal.classList.add('open');
+                document.body.classList.add('modal-open');
+                // focus first input
+                inputSchool.focus();
+            }
+
+            function closeModal() {
+                modal.setAttribute('aria-hidden', 'true');
+                modal.classList.remove('open');
+                document.body.classList.remove('modal-open');
+            }
+
+            function save() {
+                window._pdfData = window._pdfData || {};
+                window._pdfData.schoolName = inputSchool.value.trim();
+                window._pdfData.lessonName = inputLesson.value.trim();
+                window._pdfData.subjectName = inputSubject.value.trim();
+                // if empty string, keep as '' so render will show blank
+                window._pdfData.testType = selectTest.value || '';
+                // re-render with updated data
+                PDFPreview.render(window._pdfData);
+                closeModal();
+            }
+
+            editBtn.addEventListener('click', openModal);
+            closeBtn.addEventListener('click', closeModal);
+            cancelBtn.addEventListener('click', closeModal);
+            saveBtn.addEventListener('click', save);
+
+            // close when clicking outside modal
+            modal.addEventListener('click', (e) => {
+                if (e.target === modal) closeModal();
+            });
+            // close on ESC
+            document.addEventListener('keydown', (e) => {
+                if (e.key === 'Escape' && modal.classList.contains('open')) closeModal();
+            });
+        }
     </script>
 </body>
 

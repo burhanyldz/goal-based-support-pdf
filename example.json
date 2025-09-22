@@ -4,6 +4,12 @@
     "lessonName": "Din Kültürü ve Ahlak Bilgisi",
     "subjectName": "temel dini bilgiler",
     "testType": "tyt",
+    "availableTestTypes": [
+        "tyt",
+        "ayt",
+        "ydt",
+        "lgs"
+    ],
     "questions": [
         {
             "imageUrl": "https://mebi.eba.gov.tr/upload/question/image/a38109a62f.png",
