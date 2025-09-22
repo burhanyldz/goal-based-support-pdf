@@ -135,10 +135,13 @@ function qs(sel, root = document) { return root.querySelector(sel); }
 			const img = new Image();
 			img.crossOrigin = 'Anonymous';
 			let cleaned = false;
+			// timer reference will be set later; clear it when we finish to avoid stray timeouts
+			let timer = null;
 
 			const finish = (resultSrc) => {
 				if (!cleaned) {
 					cleaned = true;
+					try { if (timer) clearTimeout(timer); } catch (e) {}
 					resolve(resultSrc);
 				}
 			};
@@ -153,6 +156,11 @@ function qs(sel, root = document) { return root.querySelector(sel); }
 					canvas.width = w;
 					canvas.height = h;
 					const ctx = canvas.getContext('2d');
+					// ensure we draw at native resolution and avoid any smoothing that might alter pixels
+					if (ctx) {
+						ctx.imageSmoothingEnabled = false;
+						try { ctx.imageSmoothingQuality = 'high'; } catch (e) {}
+					}
 					ctx.drawImage(img, 0, 0, w, h);
 					let data;
 					try { data = ctx.getImageData(0, 0, w, h).data; } catch (e) { return finish(src); }
@@ -238,9 +246,32 @@ function qs(sel, root = document) { return root.querySelector(sel); }
 					out.width = cw;
 					out.height = ch;
 					const outCtx = out.getContext('2d');
+					if (outCtx) {
+						outCtx.imageSmoothingEnabled = false;
+						try { outCtx.imageSmoothingQuality = 'high'; } catch (e) {}
+					}
 					outCtx.drawImage(canvas, minX, minY, cw, ch, 0, 0, cw, ch);
-					const dataUrl = out.toDataURL('image/png');
-					return finish(dataUrl);
+
+					// Export as lossless PNG blob and return an object URL. This preserves exact pixel data
+					// (browser still drops EXIF/ICC profiles, which is unavoidable with canvas APIs).
+					try {
+						out.toBlob((blob) => {
+							if (!blob) return finish(src);
+							const url = URL.createObjectURL(blob);
+							console.debug('cropImageWhitespace: created blob URL for cropped image, size:', blob.size, 'bytes');
+							return finish(url);
+						}, 'image/png');
+						// toBlob is async and will call finish from the callback
+						return;
+					} catch (e) {
+						// fallback to dataURL if toBlob not available
+						try {
+							const dataUrl = out.toDataURL('image/png');
+							return finish(dataUrl);
+						} catch (er) {
+							return finish(src);
+						}
+					}
 				} catch (e) {
 					return finish(src);
 				}
@@ -252,7 +283,7 @@ function qs(sel, root = document) { return root.querySelector(sel); }
 			};
 
 			// safety timeout: if loading hangs, bail
-			const timer = setTimeout(() => finish(src), 3000);
+			timer = setTimeout(() => finish(src), 3000);
 			img.decoding = 'async';
 			img.src = src;
 		});
@@ -315,9 +346,9 @@ function qs(sel, root = document) { return root.querySelector(sel); }
 			// debugging markers: indicate whether cropping produced a data URL or fallback
 			try {
 				if (questionEl.wrapper && typeof questionEl.wrapper.setAttribute === 'function') {
-					if (croppedSrc && String(croppedSrc).startsWith('data:')) {
+					if (croppedSrc && (String(croppedSrc).startsWith('data:') || String(croppedSrc).startsWith('blob:'))) {
 						questionEl.wrapper.setAttribute('data-cropped', 'yes');
-						questionEl.wrapper.setAttribute('data-cropped-src', 'data');
+						questionEl.wrapper.setAttribute('data-cropped-src', croppedSrc.startsWith('blob:') ? 'blob' : 'data');
 					} else {
 						questionEl.wrapper.setAttribute('data-cropped', 'no');
 						questionEl.wrapper.setAttribute('data-cropped-src', 'remote');
@@ -353,9 +384,9 @@ function qs(sel, root = document) { return root.querySelector(sel); }
 				rightQuestion.img.src = croppedRight || rightQuestion.originalSrc;
 				try {
 					if (rightQuestion.wrapper && typeof rightQuestion.wrapper.setAttribute === 'function') {
-						if (croppedRight && String(croppedRight).startsWith('data:')) {
+						if (croppedRight && (String(croppedRight).startsWith('data:') || String(croppedRight).startsWith('blob:'))) {
 							rightQuestion.wrapper.setAttribute('data-cropped', 'yes');
-							rightQuestion.wrapper.setAttribute('data-cropped-src', 'data');
+							rightQuestion.wrapper.setAttribute('data-cropped-src', croppedRight.startsWith('blob:') ? 'blob' : 'data');
 						} else {
 							rightQuestion.wrapper.setAttribute('data-cropped', 'no');
 							rightQuestion.wrapper.setAttribute('data-cropped-src', 'remote');
