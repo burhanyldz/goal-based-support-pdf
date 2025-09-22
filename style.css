@@ -93,22 +93,30 @@
   flex-direction: row;
   align-items: flex-start;
   justify-content: flex-end;
+  padding: 3mm 2mm 3mm 0;
 }
 .page .content .left-column .question .question-number,
 .page .content .right-column .question .question-number {
   font-size: 3.5mm;
   font-weight: 600;
   color: #333333;
-  margin-top: 1mm;
-  width: 7mm;
+  margin-top: -1mm;
+  width: 9mm;
   display: flex;
   justify-content: flex-end;
+  padding: 0 2mm 0 0;
 }
 .page .content .left-column .question img,
 .page .content .right-column .question img {
   -o-object-fit: contain;
      object-fit: contain;
-  max-width: calc(100% - 7mm);
+  max-width: calc(100% - 9mm);
+}
+.page .content .left-column .question {
+  padding: 3mm 2mm 3mm 0;
+}
+.page .content .right-column .question {
+  padding: 3mm 0 3mm 2mm;
 }
 .page .content .divider {
   width: 1px;

@@ -109,16 +109,153 @@ function qs(sel, root = document) { return root.querySelector(sel); }
 	}
 
 	function createQuestionElement(q) {
+		// create structure but don't set src yet — we'll crop the image first
 		const wrapper = createEl('div', 'question');
 		const num = createEl('div', 'question-number');
 		num.textContent = q.questionNumber != null ? q.questionNumber + '.' : '';
-		const img = createEl('img', 'question-image', { src: q.imageUrl || '' });
+		const img = createEl('img', 'question-image');
 		// ensure aspect ratio preserved
 		img.style.width = '100%';
 		img.style.height = 'auto';
 		wrapper.appendChild(num);
 		wrapper.appendChild(img);
-		return { wrapper, img };
+		return { wrapper, img, originalSrc: q.imageUrl || '' };
+	}
+
+	// Crop whitespace around an image by drawing it to a canvas and trimming background
+	// Returns a dataURL string for the cropped image. If cropping fails (CORS or error), resolves to the original src.
+	function cropImageWhitespace(src, options = {}) {
+		const padding = typeof options.padding === 'number' ? options.padding : 1; // pixels to keep around content (changed to 1px)
+		const bgThreshold = typeof options.bgThreshold === 'number' ? options.bgThreshold : 180; // more aggressive threshold (was 200)
+		const alphaThreshold = typeof options.alphaThreshold === 'number' ? options.alphaThreshold : 16; // alpha > this considered non-empty
+		const minCropMargin = typeof options.minCropMargin === 'number' ? options.minCropMargin : 1; // only crop if we can remove at least this many pixels
+
+		return new Promise((resolve) => {
+			if (!src) return resolve(src);
+			const img = new Image();
+			img.crossOrigin = 'Anonymous';
+			let cleaned = false;
+
+			const finish = (resultSrc) => {
+				if (!cleaned) {
+					cleaned = true;
+					resolve(resultSrc);
+				}
+			};
+
+			img.onload = () => {
+				try {
+					const w = img.naturalWidth || img.width;
+					const h = img.naturalHeight || img.height;
+					if (!w || !h) return finish(src);
+					
+					const canvas = document.createElement('canvas');
+					canvas.width = w;
+					canvas.height = h;
+					const ctx = canvas.getContext('2d');
+					ctx.drawImage(img, 0, 0, w, h);
+					let data;
+					try { data = ctx.getImageData(0, 0, w, h).data; } catch (e) { return finish(src); }
+
+					// Helper function to check if a pixel is "white" (background)
+					const isWhitePixel = (r, g, b, a) => {
+						return a <= alphaThreshold || (r >= bgThreshold && g >= bgThreshold && b >= bgThreshold);
+					};
+
+					// Progressive trimming: keep removing edges until we hit non-white pixels
+					let minX = 0, minY = 0, maxX = w - 1, maxY = h - 1;
+					
+					// Trim from left
+					let foundContent = false;
+					for (let x = 0; x < w && !foundContent; x++) {
+						for (let y = 0; y < h; y++) {
+							const i = (y * w + x) * 4;
+							const r = data[i], g = data[i + 1], b = data[i + 2], a = data[i + 3];
+							if (!isWhitePixel(r, g, b, a)) {
+								minX = x;
+								foundContent = true;
+								break;
+							}
+						}
+					}
+					
+					// Trim from right
+					foundContent = false;
+					for (let x = w - 1; x >= minX && !foundContent; x--) {
+						for (let y = 0; y < h; y++) {
+							const i = (y * w + x) * 4;
+							const r = data[i], g = data[i + 1], b = data[i + 2], a = data[i + 3];
+							if (!isWhitePixel(r, g, b, a)) {
+								maxX = x;
+								foundContent = true;
+								break;
+							}
+						}
+					}
+					
+					// Trim from top
+					foundContent = false;
+					for (let y = 0; y < h && !foundContent; y++) {
+						for (let x = minX; x <= maxX; x++) {
+							const i = (y * w + x) * 4;
+							const r = data[i], g = data[i + 1], b = data[i + 2], a = data[i + 3];
+							if (!isWhitePixel(r, g, b, a)) {
+								minY = y;
+								foundContent = true;
+								break;
+							}
+						}
+					}
+					
+					// Trim from bottom
+					foundContent = false;
+					for (let y = h - 1; y >= minY && !foundContent; y--) {
+						for (let x = minX; x <= maxX; x++) {
+							const i = (y * w + x) * 4;
+							const r = data[i], g = data[i + 1], b = data[i + 2], a = data[i + 3];
+							if (!isWhitePixel(r, g, b, a)) {
+								maxY = y;
+								foundContent = true;
+								break;
+							}
+						}
+					}
+
+					// Validate bounds
+					if (minX > maxX || minY > maxY || minX >= w || minY >= h) {
+						return finish(src);
+					}
+					
+					const cw = maxX - minX + 1;
+					const ch = maxY - minY + 1;
+					
+					const leftTrimmed = minX;
+					const rightTrimmed = (w - 1) - maxX;
+					const topTrimmed = minY;
+					const bottomTrimmed = (h - 1) - maxY;
+										
+					const out = document.createElement('canvas');
+					out.width = cw;
+					out.height = ch;
+					const outCtx = out.getContext('2d');
+					outCtx.drawImage(canvas, minX, minY, cw, ch, 0, 0, cw, ch);
+					const dataUrl = out.toDataURL('image/png');
+					return finish(dataUrl);
+				} catch (e) {
+					return finish(src);
+				}
+			};
+
+			img.onerror = () => {
+				// likely CORS or network error — can't read pixels, fallback to original src
+				finish(src);
+			};
+
+			// safety timeout: if loading hangs, bail
+			const timer = setTimeout(() => finish(src), 3000);
+			img.decoding = 'async';
+			img.src = src;
+		});
 	}
 
 	function escapeHtml(s) {
@@ -162,11 +299,38 @@ function qs(sel, root = document) { return root.querySelector(sel); }
 		while (!placed) {
 			const pageEl = pagesState.currentPage;
 			const colSelector = attemptColumn === 'left' ? '.left-column' : '.right-column';
+			// create element, crop the source and set src before appending so size is known
 			const questionEl = createQuestionElement(q);
+			// attempt to crop whitespace; if cropping fails we'll get original src back
+			let croppedSrc;
+			try {
+				croppedSrc = await cropImageWhitespace(questionEl.originalSrc);
+			} catch (e) {
+				croppedSrc = questionEl.originalSrc;
+			}
+			// set src then append
+			const finalSrc = croppedSrc || questionEl.originalSrc;
+			questionEl.img.src = finalSrc;
+			
+			// debugging markers: indicate whether cropping produced a data URL or fallback
+			try {
+				if (questionEl.wrapper && typeof questionEl.wrapper.setAttribute === 'function') {
+					if (croppedSrc && String(croppedSrc).startsWith('data:')) {
+						questionEl.wrapper.setAttribute('data-cropped', 'yes');
+						questionEl.wrapper.setAttribute('data-cropped-src', 'data');
+					} else {
+						questionEl.wrapper.setAttribute('data-cropped', 'no');
+						questionEl.wrapper.setAttribute('data-cropped-src', 'remote');
+					}
+				}
+			} catch (e) { 
+				console.warn('Error setting debug attributes:', e);
+			}
 			placeInColumn(pageEl, colSelector, questionEl);
 
 			// wait for image to load so measurements are correct
 			await ensureImageLoaded(questionEl.img);
+			// log rendered sizes for debugging
 
 			const colNode = qs(colSelector, pageEl);
 			if (!isOverflowing(colNode)) {
@@ -184,8 +348,24 @@ function qs(sel, root = document) { return root.querySelector(sel); }
 				attemptColumn = 'right';
 				// if right column is same as left and was already tried, will fall through
 				const rightQuestion = createQuestionElement(q);
+				let croppedRight;
+				try { croppedRight = await cropImageWhitespace(rightQuestion.originalSrc); } catch (e) { croppedRight = rightQuestion.originalSrc; }
+				rightQuestion.img.src = croppedRight || rightQuestion.originalSrc;
+				try {
+					if (rightQuestion.wrapper && typeof rightQuestion.wrapper.setAttribute === 'function') {
+						if (croppedRight && String(croppedRight).startsWith('data:')) {
+							rightQuestion.wrapper.setAttribute('data-cropped', 'yes');
+							rightQuestion.wrapper.setAttribute('data-cropped-src', 'data');
+						} else {
+							rightQuestion.wrapper.setAttribute('data-cropped', 'no');
+							rightQuestion.wrapper.setAttribute('data-cropped-src', 'remote');
+						}
+					}
+				} catch (e) { /* silent */ }
 				placeInColumn(pageEl, '.right-column', rightQuestion);
 				await ensureImageLoaded(rightQuestion.img);
+				// log rendered sizes for debugging (right column)
+				
 				const rightColNode = qs('.right-column', pageEl);
 				if (!isOverflowing(rightColNode)) {
 					pagesState.currentColumn = 'right';
