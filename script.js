@@ -55,10 +55,10 @@ function qs(sel, root = document) { return root.querySelector(sel); }
 				<img src="images/ribbon.png" class="ribbon">
 				<div class="test-type">${escapeHtml(data.testType || '')}</div>
 				<span class="first-page-title">HEDEF TEMELLİ DESTEK EĞİTİMİ</span>
-				<span class="first-page-subtitle">OKUL ADI OKUL ADI OKUL ADI</span>
+				<span class="first-page-subtitle">${escapeHtml(data.schoolName || 'okul adı')}</span>
 				<div class="first-page-bar">
-					<span class="lesson-name">${escapeHtml(data.lessonName || '')}</span>
-					<span class="subject-name">${escapeHtml(data.subjectName || '')}</span>
+					<span class="lesson-name">${escapeHtml(data.lessonName || 'ders adı')}</span>
+					<span class="subject-name">${escapeHtml(data.subjectName || 'konu adı')}</span>
 					<div class="qr-code"><img src="${escapeHtml(data.qrCodeUrl || '')}"></div>
 				</div>
 			</div>
@@ -75,8 +75,8 @@ function qs(sel, root = document) { return root.querySelector(sel); }
 			</div>
 		`;
 		// set school name in title area
-		const subtitle = qs('.first-page-subtitle', page);
-		if (subtitle) subtitle.textContent = data.schoolName || '';
+	const subtitle = qs('.first-page-subtitle', page);
+	if (subtitle) subtitle.textContent = data.schoolName || 'okul adı';
 
 		// QR will be initialized after the page is appended (initQRCodeOnPage)
 		return page;
@@ -90,7 +90,7 @@ function qs(sel, root = document) { return root.querySelector(sel); }
 				<img src="images/mebi.svg" alt="MEBİ Logo" class="mebi_logo">
 				<img src="images/stripes.png" class="stripes">
 				<div class="page-bar">
-					<span class="subject-name">${escapeHtml(data.subjectName || '')}</span>
+					<span class="subject-name">${escapeHtml(data.subjectName || 'konu adı')}</span>
 				</div>
 			</div>
 			<div class="content">

@@ -67,6 +67,10 @@
 }
 .page .header .page-bar .subject-name {
   text-transform: capitalize;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  max-width: 170mm;
+  overflow: hidden;
 }
 .page .content {
   padding: 2mm 10mm;
@@ -186,8 +190,12 @@
   margin: -1mm 0 0 0;
   padding: 0;
   color: #7e2990;
-  min-height: 5mm;
+  min-height: 5.4mm;
   text-transform: uppercase;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  max-width: 160mm;
+  overflow: hidden;
 }
 .page.first-page .header .first-page-bar {
   height: 13.5mm;
@@ -201,6 +209,10 @@
   padding: 0;
   font-weight: 600;
   text-transform: uppercase;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  max-width: 150mm;
+  overflow: hidden;
 }
 .page.first-page .header .first-page-bar .subject-name {
   margin: 0 0 0 37.6mm;
@@ -208,6 +220,10 @@
   font-weight: 400;
   font-size: 3.8mm;
   text-transform: capitalize;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  max-width: 150mm;
+  overflow: hidden;
 }
 .page.first-page .header .first-page-bar .qr-code {
   position: absolute;
