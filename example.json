@@ -1,4 +1,8 @@
 {
+    "qrCodeUrl": "https://eba.gov.tr",
+    "schoolName": "ÖRNEK LİSESİ",
+    "lessonName": "MATEMATİK",
+    "subjectName": "Trigonometri",
     "questions": [
         {
             "imageUrl": "https://mebi.eba.gov.tr/upload/question//image/a38109a62f.png",

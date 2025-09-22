@@ -16,7 +16,7 @@
   position: relative; // establish stacking context for pseudo-element
   overflow: hidden;
 
-/*   &::before {
+  &::before {
     content: "";
     position: absolute;
     top: 0;
@@ -31,23 +31,12 @@
     border-radius: inherit; // match page rounding
     pointer-events: none;
 
+  }
+
+/*   &.first-page::before {
+    background-image: url('images/1.jpg') !important;
   } */
 
-  /*   &.first-page::before {
-    background-image: url('images/1.jpg') !important;
-  }
-
-  &.even::before {
-    background-image: url('images/2.jpg');
-  }
-
-  &.odd::before {
-    background-image: url('images/3.jpg');
-  } 
-
-  &.answer-key::before {
-    background-image: url('images/7.jpg');
-  }*/
 
   &>* {
     position: relative;
@@ -105,13 +94,37 @@
     flex-direction: row;
     justify-content: space-between;
 
-    .left-column {
-      width: 50%;
-    }
-
+    .left-column,
     .right-column {
       width: 50%;
+      display: flex;
+      flex-direction: column;
+
+      .question {
+        display: flex;
+        flex-direction: row;
+        align-items: flex-start;
+        justify-content: flex-end;
+        margin-bottom: 10mm;
+
+        .question-number {
+          font-size: 3.5mm;
+          font-weight: 600;
+          color: #333333;
+          margin-top: 1mm;
+          width: 7mm;
+          display: flex;
+          justify-content: flex-end;
+        }
+
+        img {
+          object-fit: contain;
+          max-width: calc(100% - 7mm);
+        }
+      }
+
     }
+
 
     .divider {
       width: 1px;
@@ -341,7 +354,7 @@
         grid-template-columns: repeat(10, 1fr);
         margin: 0 3mm 0 3mm;
 
-        .question {
+        .answer-question {
           font-size: 3.7mm;
           font-weight: 500;
           color: #333333;
@@ -361,29 +374,29 @@
         }
 
         /* alternating backgrounds in blocks of 10 */
-        .question:nth-child(20n + 1),
-        .question:nth-child(20n + 2),
-        .question:nth-child(20n + 3),
-        .question:nth-child(20n + 4),
-        .question:nth-child(20n + 5),
-        .question:nth-child(20n + 6),
-        .question:nth-child(20n + 7),
-        .question:nth-child(20n + 8),
-        .question:nth-child(20n + 9),
-        .question:nth-child(20n + 10) {
+        .answer-question:nth-child(20n + 1),
+        .answer-question:nth-child(20n + 2),
+        .answer-question:nth-child(20n + 3),
+        .answer-question:nth-child(20n + 4),
+        .answer-question:nth-child(20n + 5),
+        .answer-question:nth-child(20n + 6),
+        .answer-question:nth-child(20n + 7),
+        .answer-question:nth-child(20n + 8),
+        .answer-question:nth-child(20n + 9),
+        .answer-question:nth-child(20n + 10) {
           background: #f5f3fa;
         }
 
-        .question:nth-child(20n + 11),
-        .question:nth-child(20n + 12),
-        .question:nth-child(20n + 13),
-        .question:nth-child(20n + 14),
-        .question:nth-child(20n + 15),
-        .question:nth-child(20n + 16),
-        .question:nth-child(20n + 17),
-        .question:nth-child(20n + 18),
-        .question:nth-child(20n + 19),
-        .question:nth-child(20n + 20) {
+        .answer-question:nth-child(20n + 11),
+        .answer-question:nth-child(20n + 12),
+        .answer-question:nth-child(20n + 13),
+        .answer-question:nth-child(20n + 14),
+        .answer-question:nth-child(20n + 15),
+        .answer-question:nth-child(20n + 16),
+        .answer-question:nth-child(20n + 17),
+        .answer-question:nth-child(20n + 18),
+        .answer-question:nth-child(20n + 19),
+        .answer-question:nth-child(20n + 20) {
           background: #fcfbfd;
         }
       }
