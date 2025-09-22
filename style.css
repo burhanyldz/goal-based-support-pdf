@@ -16,8 +16,8 @@
   position: relative;
   overflow: hidden;
   /*   &.first-page::before {
-      background-image: url('images/1.jpg') !important;
-    } */
+    background-image: url('images/1.jpg') !important;
+  } */
 }
 .page::before {
   content: "";
@@ -53,15 +53,6 @@
   height: auto;
   z-index: 2;
 }
-.page .header .test-type {
-  position: absolute;
-  top: 11.7mm;
-  left: 18.4mm;
-  font-size: 8mm;
-  font-weight: 700;
-  color: #ffffff;
-  z-index: 4;
-}
 .page .header .page-bar {
   height: 10.5mm;
   width: 100%;
@@ -73,6 +64,9 @@
   font-size: 3.8mm;
   font-weight: 600;
   z-index: 1;
+}
+.page .header .page-bar .subject-name {
+  text-transform: capitalize;
 }
 .page .content {
   padding: 2mm 10mm;
@@ -155,6 +149,16 @@
   width: 18.6mm !important;
   right: 8.5mm !important;
 }
+.page.first-page .header .test-type {
+  position: absolute;
+  top: 11.7mm;
+  left: 18.4mm;
+  font-size: 8mm;
+  font-weight: 700;
+  color: #ffffff;
+  z-index: 4;
+  text-transform: uppercase;
+}
 .page.first-page .header .stripes {
   top: 0 !important;
   left: 0 !important;
@@ -182,6 +186,8 @@
   margin: -1mm 0 0 0;
   padding: 0;
   color: #7e2990;
+  min-height: 5mm;
+  text-transform: uppercase;
 }
 .page.first-page .header .first-page-bar {
   height: 13.5mm;
@@ -194,12 +200,14 @@
   margin: 1mm 0 0 37.6mm;
   padding: 0;
   font-weight: 600;
+  text-transform: uppercase;
 }
 .page.first-page .header .first-page-bar .subject-name {
   margin: 0 0 0 37.6mm;
   padding: 0;
   font-weight: 400;
   font-size: 3.8mm;
+  text-transform: capitalize;
 }
 .page.first-page .header .first-page-bar .qr-code {
   position: absolute;
