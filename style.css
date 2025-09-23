@@ -385,6 +385,9 @@
   width: 18.6mm !important;
   right: 8.5mm !important;
 }
+.page.first-page .header .page-title {
+  margin: 2.7mm 0 0 0 !important;
+}
 .page.first-page .header .test-type {
   position: absolute;
   top: 11.7mm;
