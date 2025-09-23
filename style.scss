@@ -2,7 +2,8 @@
   font-family: 'Jost', Arial, sans-serif;
   background-color: #282828;
   margin: 0;
-  padding: 26px 0 0 0; /* leave space for fixed toolbar */
+  padding: 26px 0 0 0;
+  /* leave space for fixed toolbar */
 }
 
 /* Fixed top toolbar */
@@ -13,10 +14,11 @@
   right: 0;
   height: 48px;
   background: #3c3c3c;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.12);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.12);
   z-index: 9999;
   display: flex;
   align-items: center;
+
   .toolbar-inner {
     width: 100%;
     margin: 0 auto;
@@ -25,12 +27,18 @@
     align-items: center;
     padding: 0 16px;
   }
+
   .toolbar-title {
     font-weight: 700;
     color: #ffffff;
     font-size: 16px;
   }
-  .toolbar-actions { display:flex; gap:8px; align-items:center; }
+
+  .toolbar-actions {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+  }
 }
 
 /* Buttons used in toolbar/modal */
@@ -42,6 +50,7 @@
   font-weight: 600;
   cursor: pointer;
 }
+
 .btn-primary {
   background: #7e2990;
   color: #fff;
@@ -55,16 +64,24 @@
   padding: 8px 10px;
   background: transparent;
   color: #ffffff;
-  border: 1px solid rgba(255,255,255,0.08);
+  border: 1px solid rgba(255, 255, 255, 0.08);
   transition: background 120ms ease, color 120ms ease, transform 120ms ease;
 }
-.btn[title="PDF indir"] svg { color: #ffffff; }
-.btn[title="PDF indir"]:hover {
-  background: rgba(255,255,255,0.04);
+
+.btn[title="PDF indir"] svg {
+  color: #ffffff;
 }
-.btn[title="PDF indir"]:active { transform: translateY(1px); }
+
+.btn[title="PDF indir"]:hover {
+  background: rgba(255, 255, 255, 0.04);
+}
+
+.btn[title="PDF indir"]:active {
+  transform: translateY(1px);
+}
+
 .btn[title="PDF indir"]:focus {
-  outline: 3px solid rgba(126,41,144,0.18);
+  outline: 3px solid rgba(126, 41, 144, 0.18);
   outline-offset: 2px;
 }
 
@@ -75,19 +92,24 @@
   display: none;
   align-items: center;
   justify-content: center;
-  background: rgba(0,0,0,0.45);
+  background: rgba(0, 0, 0, 0.45);
   z-index: 10000;
   padding: 24px;
 }
-.modal-overlay.open { display: flex; }
+
+.modal-overlay.open {
+  display: flex;
+}
+
 .modal {
   width: 100%;
   max-width: 600px;
   background: #fff;
   border-radius: 8px;
-  box-shadow: 0 12px 30px rgba(0,0,0,0.25);
+  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.25);
   overflow: hidden;
 }
+
 .modal-header {
   display: flex;
   justify-content: space-between;
@@ -105,7 +127,8 @@
   background: transparent;
   border: 0;
   padding: 6px;
-  margin: -6px -6px -6px 0; /* pull into header corner visually while keeping accessible hit area */
+  margin: -6px -6px -6px 0;
+  /* pull into header corner visually while keeping accessible hit area */
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -115,12 +138,18 @@
   color: #333333;
   cursor: pointer;
 }
-.modal-close svg { width: 18px; height: 18px; }
-.modal-close:hover {
-  background: rgba(0,0,0,0.04);
+
+.modal-close svg {
+  width: 18px;
+  height: 18px;
 }
+
+.modal-close:hover {
+  background: rgba(0, 0, 0, 0.04);
+}
+
 .modal-close:focus {
-  outline: 3px solid rgba(126,41,144,0.2);
+  outline: 3px solid rgba(126, 41, 144, 0.2);
   outline-offset: 2px;
 }
 
@@ -136,17 +165,20 @@
   white-space: nowrap !important;
   border: 0 !important;
 }
+
 .modal-body {
   padding: 16px 20px;
   display: grid;
   gap: 12px;
 }
+
 .modal-body label {
   display: flex;
   flex-direction: column;
   font-size: 14px;
   color: #333;
 }
+
 .modal-body input,
 .modal-body select {
   margin-top: 6px;
@@ -155,6 +187,7 @@
   border-radius: 6px;
   font-size: 14px;
 }
+
 .modal-footer {
   display: flex;
   justify-content: flex-end;
@@ -164,7 +197,9 @@
 }
 
 /* small helper when modal open to prevent accidental scrolling */
-.modal-open { overflow: hidden; }
+.modal-open {
+  overflow: hidden;
+}
 
 .page {
   background-color: #ffffff;
@@ -311,17 +346,20 @@
 
     .divider {
       width: 1px;
-      background-color: #848486;
+      background-color: #7e2990;
       margin: 2mm 0 0 0;
       position: relative;
 
       .divider-text {
-    position: absolute;
-    left: -37.5mm;
-    transform: rotate(270deg) translate(-115mm, -1px);
-    white-space: nowrap;
-    background: white;
-    padding: 0 6mm;
+        position: absolute;
+        left: -37.5mm;
+        transform: rotate(270deg) translate(-115mm, -1px);
+        white-space: nowrap;
+        background: white;
+        padding: 0 6mm;
+        color: #7e2990;
+        border: 1px solid #7e2990;
+        border-radius: 20mm;
       }
     }
   }
@@ -369,6 +407,17 @@
       z-index: 3;
       width: 9mm;
       text-align: center;
+    }
+
+    .footer-disclaimer {
+      position: absolute;
+      bottom: 4mm;
+      font-size: 2.3mm;
+      padding: 0 17mm;
+      text-align: center;
+      line-height: 2.5mm;
+      color: #7e2990;
+
     }
   }
 
@@ -633,28 +682,52 @@
 
 /* Mobile / small screen: preserve page internals but scale whole page to fit viewport */
 @media (max-width: 900px) {
+
   /* Toolbar and button sizing remain as-is or as previously adjusted */
   .top-toolbar {
     height: 56px;
-    .toolbar-inner { padding: 0 10px; }
-    .toolbar-title { font-size: 18px; font-weight: 700; }
-    .toolbar-actions { gap: 6px; }
+
+    .toolbar-inner {
+      padding: 0 10px;
+    }
+
+    .toolbar-title {
+      font-size: 18px;
+      font-weight: 700;
+    }
+
+    .toolbar-actions {
+      gap: 6px;
+    }
   }
 
-  .btn { padding: 6px 16px; min-height: 34px; font-size: 15px; border-radius: 8px; }
-  .modal-overlay { padding: 12px; }
+  .btn {
+    padding: 6px 16px;
+    min-height: 34px;
+    font-size: 15px;
+    border-radius: 8px;
+  }
+
+  .modal-overlay {
+    padding: 12px;
+  }
 
   /* Prevent horizontal scrollbar caused by scaled pages and reduce vertical gap */
-  html, body { overflow-x: hidden; }
+  html,
+  body {
+    overflow-x: hidden;
+  }
 
   #pdf-root {
     display: flex;
     flex-direction: column;
     align-items: center;
-    padding: 36px 8px 24px 8px !important; /* top matches toolbar (56px) + small gap, bottom padding for last page */
+    padding: 36px 8px 24px 8px !important;
+    /* top matches toolbar (56px) + small gap, bottom padding for last page */
     box-sizing: border-box;
     width: 100%;
-    overflow-x: hidden; /* ensure scaled pages don't cause horizontal scroll */
+    overflow-x: hidden;
+    /* ensure scaled pages don't cause horizontal scroll */
   }
 
   .page {
@@ -662,7 +735,8 @@
     width: 210mm !important;
     height: 297mm !important;
     max-width: none !important;
-    margin: 6px 0 !important; /* reduced vertical spacing */
+    margin: 6px 0 !important;
+    /* reduced vertical spacing */
     transform-origin: top center;
     will-change: transform;
     display: block;
@@ -671,8 +745,10 @@
 
 /* Default container padding for desktop to avoid toolbar overlap and give breathing room */
 #pdf-root {
-  padding-top: 20px; /* enough space for fixed toolbar (48px) plus a gap */
-  padding-bottom: 0px; /* room after last page */
+  padding-top: 20px;
+  /* enough space for fixed toolbar (48px) plus a gap */
+  padding-bottom: 0px;
+  /* room after last page */
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -685,12 +761,15 @@
   .page-wrap {
     display: block;
     width: 100%;
-    max-width: 1200px; /* keep pages centered within main content width */
-    margin: 12px auto !important; /* larger vertical gap on desktop */
+    max-width: 1200px;
+    /* keep pages centered within main content width */
+    margin: 12px auto !important;
+    /* larger vertical gap on desktop */
     display: flex;
     justify-content: center;
     box-sizing: border-box;
-    padding: 0 16px !important; /* keep some horizontal breathing room inside wrapper */
+    padding: 0 16px !important;
+    /* keep some horizontal breathing room inside wrapper */
   }
 
   /* Ensure page itself keeps its default auto margin when not scaled on desktop */
@@ -707,38 +786,46 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  background: rgba(0,0,0,0.55);
+  background: rgba(0, 0, 0, 0.55);
   z-index: 11000;
   opacity: 0;
   pointer-events: none;
   transition: opacity 180ms ease;
 }
+
 .export-overlay.visible {
   opacity: 1;
   pointer-events: auto;
 }
+
 .export-overlay-inner {
-  background: rgba(255,255,255,0.98);
+  background: rgba(255, 255, 255, 0.98);
   padding: 18px 22px;
   border-radius: 10px;
   display: flex;
   gap: 12px;
   align-items: center;
-  box-shadow: 0 10px 30px rgba(0,0,0,0.35);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.35);
   min-width: 260px;
 }
+
 .export-message {
   font-weight: 700;
   color: #333;
   font-size: 15px;
 }
+
 .spinner {
   width: 28px;
   height: 28px;
   border-radius: 50%;
-  border: 3px solid rgba(0,0,0,0.08);
+  border: 3px solid rgba(0, 0, 0, 0.08);
   border-top-color: #7e2990;
   animation: spin 1s linear infinite;
 }
-@keyframes spin { to { transform: rotate(360deg); } }
 
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}

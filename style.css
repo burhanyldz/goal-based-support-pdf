@@ -2,7 +2,8 @@
   font-family: "Jost", Arial, sans-serif;
   background-color: #282828;
   margin: 0;
-  padding: 26px 0 0 0; /* leave space for fixed toolbar */
+  padding: 26px 0 0 0;
+  /* leave space for fixed toolbar */
 }
 
 /* Fixed top toolbar */
@@ -122,7 +123,8 @@
   background: transparent;
   border: 0;
   padding: 6px;
-  margin: -6px -6px -6px 0; /* pull into header corner visually while keeping accessible hit area */
+  margin: -6px -6px -6px 0;
+  /* pull into header corner visually while keeping accessible hit area */
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -314,7 +316,7 @@
 }
 .page .content .divider {
   width: 1px;
-  background-color: #848486;
+  background-color: #7e2990;
   margin: 2mm 0 0 0;
   position: relative;
 }
@@ -325,6 +327,9 @@
   white-space: nowrap;
   background: white;
   padding: 0 6mm;
+  color: #7e2990;
+  border: 1px solid #7e2990;
+  border-radius: 20mm;
 }
 .page .footer {
   height: 20mm;
@@ -365,6 +370,15 @@
   z-index: 3;
   width: 9mm;
   text-align: center;
+}
+.page .footer .footer-disclaimer {
+  position: absolute;
+  bottom: 4mm;
+  font-size: 2.3mm;
+  padding: 0 17mm;
+  text-align: center;
+  line-height: 2.5mm;
+  color: #7e2990;
 }
 .page.first-page .header .mebi_logo {
   top: 2mm !important;
@@ -597,24 +611,28 @@
     padding: 12px;
   }
   /* Prevent horizontal scrollbar caused by scaled pages and reduce vertical gap */
-  html, body {
+  html,
+  body {
     overflow-x: hidden;
   }
   #pdf-root {
     display: flex;
     flex-direction: column;
     align-items: center;
-    padding: 36px 8px 24px 8px !important; /* top matches toolbar (56px) + small gap, bottom padding for last page */
+    padding: 36px 8px 24px 8px !important;
+    /* top matches toolbar (56px) + small gap, bottom padding for last page */
     box-sizing: border-box;
     width: 100%;
-    overflow-x: hidden; /* ensure scaled pages don't cause horizontal scroll */
+    overflow-x: hidden;
+    /* ensure scaled pages don't cause horizontal scroll */
   }
   .page {
     /* Preserve A4 sizing; JS will apply transform: scale(...) to fit available width */
     width: 210mm !important;
     height: 297mm !important;
     max-width: none !important;
-    margin: 6px 0 !important; /* reduced vertical spacing */
+    margin: 6px 0 !important;
+    /* reduced vertical spacing */
     transform-origin: top center;
     will-change: transform;
     display: block;
@@ -622,8 +640,10 @@
 }
 /* Default container padding for desktop to avoid toolbar overlap and give breathing room */
 #pdf-root {
-  padding-top: 20px; /* enough space for fixed toolbar (48px) plus a gap */
-  padding-bottom: 0px; /* room after last page */
+  padding-top: 20px;
+  /* enough space for fixed toolbar (48px) plus a gap */
+  padding-bottom: 0px;
+  /* room after last page */
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -636,12 +656,15 @@
   .page-wrap {
     display: block;
     width: 100%;
-    max-width: 1200px; /* keep pages centered within main content width */
-    margin: 12px auto !important; /* larger vertical gap on desktop */
+    max-width: 1200px;
+    /* keep pages centered within main content width */
+    margin: 12px auto !important;
+    /* larger vertical gap on desktop */
     display: flex;
     justify-content: center;
     box-sizing: border-box;
-    padding: 0 16px !important; /* keep some horizontal breathing room inside wrapper */
+    padding: 0 16px !important;
+    /* keep some horizontal breathing room inside wrapper */
   }
   /* Ensure page itself keeps its default auto margin when not scaled on desktop */
   .page {

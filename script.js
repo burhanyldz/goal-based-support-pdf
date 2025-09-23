@@ -75,6 +75,10 @@ function qs(sel, root = document) { return root.querySelector(sel); }
 				<div class="page-number"></div>
 				<img src="images/ribbon.png" class="ribbon">
 				<img src="images/stripes.png" class="stripes">
+				<div class="footer-disclaimer">
+					Bu sayfada bulunan içeriklerin tüm yayın hakları Milli Eğitim Bakanlığı'na aittir. Hiçbir şekilde ticari amaçla kullanılamaz veya kullandırılamaz. Bu sayfada yer alan içeriğin ticari amaçla kullanılması, 5846 sayılı Fikir ve Sanat Eserleri Yasası'nın 36. maddesine aykırıdır ve açıkça suçtur. Aykırı davrananlar hakkında, hukuki ve cezai her türlü başvuru hakkı saklıdır.
+				</div>
+
 			</div>
 		`;
 		// set school name in title area
@@ -110,6 +114,9 @@ function qs(sel, root = document) { return root.querySelector(sel); }
 				<div class="page-number"></div>
 				<img src="images/ribbon.png" class="ribbon">
 				<img src="images/stripes.png" class="stripes">
+				<div class="footer-disclaimer">
+					Bu sayfada bulunan içeriklerin tüm yayın hakları Milli Eğitim Bakanlığı'na aittir. Hiçbir şekilde ticari amaçla kullanılamaz veya kullandırılamaz. Bu sayfada yer alan içeriğin ticari amaçla kullanılması, 5846 sayılı Fikir ve Sanat Eserleri Yasası'nın 36. maddesine aykırıdır ve açıkça suçtur. Aykırı davrananlar hakkında, hukuki ve cezai her türlü başvuru hakkı saklıdır.
+				</div>
 			</div>
 		`;
 		return page;
