@@ -568,8 +568,8 @@
     gap: 6px;
   }
   .btn {
-    padding: 12px 16px;
-    min-height: 44px;
+    padding: 6px 16px;
+    min-height: 34px;
     font-size: 15px;
     border-radius: 8px;
   }
