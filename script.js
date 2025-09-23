@@ -296,6 +296,63 @@ function qs(sel, root = document) { return root.querySelector(sel); }
 		});
 	}
 
+	// Apply locale-aware transforms for elements that rely on CSS text-transform
+	// Stores the original innerHTML on first run in data-original-html to avoid double transforms
+	function applyLocaleTransforms(root) {
+		try {
+			const elements = Array.from((root && root.querySelectorAll) ? root.querySelectorAll('*') : []);
+			// include root itself
+			if (root && root.nodeType === 1) elements.unshift(root);
+
+			elements.forEach(el => {
+				const cs = window.getComputedStyle(el);
+				const t = (cs && cs.textTransform) ? cs.textTransform : 'none';
+				if (!t || t === 'none') return;
+
+				// preserve original HTML the first time so we can always re-derive from source
+				if (!el.hasAttribute('data-original-html')) {
+					el.setAttribute('data-original-html', el.innerHTML);
+				}
+				const originalHtml = el.getAttribute('data-original-html') || el.innerHTML;
+
+				// Use a temporary container so we can operate on text nodes while keeping markup
+				const tmp = document.createElement('div');
+				tmp.innerHTML = originalHtml;
+
+				const walker = document.createTreeWalker(tmp, NodeFilter.SHOW_TEXT, null, false);
+				const textNodes = [];
+				while (walker.nextNode()) textNodes.push(walker.currentNode);
+
+				textNodes.forEach(node => {
+					const val = node.nodeValue || '';
+					if (!val.trim()) return; // skip whitespace-only nodes
+					let out = val;
+					if (t === 'uppercase') {
+						out = val.toLocaleUpperCase('tr');
+					} else if (t === 'lowercase') {
+						out = val.toLocaleLowerCase('tr');
+					} else if (t === 'capitalize') {
+						// capitalize each word using Turkish locale
+						out = val.split(/(\s+)/).map(part => {
+							// preserve whitespace
+							if (/^\s+$/.test(part)) return part;
+							const first = part.charAt(0).toLocaleUpperCase('tr');
+							const rest = part.slice(1).toLocaleLowerCase('tr');
+							return first + rest;
+						}).join('');
+					}
+					if (out !== val) node.nodeValue = out;
+				});
+
+				// replace element content with transformed HTML
+				el.innerHTML = tmp.innerHTML;
+			});
+		} catch (e) {
+			// don't break rendering on locale transform errors
+			console.warn('applyLocaleTransforms error', e);
+		}
+	}
+
 	// check whether element overflows its container vertically
 	function isOverflowing(container) {
 		return container.scrollHeight > container.clientHeight + 1; // small tolerance
@@ -503,6 +560,9 @@ function qs(sel, root = document) { return root.querySelector(sel); }
 
 		// set page numbers for all pages
 		setPageNumbers(root);
+
+		// apply Turkish-aware casing transforms for elements that use CSS text-transform
+		applyLocaleTransforms(root);
 
 		// After layout is complete, scale pages to fit viewport on small screens
 		if (typeof scalePagesToFit === 'function') {
