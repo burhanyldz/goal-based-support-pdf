@@ -283,7 +283,6 @@
   flex-direction: row;
   align-items: flex-start;
   justify-content: flex-end;
-  padding: 3mm 2mm 3mm 0;
 }
 .page .content .left-column .question .question-number,
 .page .content .right-column .question .question-number {
@@ -303,7 +302,7 @@
   max-width: calc(100% - 9mm);
 }
 .page .content .left-column .question {
-  padding: 3mm 2mm 3mm 0;
+  padding: 3mm 5mm 3mm 0;
 }
 .page .content .right-column .question {
   padding: 3mm 0 3mm 2mm;
