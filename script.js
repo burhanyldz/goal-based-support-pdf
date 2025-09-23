@@ -763,6 +763,12 @@ function qs(sel, root = document) { return root.querySelector(sel); }
 
 	// Wire up download button when DOM ready
 	document.addEventListener('DOMContentLoaded', () => {
+		// Ensure export overlay exists; create dynamically if missing so HTML can remain clean
+		try {
+			if (!document.getElementById('export-overlay') && typeof window.createExportOverlayElements === 'function') {
+				window.createExportOverlayElements();
+			}
+		} catch (e) { /* ignore */ }
 		const btn = document.getElementById('download-pdf-btn');
 		if (!btn) return;
 		// overlay helpers
@@ -887,3 +893,280 @@ function qs(sel, root = document) { return root.querySelector(sel); }
 		setTimeout(scalePagesToFit, 140);
 	});
 })();
+
+// --- Moved model logic from index.html ---
+// Fetch demo data and wire up modal after initial render
+
+
+// Modal wiring: open, populate, save
+function initEditModal() {
+	const editBtn = document.getElementById('edit-meta-btn');
+	const modal = document.getElementById('edit-modal');
+	const closeBtn = document.getElementById('edit-modal-close');
+	const cancelBtn = document.getElementById('modal-cancel');
+	const saveBtn = document.getElementById('modal-save');
+
+	const inputLesson = document.getElementById('input-lessonName');
+	const inputSubject = document.getElementById('input-subjectName');
+	const selectTest = document.getElementById('select-testType');
+
+	function openModal() {
+		const data = window._pdfData || {};
+		if (inputLesson) inputLesson.value = data.lessonName || '';
+		if (inputSubject) inputSubject.value = data.subjectName || '';
+
+		// populate select with availableTestTypes and an empty option
+		if (selectTest) {
+			selectTest.innerHTML = '';
+			const emptyOpt = document.createElement('option');
+			emptyOpt.value = '';
+			emptyOpt.textContent = '(Boş bırak)';
+			selectTest.appendChild(emptyOpt);
+			const arr = Array.isArray(data.availableTestTypes) ? data.availableTestTypes : [];
+			arr.forEach(t => {
+				const o = document.createElement('option');
+				o.value = t;
+				o.textContent = String(t).toUpperCase();
+				selectTest.appendChild(o);
+			});
+			selectTest.value = data.testType || '';
+		}
+
+		if (modal) {
+			modal.setAttribute('aria-hidden', 'false');
+			modal.classList.add('open');
+			document.body.classList.add('modal-open');
+		}
+		// focus first editable input (skip school which is read-only)
+		if (inputLesson) inputLesson.focus();
+	}
+
+	function closeModal() {
+		if (!modal) return;
+		modal.setAttribute('aria-hidden', 'true');
+		modal.classList.remove('open');
+		document.body.classList.remove('modal-open');
+	}
+
+	function save() {
+		window._pdfData = window._pdfData || {};
+		// School name is not editable via the modal; keep original value from data (do not reference missing inputSchool)
+		// window._pdfData.schoolName remains unchanged unless provided elsewhere
+		if (inputLesson) window._pdfData.lessonName = inputLesson.value.trim();
+		if (inputSubject) window._pdfData.subjectName = inputSubject.value.trim();
+		if (selectTest) window._pdfData.testType = selectTest.value || '';
+		// re-render with updated data
+		if (window.PDFPreview && typeof window.PDFPreview.render === 'function') {
+			window.PDFPreview.render(window._pdfData);
+		}
+		closeModal();
+	}
+
+	if (editBtn) editBtn.addEventListener('click', openModal);
+	if (closeBtn) closeBtn.addEventListener('click', closeModal);
+	if (cancelBtn) cancelBtn.addEventListener('click', closeModal);
+	if (saveBtn) saveBtn.addEventListener('click', save);
+
+	// close when clicking outside modal
+	if (modal) modal.addEventListener('click', (e) => {
+		if (e.target === modal) closeModal();
+	});
+	// close on ESC
+	document.addEventListener('keydown', (e) => {
+		if (e.key === 'Escape' && modal && modal.classList.contains('open')) closeModal();
+	});
+}
+
+// --- End moved model logic ---
+
+// Creates modal DOM elements and inserts them into the document.
+// Call this from HTML before calling initEditModal() if you prefer to control initialization from HTML.
+function createModalElements() {
+	if (document.getElementById('edit-modal')) return; // already inserted
+
+	// container overlay
+	const modalOverlay = document.createElement('div');
+	modalOverlay.id = 'edit-modal';
+	modalOverlay.className = 'modal-overlay';
+	modalOverlay.setAttribute('aria-hidden', 'true');
+
+	const modal = document.createElement('div');
+	modal.className = 'modal';
+	modal.setAttribute('role', 'dialog');
+	modal.setAttribute('aria-modal', 'true');
+	modal.setAttribute('aria-labelledby', 'edit-modal-title');
+
+	// header
+	const header = document.createElement('header');
+	header.className = 'modal-header';
+	const h3 = document.createElement('h3');
+	h3.id = 'edit-modal-title';
+	h3.textContent = 'Sayfa Bilgilerini Düzenle';
+	const closeBtn = document.createElement('button');
+	closeBtn.className = 'modal-close';
+	closeBtn.id = 'edit-modal-close';
+	closeBtn.type = 'button';
+	closeBtn.setAttribute('aria-label', 'Kapat');
+	closeBtn.innerHTML = `
+		<svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" focusable="false">
+			<path d="M18.3 5.71a1 1 0 0 0-1.41 0L12 10.59 7.11 5.7A1 1 0 0 0 5.7 7.11L10.59 12l-4.89 4.89a1 1 0 1 0 1.41 1.41L12 13.41l4.89 4.89a1 1 0 0 0 1.41-1.41L13.41 12l4.89-4.89a1 1 0 0 0 0-1.4z" fill="currentColor"/>
+		</svg>`;
+	header.appendChild(h3);
+	header.appendChild(closeBtn);
+
+	// body
+	const body = document.createElement('div');
+	body.className = 'modal-body';
+
+	// Ders Adı
+	const labelLesson = document.createElement('label');
+	labelLesson.textContent = '\n                    Ders Adı\n                    ';
+	const inputLesson = document.createElement('input');
+	inputLesson.id = 'input-lessonName';
+	inputLesson.type = 'text';
+	inputLesson.placeholder = 'Ders adı';
+	labelLesson.appendChild(document.createTextNode('\n                    '));
+	labelLesson.appendChild(inputLesson);
+
+	// Konu
+	const labelSubject = document.createElement('label');
+	labelSubject.textContent = '\n                    Konu\n                    ';
+	const inputSubject = document.createElement('input');
+	inputSubject.id = 'input-subjectName';
+	inputSubject.type = 'text';
+	inputSubject.placeholder = 'Konu';
+	labelSubject.appendChild(document.createTextNode('\n                    '));
+	labelSubject.appendChild(inputSubject);
+
+	// Test Türü select
+	const labelTest = document.createElement('label');
+	labelTest.textContent = '\n                    Test Türü\n                    ';
+	const selectTest = document.createElement('select');
+	selectTest.id = 'select-testType';
+	selectTest.innerHTML = '<!-- options populated dynamically -->';
+	labelTest.appendChild(document.createTextNode('\n                    '));
+	labelTest.appendChild(selectTest);
+
+	body.appendChild(labelLesson);
+	body.appendChild(labelSubject);
+	body.appendChild(labelTest);
+
+	// footer
+	const footer = document.createElement('footer');
+	footer.className = 'modal-footer';
+	const cancelBtn = document.createElement('button');
+	cancelBtn.id = 'modal-cancel';
+	cancelBtn.className = 'btn';
+	cancelBtn.type = 'button';
+	cancelBtn.textContent = 'İptal';
+	const saveBtn = document.createElement('button');
+	saveBtn.id = 'modal-save';
+	saveBtn.className = 'btn btn-primary';
+	saveBtn.type = 'button';
+	saveBtn.textContent = 'Kaydet';
+	footer.appendChild(cancelBtn);
+	footer.appendChild(saveBtn);
+
+	modal.appendChild(header);
+	modal.appendChild(body);
+	modal.appendChild(footer);
+	modalOverlay.appendChild(modal);
+
+	// insert before pdf-root if available, otherwise append to body
+	const pdfRoot = document.getElementById('pdf-root');
+	if (pdfRoot && pdfRoot.parentNode) {
+		pdfRoot.parentNode.insertBefore(modalOverlay, pdfRoot);
+	} else {
+		document.body.appendChild(modalOverlay);
+	}
+
+	// expose created elements for convenience (non-enumerable)
+	try {
+		Object.defineProperty(window, '__createdEditModal', { value: true, configurable: true });
+	} catch (e) { /* ignore */ }
+}
+
+// expose factory for callers in HTML
+window.createModalElements = createModalElements;
+
+// Creates export overlay elements and inserts them into the document.
+function createExportOverlayElements() {
+	if (document.getElementById('export-overlay')) return;
+	const overlay = document.createElement('div');
+	overlay.id = 'export-overlay';
+	overlay.className = 'export-overlay';
+	overlay.setAttribute('aria-hidden', 'true');
+	overlay.setAttribute('role', 'status');
+	overlay.setAttribute('aria-live', 'polite');
+
+	const inner = document.createElement('div');
+	inner.className = 'export-overlay-inner';
+	const spinner = document.createElement('div');
+	spinner.className = 'spinner';
+	spinner.setAttribute('aria-hidden', 'true');
+	const msg = document.createElement('div');
+	msg.className = 'export-message';
+	msg.textContent = 'PDF hazırlanıyor, lütfen bekleyin...';
+	inner.appendChild(spinner);
+	inner.appendChild(msg);
+	overlay.appendChild(inner);
+
+	// Insert at end of body
+	document.body.appendChild(overlay);
+}
+
+window.createExportOverlayElements = createExportOverlayElements;
+
+// Creates the top toolbar (title, edit and download buttons) and inserts into the document.
+function createToolbarElements() {
+	if (document.querySelector('.top-toolbar')) return;
+	const toolbar = document.createElement('div');
+	toolbar.className = 'top-toolbar';
+	toolbar.setAttribute('role', 'toolbar');
+	toolbar.setAttribute('aria-label', 'Page toolbar');
+
+	const inner = document.createElement('div');
+	inner.className = 'toolbar-inner';
+	const title = document.createElement('div');
+	title.className = 'toolbar-title';
+	title.textContent = 'PDF Oluştur';
+	const actions = document.createElement('div');
+	actions.className = 'toolbar-actions';
+
+	const editBtn = document.createElement('button');
+	editBtn.id = 'edit-meta-btn';
+	editBtn.className = 'btn btn-primary';
+	editBtn.type = 'button';
+	editBtn.textContent = 'Düzenle';
+
+	const downloadBtn = document.createElement('button');
+	downloadBtn.id = 'download-pdf-btn';
+	downloadBtn.className = 'btn';
+	downloadBtn.type = 'button';
+	downloadBtn.title = 'PDF indir';
+	downloadBtn.innerHTML = `
+		<svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" focusable="false">
+			<path d="M12 3v10" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+			<path d="M8 11l4 4 4-4" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+			<path d="M21 21H3" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+		</svg>
+		<span class="sr-only">PDF İndir</span>`;
+
+	actions.appendChild(editBtn);
+	actions.appendChild(downloadBtn);
+	inner.appendChild(title);
+	inner.appendChild(actions);
+	toolbar.appendChild(inner);
+
+	// insert at top of body
+	document.body.insertBefore(toolbar, document.body.firstChild);
+
+	// ensure overlay exists
+	if (!document.getElementById('export-overlay') && typeof window.createExportOverlayElements === 'function') {
+		window.createExportOverlayElements();
+	}
+
+	// If download button wiring already exists in DOMContentLoaded listener, it will pick up this button.
+}
+
+window.createToolbarElements = createToolbarElements;
