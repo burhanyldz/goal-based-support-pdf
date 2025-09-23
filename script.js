@@ -50,7 +50,7 @@ function qs(sel, root = document) { return root.querySelector(sel); }
 		const page = createEl('div', 'page odd first-page');
 		page.innerHTML = `
 			<div class="header">
-				<img src="images/mebi.svg" alt="MEBİ Logo" class="mebi_logo">
+				<img src="images/mebi.png" alt="MEBİ Logo" class="mebi_logo">
 				<img src="images/stripes.png" class="stripes">
 				<img src="images/ribbon.png" class="ribbon">
 				<div class="test-type">${escapeHtml(data.testType || '')}</div>
@@ -87,7 +87,7 @@ function qs(sel, root = document) { return root.querySelector(sel); }
 		const page = createEl('div', cls);
 		page.innerHTML = `
 			<div class="header">
-				<img src="images/mebi.svg" alt="MEBİ Logo" class="mebi_logo">
+				<img src="images/mebi.png" alt="MEBİ Logo" class="mebi_logo">
 				<img src="images/stripes.png" class="stripes">
 				<div class="page-bar">
 					<span class="subject-name">${escapeHtml(data.subjectName || 'konu adı')}</span>
@@ -567,8 +567,98 @@ function qs(sel, root = document) { return root.querySelector(sel); }
 				clone.style.height = page.style.height || getComputedStyle(page).height;
 				document.body.appendChild(clone);
 
-				// Use html2canvas to render the clone. Provide scale to boost resolution.
-				const canvas = await window.html2canvas(clone, {
+						// Before rendering: copy over any canvas content (cloneNode doesn't copy pixels)
+						try {
+							const origCanvases = page.querySelectorAll('canvas');
+							const cloneCanvases = clone.querySelectorAll('canvas');
+							for (let ci = 0; ci < origCanvases.length; ci++) {
+								const oCan = origCanvases[ci];
+								const cCan = cloneCanvases[ci];
+								if (!oCan || !cCan) continue;
+								try {
+									const dataUrl = oCan.toDataURL();
+									// draw into cloned canvas
+									const img = new Image();
+									img.src = dataUrl;
+									// synchronous draw when loaded
+									await new Promise((res) => {
+										img.onload = () => {
+											try {
+												cCan.width = img.width;
+												cCan.height = img.height;
+												const ctx = cCan.getContext('2d');
+												if (ctx) ctx.drawImage(img, 0, 0);
+											} catch (e) { console.warn('drawing cloned canvas failed', e); }
+											res();
+										};
+										img.onerror = () => res();
+									});
+								} catch (e) {
+									console.warn('copy canvas content failed', e);
+								}
+							}
+						} catch (e) {
+							console.warn('error copying canvases to clone', e);
+						}
+
+						// Ensure cloned <img> tags can be loaded by html2canvas: inline SVGs and set crossorigin when possible
+						try {
+							const origImgs = page.querySelectorAll('img');
+							const cloneImgs = clone.querySelectorAll('img');
+							const imgPromises = [];
+							for (let ii = 0; ii < cloneImgs.length; ii++) {
+								const cImg = cloneImgs[ii];
+								const oImg = origImgs[ii];
+								if (!cImg) continue;
+								const src = cImg.getAttribute('src') || '';
+								// If SVG, try to fetch and inline as data URL (safer for cross-origin issues)
+								if (src && src.trim().toLowerCase().endsWith('.svg')) {
+									try {
+										// Try fetching the SVG text from same-origin
+										const absolute = new URL(src, window.location.href).href;
+										const p = fetch(absolute)
+											.then(r => r.ok ? r.text() : Promise.reject(r.status))
+											.then(text => {
+												const dataUrl = 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(text);
+												cImg.setAttribute('src', dataUrl);
+											})
+											.catch(() => {
+												// If fetch fails, fall back to leaving src as-is but set crossorigin to anonymous
+												try { cImg.setAttribute('crossorigin', 'anonymous'); } catch (e) {}
+											});
+										imgPromises.push(p);
+									} catch (e) {
+										try { cImg.setAttribute('crossorigin', 'anonymous'); } catch (er) {}
+									}
+								} else {
+									// non-SVG images: set crossorigin attribute if the origin matches so html2canvas can load them
+									try {
+										const abs = new URL(src, window.location.href);
+										if (abs.origin === window.location.origin) {
+											cImg.setAttribute('crossorigin', 'anonymous');
+										}
+									} catch (e) {
+										// ignore
+									}
+								}
+
+								// Wait until the clone image is loaded (or errored) so html2canvas has image data
+								imgPromises.push(new Promise((res) => {
+									if (cImg.complete && cImg.naturalHeight !== 0) return res();
+									cImg.addEventListener('load', () => res(), { once: true });
+									cImg.addEventListener('error', () => res(), { once: true });
+									// fallback timeout
+									setTimeout(res, 2000);
+								}));
+							}
+							// await all image fetches/copies
+							await Promise.all(imgPromises);
+						} catch (e) {
+							console.warn('error preparing images on clone', e);
+						}
+
+						// Use html2canvas to render the clone. Provide scale to boost resolution.
+						const canvas = await window.html2canvas(clone, {
 					scale: scaleFactor * 2, // extra upscale for crisp text/images
 					useCORS: true,
 					allowTaint: false,
