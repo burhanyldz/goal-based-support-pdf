@@ -6,9 +6,7 @@
     "testType": "tyt",
     "availableTestTypes": [
         "tyt",
-        "ayt",
-        "ydt",
-        "lgs"
+        "ayt"
     ],
     "questions": [
         {

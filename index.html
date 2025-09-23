@@ -43,10 +43,7 @@
                 </button>
             </header>
             <div class="modal-body">
-                <label>
-                    Okul Adı
-                    <input id="input-schoolName" type="text" placeholder="Okul adı">
-                </label>
+                
                 <label>
                     Ders Adı
                     <input id="input-lessonName" type="text" placeholder="Ders adı">
@@ -110,14 +107,12 @@
             const cancelBtn = document.getElementById('modal-cancel');
             const saveBtn = document.getElementById('modal-save');
 
-            const inputSchool = document.getElementById('input-schoolName');
             const inputLesson = document.getElementById('input-lessonName');
             const inputSubject = document.getElementById('input-subjectName');
             const selectTest = document.getElementById('select-testType');
 
             function openModal() {
                 const data = window._pdfData || {};
-                inputSchool.value = data.schoolName || '';
                 inputLesson.value = data.lessonName || '';
                 inputSubject.value = data.subjectName || '';
 
@@ -139,8 +134,8 @@
                 modal.setAttribute('aria-hidden', 'false');
                 modal.classList.add('open');
                 document.body.classList.add('modal-open');
-                // focus first input
-                inputSchool.focus();
+                // focus first editable input (skip school which is read-only)
+                inputLesson.focus();
             }
 
             function closeModal() {
@@ -151,7 +146,8 @@
 
             function save() {
                 window._pdfData = window._pdfData || {};
-                window._pdfData.schoolName = inputSchool.value.trim();
+                // School name is not editable via the modal; keep original value from data
+                window._pdfData.schoolName = window._pdfData.schoolName || inputSchool.value.trim();
                 window._pdfData.lessonName = inputLesson.value.trim();
                 window._pdfData.subjectName = inputSubject.value.trim();
                 // if empty string, keep as '' so render will show blank

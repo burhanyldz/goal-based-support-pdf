@@ -211,6 +211,14 @@
     align-items: center;
     height: 28mm;
 
+    .page-title {
+      font-size: 5.03mm;
+      font-weight: 700;
+      margin: 2.7mm 0 0 0;
+      padding: 0;
+      color: #333333;
+    }
+
     .stripes {
       position: absolute;
       z-index: 2;
@@ -227,7 +235,7 @@
       height: 10.5mm;
       width: 100%;
       background: #e0ebf7;
-      margin: 17.2mm 0 0 0;
+      margin: 7.2mm 0 0 0;
       display: flex;
       justify-content: center;
       align-items: center;
@@ -305,6 +313,16 @@
       width: 1px;
       background-color: #848486;
       margin: 2mm 0 0 0;
+      position: relative;
+
+      .divider-text {
+    position: absolute;
+    left: -37.5mm;
+    transform: rotate(270deg) translate(-115mm, -1px);
+    white-space: nowrap;
+    background: white;
+    padding: 0 6mm;
+      }
     }
   }
 
@@ -314,9 +332,17 @@
     .ogm-title {
       font-size: 2.9mm;
       font-weight: 500;
-      color: #333333;
+      color: white;
       position: absolute;
       top: 3.3mm;
+      z-index: 2;
+    }
+
+    .ogm-ribbon {
+      position: absolute;
+      top: 0.6mm;
+      width: 74.5mm;
+      z-index: 1;
     }
 
     .ribbon {
@@ -381,13 +407,7 @@
         width: 37.5mm;
       }
 
-      .first-page-title {
-        font-size: 5.03mm;
-        font-weight: 700;
-        margin: 2.7mm 0 0 0;
-        padding: 0;
-        color: #333333;
-      }
+
 
       .first-page-subtitle {
         font-size: 3.8mm;
@@ -513,6 +533,11 @@
 
       .ogm-title {
         right: 13.6mm;
+      }
+
+      .ogm-ribbon {
+        right: 0;
+        transform: scaleX(-1);
       }
 
       .ribbon {

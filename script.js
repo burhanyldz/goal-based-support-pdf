@@ -54,7 +54,7 @@ function qs(sel, root = document) { return root.querySelector(sel); }
 				<img src="images/stripes.png" class="stripes">
 				<img src="images/ribbon.png" class="ribbon">
 				<div class="test-type">${escapeHtml(data.testType || '')}</div>
-				<span class="first-page-title">HEDEF TEMELLİ DESTEK EĞİTİMİ</span>
+				<span class="page-title">HEDEF TEMELLİ DESTEK EĞİTİMİ</span>
 				<span class="first-page-subtitle">${escapeHtml(data.schoolName || 'okul adı')}</span>
 				<div class="first-page-bar">
 					<span class="lesson-name">${escapeHtml(data.lessonName || 'ders adı')}</span>
@@ -64,11 +64,14 @@ function qs(sel, root = document) { return root.querySelector(sel); }
 			</div>
 			<div class="content">
 				<div class="left-column"></div>
-				<div class="divider"></div>
+				<div class="divider">
+					<div class="divider-text">MEBİ Destek Temelli Hizmet Eğitimi</div>
+				</div>
 				<div class="right-column"></div>
 			</div>
 			<div class="footer">
-				<div class="ogm-title">ORTAÖĞRETİM GENEL MÜDÜRLÜĞÜ</div>
+				<div class="ogm-title">Ortaöğretim Genel Müdürlüğü</div>
+				<img src="images/ribbon2.png" class="ogm-ribbon">
 				<div class="page-number"></div>
 				<img src="images/ribbon.png" class="ribbon">
 				<img src="images/stripes.png" class="stripes">
@@ -87,6 +90,7 @@ function qs(sel, root = document) { return root.querySelector(sel); }
 		const page = createEl('div', cls);
 		page.innerHTML = `
 			<div class="header">
+				<span class="page-title">HEDEF TEMELLİ DESTEK EĞİTİMİ</span>
 				<img src="images/mebi.png" alt="MEBİ Logo" class="mebi_logo">
 				<img src="images/stripes.png" class="stripes">
 				<div class="page-bar">
@@ -95,11 +99,14 @@ function qs(sel, root = document) { return root.querySelector(sel); }
 			</div>
 			<div class="content">
 				<div class="left-column"></div>
-				<div class="divider"></div>
+				<div class="divider">
+					<div class="divider-text">MEBİ Destek Temelli Hizmet Eğitimi</div>
+				</div>
 				<div class="right-column"></div>
 			</div>
 			<div class="footer">
-				<div class="ogm-title">ORTAÖĞRETİM GENEL MÜDÜRLÜĞÜ</div>
+				<div class="ogm-title">Ortaöğretim Genel Müdürlüğü</div>
+				<img src="images/ribbon2.png" class="ogm-ribbon">
 				<div class="page-number"></div>
 				<img src="images/ribbon.png" class="ribbon">
 				<img src="images/stripes.png" class="stripes">
