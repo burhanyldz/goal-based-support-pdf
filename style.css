@@ -20,7 +20,6 @@
 }
 .top-toolbar .toolbar-inner {
   width: 100%;
-  max-width: 1200px;
   margin: 0 auto;
   display: flex;
   justify-content: space-between;
@@ -478,4 +477,82 @@
 .page.answer-key .content .answers .answer-question:nth-child(20n+19),
 .page.answer-key .content .answers .answer-question:nth-child(20n+20) {
   background: #fcfbfd;
+}
+
+/* Mobile / small screen: preserve page internals but scale whole page to fit viewport */
+@media (max-width: 900px) {
+  /* Toolbar and button sizing remain as-is or as previously adjusted */
+  .top-toolbar {
+    height: 56px;
+  }
+  .top-toolbar .toolbar-inner {
+    padding: 0 10px;
+  }
+  .top-toolbar .toolbar-title {
+    font-size: 18px;
+    font-weight: 700;
+  }
+  .top-toolbar .toolbar-actions {
+    gap: 6px;
+  }
+  .btn {
+    padding: 12px 16px;
+    min-height: 44px;
+    font-size: 15px;
+    border-radius: 8px;
+  }
+  .modal-overlay {
+    padding: 12px;
+  }
+  /* Prevent horizontal scrollbar caused by scaled pages and reduce vertical gap */
+  html, body {
+    overflow-x: hidden;
+  }
+  #pdf-root {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 36px 8px 24px 8px !important; /* top matches toolbar (56px) + small gap, bottom padding for last page */
+    box-sizing: border-box;
+    width: 100%;
+    overflow-x: hidden; /* ensure scaled pages don't cause horizontal scroll */
+  }
+  .page {
+    /* Preserve A4 sizing; JS will apply transform: scale(...) to fit available width */
+    width: 210mm !important;
+    height: 297mm !important;
+    max-width: none !important;
+    margin: 6px 0 !important; /* reduced vertical spacing */
+    transform-origin: top center;
+    will-change: transform;
+    display: block;
+  }
+}
+/* Default container padding for desktop to avoid toolbar overlap and give breathing room */
+#pdf-root {
+  padding-top: 20px; /* enough space for fixed toolbar (48px) plus a gap */
+  padding-bottom: 0px; /* room after last page */
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+/* Desktop and wider screens: ensure page-wrap centers pages and has spacing */
+@media (min-width: 901px) {
+  .page-wrap {
+    display: block;
+    width: 100%;
+    max-width: 1200px; /* keep pages centered within main content width */
+    margin: 12px auto !important; /* larger vertical gap on desktop */
+    display: flex;
+    justify-content: center;
+    box-sizing: border-box;
+    padding: 0 16px !important; /* keep some horizontal breathing room inside wrapper */
+  }
+  /* Ensure page itself keeps its default auto margin when not scaled on desktop */
+  .page {
+    margin: 5mm auto;
+  }
 }/*# sourceMappingURL=style.css.map */

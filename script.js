@@ -503,8 +503,105 @@ function qs(sel, root = document) { return root.querySelector(sel); }
 
 		// set page numbers for all pages
 		setPageNumbers(root);
+
+		// After layout is complete, scale pages to fit viewport on small screens
+		if (typeof scalePagesToFit === 'function') {
+			scalePagesToFit();
+		}
 	}
 
   // expose API
   window.PDFPreview = { render };
+
+	// Scale pages so their A4 proportions remain intact but fit into narrow viewports.
+	// This function calculates the available width (accounting for some gutters and the
+	// fixed toolbar) and applies a CSS transform to each .page element.
+	function scalePagesToFit() {
+		try {
+			const pages = Array.from(document.querySelectorAll('.page'));
+			if (!pages.length) return;
+			// Determine available width from the pdf root container so we respect its padding
+			const root = document.getElementById('pdf-root') || document.body;
+			const rootStyles = window.getComputedStyle(root);
+			const rootPaddingLeft = parseFloat(rootStyles.paddingLeft || 0);
+			const rootPaddingRight = parseFloat(rootStyles.paddingRight || 0);
+			const rootWidth = root.clientWidth - rootPaddingLeft - rootPaddingRight;
+
+			// Only apply scaling/wrapping on small screens. On larger screens reset any transforms/wrappers.
+			if (rootWidth > 900) {
+				// unwrap pages if they are wrapped and reset transforms
+				pages.forEach(p => {
+					const parent = p.parentElement;
+					if (parent && parent.classList.contains('page-wrap')) {
+						// move page out of wrapper and remove wrapper
+						parent.parentNode.insertBefore(p, parent);
+						parent.remove();
+					}
+					p.style.transform = '';
+					p.style.margin = '';
+				});
+				return;
+			}
+
+			const available = Math.max(1, rootWidth - 8); // small safety gutter
+
+			pages.forEach(p => {
+				// ensure pages are wrapped in a layout container that we can size to match the
+				// visual (scaled) height. This lets document flow follow the scaled size.
+				let wrapper = p.parentElement;
+				if (!wrapper || !wrapper.classList.contains('page-wrap')) {
+					wrapper = document.createElement('div');
+					wrapper.className = 'page-wrap';
+					// insert wrapper before page and move page inside it
+					p.parentNode.insertBefore(wrapper, p);
+					wrapper.appendChild(p);
+				}
+
+				// Capture computed margins first, then clear the page margin and measure size
+				const cs = window.getComputedStyle(p);
+				const marginTop = parseFloat(cs.marginTop || 0);
+				const marginBottom = parseFloat(cs.marginBottom || 0);
+				// Temporarily clear transform to measure natural (unscaled) size
+				p.style.transform = 'none';
+				p.style.margin = '0'; // we'll manage spacing on the wrapper
+				const naturalW = Math.max(1, p.getBoundingClientRect().width);
+				const naturalH = Math.max(1, p.getBoundingClientRect().height);
+
+				// compute scale to fit within available width while preserving proportions
+				let scale = 1;
+				if (naturalW > available) {
+					scale = available / naturalW;
+				}
+				// clamp a reasonable minimum so text isn't too small
+				scale = Math.max(scale, 0.45);
+
+				// Apply visual scale to the page element
+				p.style.transformOrigin = 'top left';
+				p.style.transform = `scale(${scale}) translateZ(0)`;
+
+				// Size the wrapper so the document flow height equals the scaled visual height
+				wrapper.style.width = (naturalW * scale) + 'px';
+				wrapper.style.height = (naturalH * scale) + 'px';
+				wrapper.style.overflow = 'visible';
+				wrapper.style.boxSizing = 'content-box';
+				wrapper.style.marginTop = (marginTop * scale) + 'px';
+				wrapper.style.marginBottom = (marginBottom * scale) + 'px';
+				// ensure page itself doesn't contribute extra margins in flow
+				p.style.margin = '0';
+			});
+		} catch (e) {
+			// fail silently
+			console.error('scalePagesToFit error', e);
+		}
+	}
+
+	// Re-scale on orientation / resize
+	let _scaleTimer = null;
+	window.addEventListener('resize', () => {
+		if (_scaleTimer) clearTimeout(_scaleTimer);
+		_scaleTimer = setTimeout(scalePagesToFit, 120);
+	});
+	window.addEventListener('orientationchange', () => {
+		setTimeout(scalePagesToFit, 140);
+	});
 })();
