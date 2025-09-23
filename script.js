@@ -65,7 +65,7 @@ function qs(sel, root = document) { return root.querySelector(sel); }
 			<div class="content">
 				<div class="left-column"></div>
 				<div class="divider">
-					<div class="divider-text">MEBİ Destek Temelli Hizmet Eğitimi</div>
+					<div class="divider-text">MEBİ Hedef Temelli Destek Eğitimi</div>
 				</div>
 				<div class="right-column"></div>
 			</div>
@@ -104,7 +104,7 @@ function qs(sel, root = document) { return root.querySelector(sel); }
 			<div class="content">
 				<div class="left-column"></div>
 				<div class="divider">
-					<div class="divider-text">MEBİ Destek Temelli Hizmet Eğitimi</div>
+					<div class="divider-text">MEBİ Hedef Temelli Destek Eğitimi</div>
 				</div>
 				<div class="right-column"></div>
 			</div>
