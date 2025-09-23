@@ -751,12 +751,30 @@ function qs(sel, root = document) { return root.querySelector(sel); }
 	document.addEventListener('DOMContentLoaded', () => {
 		const btn = document.getElementById('download-pdf-btn');
 		if (!btn) return;
+		// overlay helpers
+		const overlay = document.getElementById('export-overlay');
+		function showExportOverlay() {
+			if (!overlay) return;
+			overlay.setAttribute('aria-hidden', 'false');
+			overlay.classList.add('visible');
+		}
+		function hideExportOverlay() {
+			if (!overlay) return;
+			overlay.setAttribute('aria-hidden', 'true');
+			overlay.classList.remove('visible');
+		}
+
 		btn.addEventListener('click', async (e) => {
+			// update UI immediately so user knows something started
 			btn.setAttribute('disabled', 'true');
 			btn.classList.add('btn-primary');
 			try {
+				showExportOverlay();
+				// Small delay helps ensure overlay is painted before heavy work begins
+				await new Promise(r => setTimeout(r, 50));
 				await exportPagesToPdf('hedef-temelli-destek.pdf');
 			} finally {
+				hideExportOverlay();
 				btn.removeAttribute('disabled');
 				btn.classList.remove('btn-primary');
 			}

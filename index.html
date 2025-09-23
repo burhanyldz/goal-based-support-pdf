@@ -69,6 +69,13 @@
         </div>
     </div>
     <div id="pdf-root"></div>
+    <!-- Export progress overlay -->
+    <div id="export-overlay" aria-hidden="true" class="export-overlay" role="status" aria-live="polite">
+        <div class="export-overlay-inner">
+            <div class="spinner" aria-hidden="true"></div>
+            <div class="export-message">PDF hazırlanıyor, lütfen bekleyin...</div>
+        </div>
+    </div>
     <script src="qrious.min.js"></script>
     <!-- PDF export libraries: html2canvas for DOM -> canvas, jsPDF for assembling PDF -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
@@ -118,7 +125,7 @@
                 selectTest.innerHTML = '';
                 const emptyOpt = document.createElement('option');
                 emptyOpt.value = '';
-                emptyOpt.textContent = '(Boş bırakarak kaldır)';
+                emptyOpt.textContent = '(Boş bırak)';
                 selectTest.appendChild(emptyOpt);
                 const arr = Array.isArray(data.availableTestTypes) ? data.availableTestTypes : [];
                 arr.forEach(t => {
