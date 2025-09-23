@@ -52,6 +52,35 @@
   color: #fff;
 }
 
+/* PDF download button: subtle outline, icon sizing and focus state */
+.btn[title="PDF indir"] {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 10px;
+  background: transparent;
+  color: #ffffff;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  transition: background 120ms ease, color 120ms ease, transform 120ms ease;
+}
+
+.btn[title="PDF indir"] svg {
+  color: #ffffff;
+}
+
+.btn[title="PDF indir"]:hover {
+  background: rgba(255, 255, 255, 0.04);
+}
+
+.btn[title="PDF indir"]:active {
+  transform: translateY(1px);
+}
+
+.btn[title="PDF indir"]:focus {
+  outline: 3px solid rgba(126, 41, 144, 0.18);
+  outline-offset: 2px;
+}
+
 /* Modal styles */
 .modal-overlay {
   position: fixed;
@@ -305,7 +334,7 @@
   bottom: -3mm;
   width: 15.3mm;
   z-index: 2;
-  rotate: 184deg;
+  transform: rotate(184deg);
 }
 .page .footer .page-number {
   font-size: 4.9mm;
@@ -335,7 +364,7 @@
 .page.first-page .header .stripes {
   top: 0 !important;
   left: 0 !important;
-  rotate: unset !important;
+  transform: rotate(unset) !important;
   width: 16.4mm !important;
 }
 .page.first-page .header .ribbon {
@@ -420,7 +449,7 @@
 .page.odd .header .stripes {
   top: -1.6mm;
   left: -4.2mm;
-  rotate: unset;
+  transform: rotate(0);
   width: 18mm;
 }
 .page.odd .footer .ogm-title {
@@ -428,7 +457,7 @@
 }
 .page.odd .footer .ribbon {
   right: -57px;
-  rotate: 180deg;
+  transform: rotate(180deg);
 }
 .page.odd .footer .stripes {
   right: -6mm;
@@ -444,7 +473,7 @@
 .page.even .header .stripes {
   top: -8mm;
   right: -4.3mm;
-  rotate: 166deg;
+  transform: rotate(166deg);
   width: 18mm;
 }
 .page.even .footer .ogm-title {
@@ -456,7 +485,7 @@
 }
 .page.even .footer .stripes {
   left: -6mm;
-  transform: scaleX(-1);
+  transform: scaleX(-1) rotate(166deg);
 }
 .page.even .footer .page-number {
   left: 11mm;

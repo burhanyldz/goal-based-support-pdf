@@ -18,6 +18,14 @@
             <div class="toolbar-title">PDF Oluştur</div>
             <div class="toolbar-actions">
                 <button id="edit-meta-btn" class="btn btn-primary" type="button">Düzenle</button>
+                <button id="download-pdf-btn" class="btn" type="button" title="PDF indir">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" focusable="false">
+                        <path d="M12 3v10" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+                        <path d="M8 11l4 4 4-4" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+                        <path d="M21 21H3" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
+                    <span class="sr-only">PDF İndir</span>
+                </button>
             </div>
         </div>
     </div>
@@ -62,6 +70,9 @@
     </div>
     <div id="pdf-root"></div>
     <script src="qrious.min.js"></script>
+    <!-- PDF export libraries: html2canvas for DOM -> canvas, jsPDF for assembling PDF -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <script src="script.js"></script>
 
     <script>

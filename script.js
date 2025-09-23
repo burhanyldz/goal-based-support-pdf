@@ -513,6 +513,106 @@ function qs(sel, root = document) { return root.querySelector(sel); }
   // expose API
   window.PDFPreview = { render };
 
+	// PDF export: capture all .page nodes and assemble an A4 PDF using html2canvas + jsPDF
+	async function exportPagesToPdf(filename = 'document.pdf') {
+		try {
+					// detect html2canvas
+					if (typeof window.html2canvas !== 'function') {
+						console.warn('html2canvas bulunamadı. Sayfayı PDF olarak oluşturmak için html2canvas yüklü olmalıdır.');
+						alert('PDF kütüphanesi "html2canvas" yüklenmedi. Lütfen script bağlantılarını kontrol edin.');
+						return;
+					}
+
+					// detect jspdf (UMD bundles expose differently across versions)
+					let jsPDF = null;
+					if (window.jspdf && typeof window.jspdf.jsPDF === 'function') {
+						jsPDF = window.jspdf.jsPDF;
+					} else if (window.jspdf && window.jspdf.default && typeof window.jspdf.default.jsPDF === 'function') {
+						jsPDF = window.jspdf.default.jsPDF;
+					} else if (typeof window.jsPDF === 'function') {
+						jsPDF = window.jsPDF; // some bundles expose directly
+					}
+
+					if (!jsPDF) {
+						console.warn('jsPDF bulunamadı. window.jspdf veya window.jsPDF bekleniyordu. window keys:', Object.keys(window).filter(k => /pdf/i.test(k)).slice(0,20));
+						alert('PDF kütüphanesi "jsPDF" yüklenmedi veya farklı bir export şekli kullanıyor. Lütfen script bağlantılarını kontrol edin.');
+						return;
+					}
+
+			const pages = Array.from(document.querySelectorAll('.page'));
+			if (!pages.length) {
+				alert('PDF için sayfa bulunamadı.');
+				return;
+			}
+
+			// A4 in points for jsPDF (mm -> pt conversion is handled by jsPDF with unit: 'mm')
+			const pdf = new jsPDF({ unit: 'mm', format: 'a4', compress: true });
+
+			// We'll capture each .page at its natural CSS size (210mm x 297mm). To get good quality,
+			// render at devicePixelRatio * scaleFactor. Use scaleFactor = 2 for crisper images.
+			const scaleFactor = Math.max(1, Math.min(3, (window.devicePixelRatio || 1)));
+
+			for (let i = 0; i < pages.length; i++) {
+				const page = pages[i];
+
+				// Clone the page to avoid altering the live document (scale wrappers, transforms exist)
+				const clone = page.cloneNode(true);
+				// Put the clone off-screen but visible so styles apply
+				clone.style.position = 'fixed';
+				clone.style.left = '-10000px';
+				clone.style.top = '0';
+				clone.style.margin = '0';
+				clone.style.transform = 'none';
+				clone.style.width = page.style.width || getComputedStyle(page).width;
+				clone.style.height = page.style.height || getComputedStyle(page).height;
+				document.body.appendChild(clone);
+
+				// Use html2canvas to render the clone. Provide scale to boost resolution.
+				const canvas = await window.html2canvas(clone, {
+					scale: scaleFactor * 2, // extra upscale for crisp text/images
+					useCORS: true,
+					allowTaint: false,
+					backgroundColor: '#ffffff',
+					imageTimeout: 3000,
+					logging: false,
+				});
+
+				// Remove clone immediately after rendering
+				clone.remove();
+
+				const imgData = canvas.toDataURL('image/jpeg', 0.98);
+
+				// jsPDF expects dimensions in mm when unit:'mm'
+				const pdfWidth = 210; // mm
+				const pdfHeight = 297; // mm
+
+				if (i > 0) pdf.addPage();
+				pdf.addImage(imgData, 'JPEG', 0, 0, pdfWidth, pdfHeight);
+			}
+
+			pdf.save(filename);
+		} catch (err) {
+			console.error('exportPagesToPdf error', err);
+			alert('PDF oluşturulurken hata oluştu. Konsolu kontrol edin.');
+		}
+	}
+
+	// Wire up download button when DOM ready
+	document.addEventListener('DOMContentLoaded', () => {
+		const btn = document.getElementById('download-pdf-btn');
+		if (!btn) return;
+		btn.addEventListener('click', async (e) => {
+			btn.setAttribute('disabled', 'true');
+			btn.classList.add('btn-primary');
+			try {
+				await exportPagesToPdf('hedef-temelli-destek.pdf');
+			} finally {
+				btn.removeAttribute('disabled');
+				btn.classList.remove('btn-primary');
+			}
+		});
+	});
+
 	// Scale pages so their A4 proportions remain intact but fit into narrow viewports.
 	// This function calculates the available width (accounting for some gutters and the
 	// fixed toolbar) and applies a CSS transform to each .page element.
