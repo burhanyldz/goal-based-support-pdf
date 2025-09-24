@@ -39,6 +39,20 @@
                 console.error('Veri yüklenirken hata oluştu:', error);
             }
         });
+
+        // Example event listeners for custom toolbar events
+        // Add your own implementation here
+        document.addEventListener('toolbar:back', (event) => {
+            console.log('Back button clicked', event.detail);
+            // Implement your back navigation logic here
+            // Example: window.history.back() or custom navigation
+        });
+
+        document.addEventListener('toolbar:sendHomework', (event) => {
+            console.log('Send Homework button clicked', event.detail);
+            // Implement your homework sending logic here
+            // Example: open homework submission modal, send data to server, etc.
+        });
     </script>
 </body>
 

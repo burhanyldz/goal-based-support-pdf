@@ -4,40 +4,40 @@
 (function () {
 	const LETTERS = ['A', 'B', 'C', 'D', 'E'];
 
-// QR initializer: prefer local QRious (qrious.min.js) if loaded, otherwise fallback to external image
-function initQRCodeOnPage(page, data) {
-	try {
-		const qrContainer = page.querySelector('.first-page-bar .qr-code');
-		if (!qrContainer) return;
-		qrContainer.innerHTML = '';
-
-		if (!data || !data.qrCodeUrl) return;
-
-		// create canvas to render QR
-		const canvas = document.createElement('canvas');
-		canvas.style.width = '100%';
-		canvas.style.height = '100%';
-		qrContainer.appendChild(canvas);
-
-		if (window.QRious) {
-			// use QRious if available (local script included in index.html)
-			new QRious({ element: canvas, value: String(data.qrCodeUrl), size: 256 });
-		} else {
-			// fallback: external QR image (reliable) — only used if QRious not present
-			const img = document.createElement('img');
-			img.src = `https://api.qrserver.com/v1/create-qr-code/?size=256x256&data=${encodeURIComponent(String(data.qrCodeUrl))}`;
-			img.style.width = '100%';
-			img.style.height = '100%';
+	// QR initializer: prefer local QRious (qrious.min.js) if loaded, otherwise fallback to external image
+	function initQRCodeOnPage(page, data) {
+		try {
+			const qrContainer = page.querySelector('.first-page-bar .qr-code');
+			if (!qrContainer) return;
 			qrContainer.innerHTML = '';
-			qrContainer.appendChild(img);
-		}
-	} catch (e) {
-		// fail silently
-		console.error('initQRCodeOnPage error', e);
-	}
-}
 
-function qs(sel, root = document) { return root.querySelector(sel); }
+			if (!data || !data.qrCodeUrl) return;
+
+			// create canvas to render QR
+			const canvas = document.createElement('canvas');
+			canvas.style.width = '100%';
+			canvas.style.height = '100%';
+			qrContainer.appendChild(canvas);
+
+			if (window.QRious) {
+				// use QRious if available (local script included in index.html)
+				new QRious({ element: canvas, value: String(data.qrCodeUrl), size: 256 });
+			} else {
+				// fallback: external QR image (reliable) — only used if QRious not present
+				const img = document.createElement('img');
+				img.src = `https://api.qrserver.com/v1/create-qr-code/?size=256x256&data=${encodeURIComponent(String(data.qrCodeUrl))}`;
+				img.style.width = '100%';
+				img.style.height = '100%';
+				qrContainer.innerHTML = '';
+				qrContainer.appendChild(img);
+			}
+		} catch (e) {
+			// fail silently
+			console.error('initQRCodeOnPage error', e);
+		}
+	}
+
+	function qs(sel, root = document) { return root.querySelector(sel); }
 
 	function createEl(tag, cls, attrs = {}) {
 		const el = document.createElement(tag);
@@ -82,8 +82,8 @@ function qs(sel, root = document) { return root.querySelector(sel); }
 			</div>
 		`;
 		// set school name in title area
-	const subtitle = qs('.first-page-subtitle', page);
-	if (subtitle) subtitle.textContent = data.schoolName || 'okul adı';
+		const subtitle = qs('.first-page-subtitle', page);
+		if (subtitle) subtitle.textContent = data.schoolName || 'okul adı';
 
 		// QR will be initialized after the page is appended (initQRCodeOnPage)
 		return page;
@@ -155,7 +155,7 @@ function qs(sel, root = document) { return root.querySelector(sel); }
 			const finish = (resultSrc) => {
 				if (!cleaned) {
 					cleaned = true;
-					try { if (timer) clearTimeout(timer); } catch (e) {}
+					try { if (timer) clearTimeout(timer); } catch (e) { }
 					resolve(resultSrc);
 				}
 			};
@@ -165,7 +165,7 @@ function qs(sel, root = document) { return root.querySelector(sel); }
 					const w = img.naturalWidth || img.width;
 					const h = img.naturalHeight || img.height;
 					if (!w || !h) return finish(src);
-					
+
 					const canvas = document.createElement('canvas');
 					canvas.width = w;
 					canvas.height = h;
@@ -173,7 +173,7 @@ function qs(sel, root = document) { return root.querySelector(sel); }
 					// ensure we draw at native resolution and avoid any smoothing that might alter pixels
 					if (ctx) {
 						ctx.imageSmoothingEnabled = false;
-						try { ctx.imageSmoothingQuality = 'high'; } catch (e) {}
+						try { ctx.imageSmoothingQuality = 'high'; } catch (e) { }
 					}
 					ctx.drawImage(img, 0, 0, w, h);
 					let data;
@@ -186,7 +186,7 @@ function qs(sel, root = document) { return root.querySelector(sel); }
 
 					// Progressive trimming: keep removing edges until we hit non-white pixels
 					let minX = 0, minY = 0, maxX = w - 1, maxY = h - 1;
-					
+
 					// Trim from left
 					let foundContent = false;
 					for (let x = 0; x < w && !foundContent; x++) {
@@ -200,7 +200,7 @@ function qs(sel, root = document) { return root.querySelector(sel); }
 							}
 						}
 					}
-					
+
 					// Trim from right
 					foundContent = false;
 					for (let x = w - 1; x >= minX && !foundContent; x--) {
@@ -214,7 +214,7 @@ function qs(sel, root = document) { return root.querySelector(sel); }
 							}
 						}
 					}
-					
+
 					// Trim from top
 					foundContent = false;
 					for (let y = 0; y < h && !foundContent; y++) {
@@ -228,7 +228,7 @@ function qs(sel, root = document) { return root.querySelector(sel); }
 							}
 						}
 					}
-					
+
 					// Trim from bottom
 					foundContent = false;
 					for (let y = h - 1; y >= minY && !foundContent; y--) {
@@ -247,22 +247,22 @@ function qs(sel, root = document) { return root.querySelector(sel); }
 					if (minX > maxX || minY > maxY || minX >= w || minY >= h) {
 						return finish(src);
 					}
-					
+
 					const cw = maxX - minX + 1;
 					const ch = maxY - minY + 1;
-					
+
 					const leftTrimmed = minX;
 					const rightTrimmed = (w - 1) - maxX;
 					const topTrimmed = minY;
 					const bottomTrimmed = (h - 1) - maxY;
-										
+
 					const out = document.createElement('canvas');
 					out.width = cw;
 					out.height = ch;
 					const outCtx = out.getContext('2d');
 					if (outCtx) {
 						outCtx.imageSmoothingEnabled = false;
-						try { outCtx.imageSmoothingQuality = 'high'; } catch (e) {}
+						try { outCtx.imageSmoothingQuality = 'high'; } catch (e) { }
 					}
 					outCtx.drawImage(canvas, minX, minY, cw, ch, 0, 0, cw, ch);
 
@@ -306,7 +306,7 @@ function qs(sel, root = document) { return root.querySelector(sel); }
 	function escapeHtml(s) {
 		if (!s) return '';
 		return String(s).replace(/[&<>"']/g, function (c) {
-			return ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":"&#39;"})[c];
+			return ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": "&#39;" })[c];
 		});
 	}
 
@@ -378,7 +378,7 @@ function qs(sel, root = document) { return root.querySelector(sel); }
 		const tryPlace = (pageEl, columnName) => {
 			const column = qs('.' + columnName + '-column', pageEl) || qs('.' + columnName + '-column', pageEl) || qs('.' + columnName + '-column', pageEl);
 			// our actual markup uses .left-column and .right-column
-			const col = qs('.' + columnName + '-column', pageEl) || qs('.' + columnName + ' .'+columnName, pageEl);
+			const col = qs('.' + columnName + '-column', pageEl) || qs('.' + columnName + ' .' + columnName, pageEl);
 		};
 
 		// simpler accessors
@@ -413,7 +413,7 @@ function qs(sel, root = document) { return root.querySelector(sel); }
 			// set src then append
 			const finalSrc = croppedSrc || questionEl.originalSrc;
 			questionEl.img.src = finalSrc;
-			
+
 			// debugging markers: indicate whether cropping produced a data URL or fallback
 			try {
 				if (questionEl.wrapper && typeof questionEl.wrapper.setAttribute === 'function') {
@@ -425,7 +425,7 @@ function qs(sel, root = document) { return root.querySelector(sel); }
 						questionEl.wrapper.setAttribute('data-cropped-src', 'remote');
 					}
 				}
-			} catch (e) { 
+			} catch (e) {
 				console.warn('Error setting debug attributes:', e);
 			}
 			placeInColumn(pageEl, colSelector, questionEl);
@@ -467,7 +467,7 @@ function qs(sel, root = document) { return root.querySelector(sel); }
 				placeInColumn(pageEl, '.right-column', rightQuestion);
 				await ensureImageLoaded(rightQuestion.img);
 				// log rendered sizes for debugging (right column)
-				
+
 				const rightColNode = qs('.right-column', pageEl);
 				if (!isOverflowing(rightColNode)) {
 					pagesState.currentColumn = 'right';
@@ -534,18 +534,18 @@ function qs(sel, root = document) { return root.querySelector(sel); }
 		return page;
 	}
 
-  async function render(data, rootElement) {
-    if (!data) {
-      console.error('PDFPreview.render: data parameter is required');
-      return;
-    }
+	async function render(data, rootElement) {
+		if (!data) {
+			console.error('PDFPreview.render: data parameter is required');
+			return;
+		}
 
-    const root = rootElement || document.getElementById('pdf-root');
-    if (!root) {
-      console.error('PDFPreview.render: no root element provided or #pdf-root element found in DOM');
-      return;
-    }
-    root.innerHTML = '';		// create first page and append
+		const root = rootElement || document.getElementById('pdf-root');
+		if (!root) {
+			console.error('PDFPreview.render: no root element provided or #pdf-root element found in DOM');
+			return;
+		}
+		root.innerHTML = '';		// create first page and append
 		const firstPage = createFirstPage(data);
 		root.appendChild(firstPage);
 		// initialize QR code area (prefers local QRious if available)
@@ -584,34 +584,35 @@ function qs(sel, root = document) { return root.querySelector(sel); }
 		}
 	}
 
-  // expose API
-  window.PDFPreview = { render };
+	// expose API
+	window.PDFPreview = { render };
+	window.exportPagesToPdf = exportPagesToPdf;
 
 	// PDF export: capture all .page nodes and assemble an A4 PDF using html2canvas + jsPDF
 	async function exportPagesToPdf(filename = 'document.pdf') {
 		try {
-					// detect html2canvas
-					if (typeof window.html2canvas !== 'function') {
-						console.warn('html2canvas bulunamadı. Sayfayı PDF olarak oluşturmak için html2canvas yüklü olmalıdır.');
-						alert('PDF kütüphanesi "html2canvas" yüklenmedi. Lütfen script bağlantılarını kontrol edin.');
-						return;
-					}
+			// detect html2canvas
+			if (typeof window.html2canvas !== 'function') {
+				console.warn('html2canvas bulunamadı. Sayfayı PDF olarak oluşturmak için html2canvas yüklü olmalıdır.');
+				alert('PDF kütüphanesi "html2canvas" yüklenmedi. Lütfen script bağlantılarını kontrol edin.');
+				return;
+			}
 
-					// detect jspdf (UMD bundles expose differently across versions)
-					let jsPDF = null;
-					if (window.jspdf && typeof window.jspdf.jsPDF === 'function') {
-						jsPDF = window.jspdf.jsPDF;
-					} else if (window.jspdf && window.jspdf.default && typeof window.jspdf.default.jsPDF === 'function') {
-						jsPDF = window.jspdf.default.jsPDF;
-					} else if (typeof window.jsPDF === 'function') {
-						jsPDF = window.jsPDF; // some bundles expose directly
-					}
+			// detect jspdf (UMD bundles expose differently across versions)
+			let jsPDF = null;
+			if (window.jspdf && typeof window.jspdf.jsPDF === 'function') {
+				jsPDF = window.jspdf.jsPDF;
+			} else if (window.jspdf && window.jspdf.default && typeof window.jspdf.default.jsPDF === 'function') {
+				jsPDF = window.jspdf.default.jsPDF;
+			} else if (typeof window.jsPDF === 'function') {
+				jsPDF = window.jsPDF; // some bundles expose directly
+			}
 
-					if (!jsPDF) {
-						console.warn('jsPDF bulunamadı. window.jspdf veya window.jsPDF bekleniyordu. window keys:', Object.keys(window).filter(k => /pdf/i.test(k)).slice(0,20));
-						alert('PDF kütüphanesi "jsPDF" yüklenmedi veya farklı bir export şekli kullanıyor. Lütfen script bağlantılarını kontrol edin.');
-						return;
-					}
+			if (!jsPDF) {
+				console.warn('jsPDF bulunamadı. window.jspdf veya window.jsPDF bekleniyordu. window keys:', Object.keys(window).filter(k => /pdf/i.test(k)).slice(0, 20));
+				alert('PDF kütüphanesi "jsPDF" yüklenmedi veya farklı bir export şekli kullanıyor. Lütfen script bağlantılarını kontrol edin.');
+				return;
+			}
 
 			const pages = Array.from(document.querySelectorAll('.page'));
 			if (!pages.length) {
@@ -641,98 +642,98 @@ function qs(sel, root = document) { return root.querySelector(sel); }
 				clone.style.height = page.style.height || getComputedStyle(page).height;
 				document.body.appendChild(clone);
 
-						// Before rendering: copy over any canvas content (cloneNode doesn't copy pixels)
+				// Before rendering: copy over any canvas content (cloneNode doesn't copy pixels)
+				try {
+					const origCanvases = page.querySelectorAll('canvas');
+					const cloneCanvases = clone.querySelectorAll('canvas');
+					for (let ci = 0; ci < origCanvases.length; ci++) {
+						const oCan = origCanvases[ci];
+						const cCan = cloneCanvases[ci];
+						if (!oCan || !cCan) continue;
 						try {
-							const origCanvases = page.querySelectorAll('canvas');
-							const cloneCanvases = clone.querySelectorAll('canvas');
-							for (let ci = 0; ci < origCanvases.length; ci++) {
-								const oCan = origCanvases[ci];
-								const cCan = cloneCanvases[ci];
-								if (!oCan || !cCan) continue;
-								try {
-									const dataUrl = oCan.toDataURL();
-									// draw into cloned canvas
-									const img = new Image();
-									img.src = dataUrl;
-									// synchronous draw when loaded
-									await new Promise((res) => {
-										img.onload = () => {
-											try {
-												cCan.width = img.width;
-												cCan.height = img.height;
-												const ctx = cCan.getContext('2d');
-												if (ctx) ctx.drawImage(img, 0, 0);
-											} catch (e) { console.warn('drawing cloned canvas failed', e); }
-											res();
-										};
-										img.onerror = () => res();
+							const dataUrl = oCan.toDataURL();
+							// draw into cloned canvas
+							const img = new Image();
+							img.src = dataUrl;
+							// synchronous draw when loaded
+							await new Promise((res) => {
+								img.onload = () => {
+									try {
+										cCan.width = img.width;
+										cCan.height = img.height;
+										const ctx = cCan.getContext('2d');
+										if (ctx) ctx.drawImage(img, 0, 0);
+									} catch (e) { console.warn('drawing cloned canvas failed', e); }
+									res();
+								};
+								img.onerror = () => res();
+							});
+						} catch (e) {
+							console.warn('copy canvas content failed', e);
+						}
+					}
+				} catch (e) {
+					console.warn('error copying canvases to clone', e);
+				}
+
+				// Ensure cloned <img> tags can be loaded by html2canvas: inline SVGs and set crossorigin when possible
+				try {
+					const origImgs = page.querySelectorAll('img');
+					const cloneImgs = clone.querySelectorAll('img');
+					const imgPromises = [];
+					for (let ii = 0; ii < cloneImgs.length; ii++) {
+						const cImg = cloneImgs[ii];
+						const oImg = origImgs[ii];
+						if (!cImg) continue;
+						const src = cImg.getAttribute('src') || '';
+						// If SVG, try to fetch and inline as data URL (safer for cross-origin issues)
+						if (src && src.trim().toLowerCase().endsWith('.svg')) {
+							try {
+								// Try fetching the SVG text from same-origin
+								const absolute = new URL(src, window.location.href).href;
+								const p = fetch(absolute)
+									.then(r => r.ok ? r.text() : Promise.reject(r.status))
+									.then(text => {
+										const dataUrl = 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(text);
+										cImg.setAttribute('src', dataUrl);
+									})
+									.catch(() => {
+										// If fetch fails, fall back to leaving src as-is but set crossorigin to anonymous
+										try { cImg.setAttribute('crossorigin', 'anonymous'); } catch (e) { }
 									});
-								} catch (e) {
-									console.warn('copy canvas content failed', e);
-								}
+								imgPromises.push(p);
+							} catch (e) {
+								try { cImg.setAttribute('crossorigin', 'anonymous'); } catch (er) { }
 							}
-						} catch (e) {
-							console.warn('error copying canvases to clone', e);
+						} else {
+							// non-SVG images: set crossorigin attribute if the origin matches so html2canvas can load them
+							try {
+								const abs = new URL(src, window.location.href);
+								if (abs.origin === window.location.origin) {
+									cImg.setAttribute('crossorigin', 'anonymous');
+								}
+							} catch (e) {
+								// ignore
+							}
 						}
 
-						// Ensure cloned <img> tags can be loaded by html2canvas: inline SVGs and set crossorigin when possible
-						try {
-							const origImgs = page.querySelectorAll('img');
-							const cloneImgs = clone.querySelectorAll('img');
-							const imgPromises = [];
-							for (let ii = 0; ii < cloneImgs.length; ii++) {
-								const cImg = cloneImgs[ii];
-								const oImg = origImgs[ii];
-								if (!cImg) continue;
-								const src = cImg.getAttribute('src') || '';
-								// If SVG, try to fetch and inline as data URL (safer for cross-origin issues)
-								if (src && src.trim().toLowerCase().endsWith('.svg')) {
-									try {
-										// Try fetching the SVG text from same-origin
-										const absolute = new URL(src, window.location.href).href;
-										const p = fetch(absolute)
-											.then(r => r.ok ? r.text() : Promise.reject(r.status))
-											.then(text => {
-												const dataUrl = 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(text);
-												cImg.setAttribute('src', dataUrl);
-											})
-											.catch(() => {
-												// If fetch fails, fall back to leaving src as-is but set crossorigin to anonymous
-												try { cImg.setAttribute('crossorigin', 'anonymous'); } catch (e) {}
-											});
-										imgPromises.push(p);
-									} catch (e) {
-										try { cImg.setAttribute('crossorigin', 'anonymous'); } catch (er) {}
-									}
-								} else {
-									// non-SVG images: set crossorigin attribute if the origin matches so html2canvas can load them
-									try {
-										const abs = new URL(src, window.location.href);
-										if (abs.origin === window.location.origin) {
-											cImg.setAttribute('crossorigin', 'anonymous');
-										}
-									} catch (e) {
-										// ignore
-									}
-								}
+						// Wait until the clone image is loaded (or errored) so html2canvas has image data
+						imgPromises.push(new Promise((res) => {
+							if (cImg.complete && cImg.naturalHeight !== 0) return res();
+							cImg.addEventListener('load', () => res(), { once: true });
+							cImg.addEventListener('error', () => res(), { once: true });
+							// fallback timeout
+							setTimeout(res, 2000);
+						}));
+					}
+					// await all image fetches/copies
+					await Promise.all(imgPromises);
+				} catch (e) {
+					console.warn('error preparing images on clone', e);
+				}
 
-								// Wait until the clone image is loaded (or errored) so html2canvas has image data
-								imgPromises.push(new Promise((res) => {
-									if (cImg.complete && cImg.naturalHeight !== 0) return res();
-									cImg.addEventListener('load', () => res(), { once: true });
-									cImg.addEventListener('error', () => res(), { once: true });
-									// fallback timeout
-									setTimeout(res, 2000);
-								}));
-							}
-							// await all image fetches/copies
-							await Promise.all(imgPromises);
-						} catch (e) {
-							console.warn('error preparing images on clone', e);
-						}
-
-						// Use html2canvas to render the clone. Provide scale to boost resolution.
-						const canvas = await window.html2canvas(clone, {
+				// Use html2canvas to render the clone. Provide scale to boost resolution.
+				const canvas = await window.html2canvas(clone, {
 					scale: scaleFactor * 2, // extra upscale for crisp text/images
 					useCORS: true,
 					allowTaint: false,
@@ -769,36 +770,8 @@ function qs(sel, root = document) { return root.querySelector(sel); }
 				window.createExportOverlayElements();
 			}
 		} catch (e) { /* ignore */ }
-		const btn = document.getElementById('download-pdf-btn');
-		if (!btn) return;
-		// overlay helpers
-		const overlay = document.getElementById('export-overlay');
-		function showExportOverlay() {
-			if (!overlay) return;
-			overlay.setAttribute('aria-hidden', 'false');
-			overlay.classList.add('visible');
-		}
-		function hideExportOverlay() {
-			if (!overlay) return;
-			overlay.setAttribute('aria-hidden', 'true');
-			overlay.classList.remove('visible');
-		}
-
-		btn.addEventListener('click', async (e) => {
-			// update UI immediately so user knows something started
-			btn.setAttribute('disabled', 'true');
-			btn.classList.add('btn-primary');
-			try {
-				showExportOverlay();
-				// Small delay helps ensure overlay is painted before heavy work begins
-				await new Promise(r => setTimeout(r, 50));
-				await exportPagesToPdf('hedef-temelli-destek.pdf');
-			} finally {
-				hideExportOverlay();
-				btn.removeAttribute('disabled');
-				btn.classList.remove('btn-primary');
-			}
-		});
+		// Download button event listener is now set up in setupToolbarEventListeners()
+		// which is called from createToolbarElements() after the button is created
 	});
 
 	// Scale pages so their A4 proportions remain intact but fit into narrow viewports.
@@ -1117,7 +1090,7 @@ function createExportOverlayElements() {
 
 window.createExportOverlayElements = createExportOverlayElements;
 
-// Creates the top toolbar (title, edit and download buttons) and inserts into the document.
+// Creates the top toolbar (back button, title, edit, send homework and download buttons) and inserts into the document.
 function createToolbarElements() {
 	if (document.querySelector('.top-toolbar')) return;
 	const toolbar = document.createElement('div');
@@ -1127,21 +1100,51 @@ function createToolbarElements() {
 
 	const inner = document.createElement('div');
 	inner.className = 'toolbar-inner';
+	
+	// Left section with back button and title
+	const leftSection = document.createElement('div');
+	leftSection.className = 'toolbar-left';
+	
+	// Back button
+	const backBtn = document.createElement('button');
+	backBtn.id = 'back-btn';
+	backBtn.className = 'btn btn-icon';
+	backBtn.type = 'button';
+	backBtn.title = 'Geri';
+	backBtn.innerHTML = `
+		<svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" focusable="false">
+			<path d="M19 12H5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+			<path d="M12 19l-7-7 7-7" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+		</svg>
+		<span class="sr-only">Geri</span>`;
+	
 	const title = document.createElement('div');
 	title.className = 'toolbar-title';
 	title.textContent = 'PDF Oluştur';
+	
+	leftSection.appendChild(backBtn);
+	leftSection.appendChild(title);
+
+	// Right section with actions
 	const actions = document.createElement('div');
 	actions.className = 'toolbar-actions';
 
+	// Desktop buttons (always visible on desktop)
 	const editBtn = document.createElement('button');
 	editBtn.id = 'edit-meta-btn';
-	editBtn.className = 'btn btn-primary';
+	editBtn.className = 'btn btn-primary desktop-btn';
 	editBtn.type = 'button';
 	editBtn.textContent = 'Düzenle';
 
+	const homeworkBtn = document.createElement('button');
+	homeworkBtn.id = 'send-homework-btn';
+	homeworkBtn.className = 'btn btn-secondary desktop-btn';
+	homeworkBtn.type = 'button';
+	homeworkBtn.textContent = 'Ödev olarak Gönder';
+
 	const downloadBtn = document.createElement('button');
 	downloadBtn.id = 'download-pdf-btn';
-	downloadBtn.className = 'btn';
+	downloadBtn.className = 'btn desktop-btn';
 	downloadBtn.type = 'button';
 	downloadBtn.title = 'PDF indir';
 	downloadBtn.innerHTML = `
@@ -1152,14 +1155,57 @@ function createToolbarElements() {
 		</svg>
 		<span class="sr-only">PDF İndir</span>`;
 
+	// Mobile menu button (three dots)
+	const mobileMenuBtn = document.createElement('button');
+	mobileMenuBtn.id = 'mobile-menu-btn';
+	mobileMenuBtn.className = 'btn btn-icon mobile-btn';
+	mobileMenuBtn.type = 'button';
+	mobileMenuBtn.title = 'Menü';
+	mobileMenuBtn.innerHTML = `
+		<svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" focusable="false">
+			<circle cx="12" cy="12" r="1" fill="currentColor"/>
+			<circle cx="12" cy="5" r="1" fill="currentColor"/>
+			<circle cx="12" cy="19" r="1" fill="currentColor"/>
+		</svg>
+		<span class="sr-only">Menü</span>`;
+
+	// Mobile context menu
+	const contextMenu = document.createElement('div');
+	contextMenu.id = 'mobile-context-menu';
+	contextMenu.className = 'mobile-context-menu';
+	contextMenu.innerHTML = `
+		<button id="mobile-edit-btn" class="context-menu-item">
+			<span>Düzenle</span>
+		</button>
+		<button id="mobile-homework-btn" class="context-menu-item">
+			<span>Ödev olarak Gönder</span>
+		</button>
+		<button id="mobile-download-btn" class="context-menu-item">
+			<svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" focusable="false">
+				<path d="M12 3v10" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+				<path d="M8 11l4 4 4-4" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+				<path d="M21 21H3" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+			</svg>
+			<span>PDF İndir</span>
+		</button>
+	`;
+
+	// Append buttons to actions
 	actions.appendChild(editBtn);
+	actions.appendChild(homeworkBtn);
 	actions.appendChild(downloadBtn);
-	inner.appendChild(title);
+	actions.appendChild(mobileMenuBtn);
+	actions.appendChild(contextMenu);
+
+	inner.appendChild(leftSection);
 	inner.appendChild(actions);
 	toolbar.appendChild(inner);
 
 	// insert at top of body
 	document.body.insertBefore(toolbar, document.body.firstChild);
+
+	// Add event listeners for new buttons
+	setupToolbarEventListeners();
 
 	// ensure overlay exists
 	if (!document.getElementById('export-overlay') && typeof window.createExportOverlayElements === 'function') {
@@ -1167,6 +1213,120 @@ function createToolbarElements() {
 	}
 
 	// If download button wiring already exists in DOMContentLoaded listener, it will pick up this button.
+}
+
+// Event broadcasting function
+function broadcastEvent(eventName, data = {}) {
+	const customEvent = new CustomEvent(eventName, {
+		detail: data,
+		bubbles: true,
+		cancelable: true
+	});
+	document.dispatchEvent(customEvent);
+}
+
+// Setup event listeners for toolbar buttons
+function setupToolbarEventListeners() {
+	// Back button
+	const backBtn = document.getElementById('back-btn');
+	if (backBtn) {
+		backBtn.addEventListener('click', () => {
+			broadcastEvent('toolbar:back');
+		});
+	}
+
+	// Homework button (desktop)
+	const homeworkBtn = document.getElementById('send-homework-btn');
+	if (homeworkBtn) {
+		homeworkBtn.addEventListener('click', () => {
+			broadcastEvent('toolbar:sendHomework');
+		});
+	}
+
+	// Download button event listener (moved from DOMContentLoaded)
+	const downloadBtn = document.getElementById('download-pdf-btn');
+	if (downloadBtn) {
+		// overlay helpers
+		const overlay = document.getElementById('export-overlay');
+		function showExportOverlay() {
+			if (!overlay) return;
+			overlay.setAttribute('aria-hidden', 'false');
+			overlay.classList.add('visible');
+		}
+		function hideExportOverlay() {
+			if (!overlay) return;
+			overlay.setAttribute('aria-hidden', 'true');
+			overlay.classList.remove('visible');
+		}
+
+		downloadBtn.addEventListener('click', async (e) => {
+			// update UI immediately so user knows something started
+			downloadBtn.setAttribute('disabled', 'true');
+			downloadBtn.classList.add('btn-primary');
+			try {
+				showExportOverlay();
+				// Small delay helps ensure overlay is painted before heavy work begins
+				await new Promise(r => setTimeout(r, 50));
+				await exportPagesToPdf('hedef-temelli-destek.pdf');
+			} finally {
+				hideExportOverlay();
+				downloadBtn.removeAttribute('disabled');
+				downloadBtn.classList.remove('btn-primary');
+			}
+		});
+	}
+
+	// Mobile menu functionality
+	const mobileMenuBtn = document.getElementById('mobile-menu-btn');
+	const contextMenu = document.getElementById('mobile-context-menu');
+	if (mobileMenuBtn && contextMenu) {
+		// Toggle context menu
+		mobileMenuBtn.addEventListener('click', (e) => {
+			e.stopPropagation();
+			contextMenu.classList.toggle('show');
+		});
+
+		// Close menu when clicking outside
+		document.addEventListener('click', (e) => {
+			if (!contextMenu.contains(e.target) && !mobileMenuBtn.contains(e.target)) {
+				contextMenu.classList.remove('show');
+			}
+		});
+
+		// Mobile menu item handlers
+		const mobileEditBtn = document.getElementById('mobile-edit-btn');
+		const mobileHomeworkBtn = document.getElementById('mobile-homework-btn');
+		const mobileDownloadBtn = document.getElementById('mobile-download-btn');
+
+		if (mobileEditBtn) {
+			mobileEditBtn.addEventListener('click', () => {
+				contextMenu.classList.remove('show');
+				// Trigger the same action as desktop edit button
+				const desktopEditBtn = document.getElementById('edit-meta-btn');
+				if (desktopEditBtn) {
+					desktopEditBtn.click();
+				}
+			});
+		}
+
+		if (mobileHomeworkBtn) {
+			mobileHomeworkBtn.addEventListener('click', () => {
+				contextMenu.classList.remove('show');
+				broadcastEvent('toolbar:sendHomework');
+			});
+		}
+
+		if (mobileDownloadBtn) {
+			mobileDownloadBtn.addEventListener('click', () => {
+				contextMenu.classList.remove('show');
+				// Trigger the same action as desktop download button
+				const desktopDownloadBtn = document.getElementById('download-pdf-btn');
+				if (desktopDownloadBtn) {
+					desktopDownloadBtn.click();
+				}
+			});
+		}
+	}
 }
 
 window.createToolbarElements = createToolbarElements;
