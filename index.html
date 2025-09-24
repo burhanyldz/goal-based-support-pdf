@@ -40,18 +40,18 @@
             }
         });
 
-        // Example event listeners for custom toolbar events
-        // Add your own implementation here
-        document.addEventListener('toolbar:back', (event) => {
-            console.log('Back button clicked', event.detail);
-            // Implement your back navigation logic here
-            // Example: window.history.back() or custom navigation
+        // Araç çubuğu buton olaylarını dinle
+        // Geri butonu basıldığında 'toolbar:back' olayı tetiklenir
+        document.addEventListener('toolbar:back', () => {
+            console.log('Geri butonu tıklandı');
+            // Geri navigasyon mantığını burada uygulayın
+            // Örnek: window.history.back() veya özel navigasyon
         });
-
+        // Düzenle butonu basıldığında 'toolbar:edit' olayı tetiklenir
         document.addEventListener('toolbar:sendHomework', (event) => {
-            console.log('Send Homework button clicked', event.detail);
-            // Implement your homework sending logic here
-            // Example: open homework submission modal, send data to server, etc.
+            console.log('Ödev Gönder butonu tıklandı', event.detail);
+            // Ödev gönderme mantığını burada uygulayın
+            // PDF verilerini event.detail içinden alabilirsiniz
         });
     </script>
 </body>

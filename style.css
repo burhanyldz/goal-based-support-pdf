@@ -69,15 +69,23 @@
   align-items: center;
   gap: 4px;
   transition: all 0.2s ease;
+  white-space: nowrap;
 }
 .btn:hover {
   background: rgba(255, 255, 255, 0.1);
   color: #ffffff;
 }
+.btn svg {
+  flex-shrink: 0;
+}
 
 .btn-icon {
   padding: 8px;
   color: #ffffff;
+  gap: 0;
+}
+.btn-icon svg {
+  margin: 0;
 }
 
 .btn-primary {

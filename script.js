@@ -272,7 +272,6 @@
 						out.toBlob((blob) => {
 							if (!blob) return finish(src);
 							const url = URL.createObjectURL(blob);
-							console.debug('cropImageWhitespace: created blob URL for cropped image, size:', blob.size, 'bytes');
 							return finish(url);
 						}, 'image/png');
 						// toBlob is async and will call finish from the callback
@@ -1134,13 +1133,48 @@ function createToolbarElements() {
 	editBtn.id = 'edit-meta-btn';
 	editBtn.className = 'btn btn-primary desktop-btn';
 	editBtn.type = 'button';
-	editBtn.textContent = 'Düzenle';
+	editBtn.innerHTML = `
+		<svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" focusable="false">
+			<path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+			<path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+		</svg>
+		<span>Düzenle</span>`;
 
 	const homeworkBtn = document.createElement('button');
 	homeworkBtn.id = 'send-homework-btn';
 	homeworkBtn.className = 'btn btn-secondary desktop-btn';
 	homeworkBtn.type = 'button';
-	homeworkBtn.textContent = 'Ödev olarak Gönder';
+	homeworkBtn.innerHTML = `
+		<svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" focusable="false">
+			<path d="M22 2L11 13" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+			<path d="M22 2L15 22L11 13L2 9L22 2z" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+		</svg>
+		<span>Ödev olarak Gönder</span>`;
+
+	// Mobile icon-only buttons
+	const mobileEditBtn = document.createElement('button');
+	mobileEditBtn.id = 'mobile-edit-icon-btn';
+	mobileEditBtn.className = 'btn btn-icon mobile-btn';
+	mobileEditBtn.type = 'button';
+	mobileEditBtn.title = 'Düzenle';
+	mobileEditBtn.innerHTML = `
+		<svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" focusable="false">
+			<path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+			<path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+		</svg>
+		<span class="sr-only">Düzenle</span>`;
+
+	const mobileHomeworkBtn = document.createElement('button');
+	mobileHomeworkBtn.id = 'mobile-homework-icon-btn';
+	mobileHomeworkBtn.className = 'btn btn-icon mobile-btn';
+	mobileHomeworkBtn.type = 'button';
+	mobileHomeworkBtn.title = 'Ödev olarak Gönder';
+	mobileHomeworkBtn.innerHTML = `
+		<svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" focusable="false">
+			<path d="M22 2L11 13" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+			<path d="M22 2L15 22L11 13L2 9L22 2z" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+		</svg>
+		<span class="sr-only">Ödev olarak Gönder</span>`;
 
 	const downloadBtn = document.createElement('button');
 	downloadBtn.id = 'download-pdf-btn';
@@ -1175,9 +1209,17 @@ function createToolbarElements() {
 	contextMenu.className = 'mobile-context-menu';
 	contextMenu.innerHTML = `
 		<button id="mobile-edit-btn" class="context-menu-item">
+			<svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" focusable="false">
+				<path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+				<path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+			</svg>
 			<span>Düzenle</span>
 		</button>
 		<button id="mobile-homework-btn" class="context-menu-item">
+			<svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" focusable="false">
+				<path d="M22 2L11 13" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+				<path d="M22 2L15 22L11 13L2 9L22 2z" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+			</svg>
 			<span>Ödev olarak Gönder</span>
 		</button>
 		<button id="mobile-download-btn" class="context-menu-item">
@@ -1194,6 +1236,8 @@ function createToolbarElements() {
 	actions.appendChild(editBtn);
 	actions.appendChild(homeworkBtn);
 	actions.appendChild(downloadBtn);
+	actions.appendChild(mobileEditBtn);
+	actions.appendChild(mobileHomeworkBtn);
 	actions.appendChild(mobileMenuBtn);
 	actions.appendChild(contextMenu);
 
@@ -1239,7 +1283,26 @@ function setupToolbarEventListeners() {
 	const homeworkBtn = document.getElementById('send-homework-btn');
 	if (homeworkBtn) {
 		homeworkBtn.addEventListener('click', () => {
-			broadcastEvent('toolbar:sendHomework');
+			broadcastEvent('toolbar:sendHomework', window._pdfData || {});
+		});
+	}
+
+	// Mobile icon buttons
+	const mobileEditIconBtn = document.getElementById('mobile-edit-icon-btn');
+	if (mobileEditIconBtn) {
+		mobileEditIconBtn.addEventListener('click', () => {
+			// Trigger the same action as desktop edit button
+			const desktopEditBtn = document.getElementById('edit-meta-btn');
+			if (desktopEditBtn) {
+				desktopEditBtn.click();
+			}
+		});
+	}
+
+	const mobileHomeworkIconBtn = document.getElementById('mobile-homework-icon-btn');
+	if (mobileHomeworkIconBtn) {
+		mobileHomeworkIconBtn.addEventListener('click', () => {
+			broadcastEvent('toolbar:sendHomework', window._pdfData || {});
 		});
 	}
 
