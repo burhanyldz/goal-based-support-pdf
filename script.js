@@ -921,12 +921,30 @@ function initEditModal() {
 	}
 
 	function save() {
+		const oldData = { ...window._pdfData };
 		window._pdfData = window._pdfData || {};
 		// School name is not editable via the modal; keep original value from data (do not reference missing inputSchool)
 		// window._pdfData.schoolName remains unchanged unless provided elsewhere
 		if (inputLesson) window._pdfData.lessonName = inputLesson.value.trim();
 		if (inputSubject) window._pdfData.subjectName = inputSubject.value.trim();
 		if (selectTest) window._pdfData.testType = selectTest.value || '';
+		
+		// Broadcast modal save event with old and new data
+		const saveEvent = new CustomEvent('modal:dataSaved', {
+			detail: {
+				oldData: oldData,
+				newData: { ...window._pdfData },
+				changes: {
+					lessonName: oldData.lessonName !== window._pdfData.lessonName,
+					subjectName: oldData.subjectName !== window._pdfData.subjectName,
+					testType: oldData.testType !== window._pdfData.testType
+				}
+			},
+			bubbles: true,
+			cancelable: true
+		});
+		document.dispatchEvent(saveEvent);
+		
 		// re-render with updated data
 		if (window.PDFPreview && typeof window.PDFPreview.render === 'function') {
 			window.PDFPreview.render(window._pdfData);
@@ -947,6 +965,9 @@ function initEditModal() {
 	document.addEventListener('keydown', (e) => {
 		if (e.key === 'Escape' && modal && modal.classList.contains('open')) closeModal();
 	});
+
+	// Expose openModal function globally
+	window.openEditModal = openModal;
 }
 
 // --- End moved model logic ---

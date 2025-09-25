@@ -35,6 +35,11 @@
                 }
                 // ilk render sonrası araç çubuğu/modal olaylarını bağla
                 try { initEditModal(); } catch (e) { /* eğer initEditModal eksikse, yoksay */ }
+
+                // İlk yüklemeyle modal'ı otomatik aç (isteğe bağlı)
+                if (typeof window.openEditModal === 'function') {
+                    window.openEditModal();
+                }
             } catch (error) {
                 console.error('Veri yüklenirken hata oluştu:', error);
             }
@@ -53,6 +58,28 @@
             // Ödev gönderme mantığını burada uygulayın
             // PDF verilerini event.detail içinden alabilirsiniz
         });
+
+        // Modal kaydet olayını dinle
+        document.addEventListener('modal:dataSaved', (event) => {
+            console.log('Modal veriler kaydedildi!', event.detail);
+            console.log('Eski veriler:', event.detail.oldData);
+            console.log('Yeni veriler:', event.detail.newData);
+            console.log('Değişiklikler:', event.detail.changes);
+            
+            // Değişikliklere göre özel işlemler yapabilirsiniz
+            if (event.detail.changes.lessonName) {
+                console.log('Ders adı değişti:', event.detail.newData.lessonName);
+            }
+            if (event.detail.changes.subjectName) {
+                console.log('Konu adı değişti:', event.detail.newData.subjectName);
+            }
+            if (event.detail.changes.testType) {
+                console.log('Test türü değişti:', event.detail.newData.testType);
+            }
+            
+            // Burada veritabanına kaydet, API çağır, vs. yapabilirsin
+        });
+
     </script>
 </body>
 
