@@ -4,6 +4,32 @@
 (function () {
 	const LETTERS = ['A', 'B', 'C', 'D', 'E'];
 
+	// Theme management for dynamic color changing based on test type
+	function applyTheme(testType) {
+		const body = document.body;
+		
+		// Remove existing theme classes
+		body.classList.remove('theme-tyt', 'theme-ayt', 'theme-ydt');
+		
+		// Apply new theme class based on test type
+		if (testType) {
+			const themeClass = `theme-${testType.toLowerCase()}`;
+			body.classList.add(themeClass);
+		} else {
+			// Default to TYT theme if no test type specified
+			body.classList.add('theme-tyt');
+		}
+	}
+
+	// Initialize theme based on current data
+	function initializeTheme(data) {
+		if (data && data.testType) {
+			applyTheme(data.testType);
+		} else {
+			applyTheme('tyt'); // default
+		}
+	}
+
 	// QR initializer: prefer local QRious (qrious.min.js) if loaded, otherwise fallback to external image
 	function initQRCodeOnPage(page, data) {
 		try {
@@ -544,6 +570,10 @@
 			console.error('PDFPreview.render: no root element provided or #pdf-root element found in DOM');
 			return;
 		}
+		
+		// Initialize theme based on test type
+		initializeTheme(data);
+		
 		root.innerHTML = '';		// create first page and append
 		const firstPage = createFirstPage(data);
 		root.appendChild(firstPage);
@@ -586,6 +616,8 @@
 	// expose API
 	window.PDFPreview = { render };
 	window.exportPagesToPdf = exportPagesToPdf;
+	window.applyTheme = applyTheme;
+	window.initializeTheme = initializeTheme;
 
 	// PDF export: capture all .page nodes and assemble an A4 PDF using html2canvas + jsPDF
 	async function exportPagesToPdf(filename = 'document.pdf') {
@@ -884,6 +916,10 @@ function initEditModal() {
 
 	function openModal() {
 		const data = window._pdfData || {};
+		
+		// Store the original theme for restoration on cancel
+		window._originalTheme = data.testType || 'tyt';
+		
 		if (inputLesson) inputLesson.value = data.lessonName || '';
 		if (inputSubject) inputSubject.value = data.subjectName || '';
 
@@ -915,6 +951,13 @@ function initEditModal() {
 
 	function closeModal() {
 		if (!modal) return;
+		
+		// Restore original theme when closing without saving
+		if (window._originalTheme) {
+			applyTheme(window._originalTheme);
+			delete window._originalTheme; // Clean up
+		}
+		
 		modal.setAttribute('aria-hidden', 'true');
 		modal.classList.remove('open');
 		document.body.classList.remove('modal-open');
@@ -928,6 +971,9 @@ function initEditModal() {
 		if (inputLesson) window._pdfData.lessonName = inputLesson.value.trim();
 		if (inputSubject) window._pdfData.subjectName = inputSubject.value.trim();
 		if (selectTest) window._pdfData.testType = selectTest.value || '';
+		
+		// Clean up original theme variable since we're saving
+		delete window._originalTheme;
 		
 		// Broadcast modal save event with old and new data
 		const saveEvent = new CustomEvent('modal:dataSaved', {

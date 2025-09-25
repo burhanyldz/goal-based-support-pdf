@@ -1,3 +1,43 @@
+:root {
+  --primary-color: #936fb7;
+  --primary-color-hover: rgb(121.5, 81, 162);
+  --primary-color-light: #c6b3d9;
+  --primary-color-transparent: #936fb799;
+}
+
+.btn-primary,
+.divider,
+.divider-text,
+.ogm-ribbon,
+.page-number-ribbon,
+.footer-disclaimer,
+.header-ribbon,
+.first-page-subtitle,
+.spinner {
+  transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease;
+}
+
+.theme-tyt {
+  --primary-color: #936fb7;
+  --primary-color-hover: rgb(121.5, 81, 162);
+  --primary-color-light: #c6b3d9;
+  --primary-color-transparent: #936fb799;
+}
+
+.theme-ayt {
+  --primary-color: #258264;
+  --primary-color-hover: rgb(25.7005988024, 90.2994011976, 69.4610778443);
+  --primary-color-light: rgb(67.3952095808, 201.6047904192, 158.3113772455);
+  --primary-color-transparent: #25826499;
+}
+
+.theme-ydt {
+  --primary-color: #e46664;
+  --primary-color-hover: rgb(220.4340659341, 59.1263736264, 56.5659340659);
+  --primary-color-light: rgb(243.1318681319, 187.7472527473, 186.8681318681);
+  --primary-color-transparent: #e4666499;
+}
+
 /* Screen reader only content */
 .sr-only {
   position: absolute;
@@ -74,6 +114,10 @@
 .btn:hover {
   background: rgba(255, 255, 255, 0.1);
   color: #ffffff;
+  transform: translateY(-1px);
+}
+.btn:active {
+  transform: translateY(0);
 }
 .btn svg {
   flex-shrink: 0;
@@ -84,16 +128,30 @@
   color: #ffffff;
   gap: 0;
 }
+.btn-icon:hover {
+  background: rgba(255, 255, 255, 0.15);
+  transform: translateY(-1px);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+}
+.btn-icon:active {
+  transform: translateY(0);
+}
 .btn-icon svg {
   margin: 0;
 }
 
 .btn-primary {
-  background: #7e2990;
+  background: var(--primary-color);
   color: #ffffff;
 }
 .btn-primary:hover {
-  background: rgba(126, 41, 144, 0.6);
+  background: var(--primary-color-hover);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+}
+.btn-primary:active {
+  transform: translateY(-1px);
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
 }
 
 .btn-secondary {
@@ -101,7 +159,12 @@
   color: #ffffff;
 }
 .btn-secondary:hover {
-  background: rgba(108, 117, 125, 0.6);
+  background: #5a6268;
+  transform: translateY(-1px);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+}
+.btn-secondary:active {
+  transform: translateY(0);
 }
 
 /* Mobile context menu */
@@ -405,7 +468,7 @@
 }
 .page .content .divider {
   width: 1px;
-  background-color: #7e2990;
+  background-color: var(--primary-color);
   margin: 2mm 0 0 0;
   position: relative;
 }
@@ -416,8 +479,8 @@
   white-space: nowrap;
   background: white;
   padding: 0 6mm;
-  color: #7e2990;
-  border: 1px solid #7e2990;
+  color: var(--primary-color);
+  border: 1px solid var(--primary-color);
   border-radius: 20mm;
 }
 .page .footer {
@@ -437,7 +500,7 @@
   width: 79.5mm;
   height: 9.4mm;
   z-index: 1;
-  background-color: #7e2990;
+  background-color: var(--primary-color);
 }
 .page .footer .page-number-ribbon {
   position: absolute;
@@ -445,7 +508,7 @@
   width: 27mm;
   height: 9.4mm;
   z-index: 1;
-  background-color: #7e2990;
+  background-color: var(--primary-color);
 }
 .page .footer .stripes {
   position: absolute;
@@ -471,7 +534,7 @@
   padding: 0 17mm;
   text-align: center;
   line-height: 2.5mm;
-  color: #7e2990;
+  color: var(--primary-color);
 }
 .page.first-page .header .mebi_logo {
   top: 2mm !important;
@@ -501,8 +564,8 @@
   position: absolute;
   top: 13mm;
   left: -5mm;
-  width: 40mm;
-  background: #7e2990;
+  width: 41mm;
+  background: var(--primary-color);
   z-index: 1;
   height: 9.4mm;
   transform: skew(-20deg);
@@ -513,7 +576,7 @@
   font-style: italic;
   margin: -1mm 0 0 0;
   padding: 0 1mm;
-  color: #7e2990;
+  color: var(--primary-color);
   min-height: 5.4mm;
   text-transform: uppercase;
   text-overflow: ellipsis;
@@ -828,7 +891,7 @@
   height: 28px;
   border-radius: 50%;
   border: 3px solid rgba(0, 0, 0, 0.08);
-  border-top-color: #7e2990;
+  border-top-color: var(--primary-color);
   animation: spin 1s linear infinite;
 }
 

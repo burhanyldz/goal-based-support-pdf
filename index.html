@@ -75,6 +75,10 @@
             }
             if (event.detail.changes.testType) {
                 console.log('Test türü değişti:', event.detail.newData.testType);
+                // Apply new theme when test type changes
+                if (window.applyTheme) {
+                    window.applyTheme(event.detail.newData.testType || 'tyt');
+                }
             }
             
             // Burada veritabanına kaydet, API çağır, vs. yapabilirsin
