@@ -1,3 +1,8 @@
+//define color variables
+$tyt-color: #936fb7;
+$ayt-color: #258264;
+$ydt-color: #e46664;
+
 /* Screen reader only content */
 .sr-only {
   position: absolute;
@@ -100,7 +105,7 @@
   color: #ffffff;
 
   &:hover {
-    background: #5a0f5b;
+    background: #7e299099;
   }
 }
 
@@ -109,7 +114,7 @@
   color: #ffffff;
 
   &:hover {
-    background: #5a6268;
+    background: #6c757d99;
   }
 }
 
@@ -464,27 +469,32 @@
     height: 20mm;
 
     .ogm-title {
-      font-size: 2.9mm;
+      font-size: 3.5mm;
       font-weight: 500;
       color: white;
       position: absolute;
-      top: 3.3mm;
+      top: 2.8mm;
       z-index: 2;
     }
 
     .ogm-ribbon {
       position: absolute;
       top: 0.6mm;
-      width: 74.5mm;
+      width: 79.5mm;
+      height: 9.4mm;
       z-index: 1;
+      background-color: #7e2990;
     }
 
-    .ribbon {
+    .page-number-ribbon {
       position: absolute;
       top: 0.6mm;
-      width: 37.5mm;
+      width: 27mm;
+      height: 9.4mm;
       z-index: 1;
+      background-color: #7e2990;
     }
+
 
     .stripes {
       position: absolute;
@@ -548,12 +558,15 @@
         width: 16.4mm !important;
       }
 
-      .ribbon {
+      .header-ribbon {
         position: absolute;
         top: 13mm;
-        left: 0;
+        left: -5mm;
+        width: 40mm;
+        background: #7e2990;
         z-index: 1;
-        width: 37.5mm;
+        height: 9.4mm;
+        transform: skew(-20deg);
       }
 
 
@@ -647,17 +660,22 @@
         left: 13.3mm;
       }
 
-      .ribbon {
-        right: -57px;
-        transform: rotate(180deg);
-      }
-
       .stripes {
         right: -6mm;
       }
 
       .page-number {
         right: 11mm;
+      }
+
+      .ogm-ribbon {
+        left: -5mm;
+        transform: skew(-20deg);
+      }
+
+      .page-number-ribbon {
+        right: -5mm;
+        transform: skew(-20deg);
       }
     }
   }
@@ -685,14 +703,15 @@
       }
 
       .ogm-ribbon {
-        right: 0;
-        transform: scaleX(-1);
+        right: -5mm;
+        transform: scaleX(-1) skew(20deg);
       }
 
-      .ribbon {
-        left: -57px;
-        transform: scaleY(-1);
+      .page-number-ribbon {
+        left: -5mm;
+        transform: scaleX(-1) skew(20deg);
       }
+
 
       .stripes {
         left: -6mm;
@@ -787,7 +806,7 @@
   .desktop-btn {
     display: none;
   }
-  
+
   .mobile-btn {
     display: flex;
   }

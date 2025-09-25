@@ -93,7 +93,7 @@
   color: #ffffff;
 }
 .btn-primary:hover {
-  background: #5a0f5b;
+  background: rgba(126, 41, 144, 0.6);
 }
 
 .btn-secondary {
@@ -101,7 +101,7 @@
   color: #ffffff;
 }
 .btn-secondary:hover {
-  background: #5a6268;
+  background: rgba(108, 117, 125, 0.6);
 }
 
 /* Mobile context menu */
@@ -424,24 +424,28 @@
   height: 20mm;
 }
 .page .footer .ogm-title {
-  font-size: 2.9mm;
+  font-size: 3.5mm;
   font-weight: 500;
   color: white;
   position: absolute;
-  top: 3.3mm;
+  top: 2.8mm;
   z-index: 2;
 }
 .page .footer .ogm-ribbon {
   position: absolute;
   top: 0.6mm;
-  width: 74.5mm;
+  width: 79.5mm;
+  height: 9.4mm;
   z-index: 1;
+  background-color: #7e2990;
 }
-.page .footer .ribbon {
+.page .footer .page-number-ribbon {
   position: absolute;
   top: 0.6mm;
-  width: 37.5mm;
+  width: 27mm;
+  height: 9.4mm;
   z-index: 1;
+  background-color: #7e2990;
 }
 .page .footer .stripes {
   position: absolute;
@@ -493,12 +497,15 @@
   transform: rotate(unset) !important;
   width: 16.4mm !important;
 }
-.page.first-page .header .ribbon {
+.page.first-page .header .header-ribbon {
   position: absolute;
   top: 13mm;
-  left: 0;
+  left: -5mm;
+  width: 40mm;
+  background: #7e2990;
   z-index: 1;
-  width: 37.5mm;
+  height: 9.4mm;
+  transform: skew(-20deg);
 }
 .page.first-page .header .first-page-subtitle {
   font-size: 3.8mm;
@@ -574,15 +581,19 @@
 .page.odd .footer .ogm-title {
   left: 13.3mm;
 }
-.page.odd .footer .ribbon {
-  right: -57px;
-  transform: rotate(180deg);
-}
 .page.odd .footer .stripes {
   right: -6mm;
 }
 .page.odd .footer .page-number {
   right: 11mm;
+}
+.page.odd .footer .ogm-ribbon {
+  left: -5mm;
+  transform: skew(-20deg);
+}
+.page.odd .footer .page-number-ribbon {
+  right: -5mm;
+  transform: skew(-20deg);
 }
 .page.even .header .mebi_logo {
   top: 4.4mm;
@@ -599,12 +610,12 @@
   right: 13.6mm;
 }
 .page.even .footer .ogm-ribbon {
-  right: 0;
-  transform: scaleX(-1);
+  right: -5mm;
+  transform: scaleX(-1) skew(20deg);
 }
-.page.even .footer .ribbon {
-  left: -57px;
-  transform: scaleY(-1);
+.page.even .footer .page-number-ribbon {
+  left: -5mm;
+  transform: scaleX(-1) skew(20deg);
 }
 .page.even .footer .stripes {
   left: -6mm;

@@ -52,7 +52,7 @@
 			<div class="header">
 				<img src="images/mebi.png" alt="MEBİ Logo" class="mebi_logo">
 				<img src="images/stripes.png" class="stripes">
-				<img src="images/ribbon.png" class="ribbon">
+				<div class="header-ribbon"></div>
 				<div class="test-type">${escapeHtml(data.testType || '')}</div>
 				<span class="page-title">HEDEF TEMELLİ DESTEK EĞİTİMİ</span>
 				<span class="first-page-subtitle">${escapeHtml(data.schoolName || 'okul adı')}</span>
@@ -71,9 +71,9 @@
 			</div>
 			<div class="footer">
 				<div class="ogm-title">Ortaöğretim Genel Müdürlüğü</div>
-				<img src="images/ribbon2.png" class="ogm-ribbon">
 				<div class="page-number"></div>
-				<img src="images/ribbon.png" class="ribbon">
+				<div class="ogm-ribbon"></div>
+				<div class="page-number-ribbon"></div>
 				<img src="images/stripes.png" class="stripes">
 				<div class="footer-disclaimer">
 					Bu sayfada bulunan içeriklerin tüm yayın hakları Millî Eğitim Bakanlığı'na aittir. Hiçbir şekilde ticari amaçla kullanılamaz veya kullandırılamaz. Bu sayfada yer alan içeriğin ticari amaçla kullanılması, 5846 sayılı Fikir ve Sanat Eserleri Yasası'nın 36. maddesine aykırıdır ve açıkça suçtur. Aykırı davrananlar hakkında, hukuki ve cezai her türlü başvuru hakkı saklıdır.
@@ -110,9 +110,9 @@
 			</div>
 			<div class="footer">
 				<div class="ogm-title">Ortaöğretim Genel Müdürlüğü</div>
-				<img src="images/ribbon2.png" class="ogm-ribbon">
+				<div class="ogm-ribbon"></div>
+				<div class="page-number-ribbon"></div>
 				<div class="page-number"></div>
-				<img src="images/ribbon.png" class="ribbon">
 				<img src="images/stripes.png" class="stripes">
 				<div class="footer-disclaimer">
 					Bu sayfada bulunan içeriklerin tüm yayın hakları Millî Eğitim Bakanlığı'na aittir. Hiçbir şekilde ticari amaçla kullanılamaz veya kullandırılamaz. Bu sayfada yer alan içeriğin ticari amaçla kullanılması, 5846 sayılı Fikir ve Sanat Eserleri Yasası'nın 36. maddesine aykırıdır ve açıkça suçtur. Aykırı davrananlar hakkında, hukuki ve cezai her türlü başvuru hakkı saklıdır.
