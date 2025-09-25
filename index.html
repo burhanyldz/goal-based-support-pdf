@@ -16,75 +16,73 @@
     <!-- PDF dışa aktarma kütüphaneleri: html2canvas DOM -> canvas, jsPDF PDF oluşturma için -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    
+    <!-- PDF Preview Plugin -->
     <script src="script.js"></script>
+    
     <script>
-        document.addEventListener('DOMContentLoaded', async () => {
-            try {
-                const response = await fetch('example.json');
-                // ÖNEMLİ Verileri JSON olarak al ve bu değişkene ata, veri örneği: example.json
-                const data = await response.json(); 
-                
-                // toolbar, modal ve export overlay elementlerini oluştur
-                try { if (typeof window.createToolbarElements === 'function') window.createToolbarElements(); } catch (e) {}
-                try { if (typeof window.createModalElements === 'function') window.createModalElements(); } catch (e) {}
-                // modal düzenleme ve tekrar render için verileri global olarak sakla
-                window._pdfData = data;
-                // Gelen verilerle PDF önizlemesini render et
-                if (window.PDFPreview && typeof window.PDFPreview.render === 'function') {
-                    window.PDFPreview.render(data);
-                }
-                // ilk render sonrası araç çubuğu/modal olaylarını bağla
-                try { initEditModal(); } catch (e) { /* eğer initEditModal eksikse, yoksay */ }
+        document.addEventListener('DOMContentLoaded', async function() {
+            // PDF Eklentisini yapılandırma ile başlat
 
-                // İlk yüklemeyle modal'ı otomatik aç (isteğe bağlı)
-                if (typeof window.openEditModal === 'function') {
-                    //window.openEditModal();
-                }
-            } catch (error) {
-                console.error('Veri yüklenirken hata oluştu:', error);
-            }
-        });
-
-        // Araç çubuğu buton olaylarını dinle
-        // Geri butonu basıldığında 'toolbar:back' olayı tetiklenir
-        document.addEventListener('toolbar:back', () => {
-            console.log('Geri butonu tıklandı');
-            // Geri navigasyon mantığını burada uygulayın
-            // Örnek: window.history.back() veya özel navigasyon
-        });
-        // Düzenle butonu basıldığında 'toolbar:edit' olayı tetiklenir
-        document.addEventListener('toolbar:sendHomework', (event) => {
-            console.log('Ödev Gönder butonu tıklandı', event.detail);
-            // Ödev gönderme mantığını burada uygulayın
-            // PDF verilerini event.detail içinden alabilirsiniz
-        });
-
-        // Modal kaydet olayını dinle
-        document.addEventListener('modal:dataSaved', (event) => {
-            console.log('Modal veriler kaydedildi!', event.detail);
-            console.log('Eski veriler:', event.detail.oldData);
-            console.log('Yeni veriler:', event.detail.newData);
-            console.log('Değişiklikler:', event.detail.changes);
+            const response = await fetch('example.json');
+            // ÖNEMLİ Verileri JSON olarak al ve bu değişkene ata, veri örneği: example.json
+            const data = await response.json(); 
             
-            // Değişikliklere göre özel işlemler yapabilirsiniz
-            if (event.detail.changes.lessonName) {
-                console.log('Ders adı değişti:', event.detail.newData.lessonName);
-            }
-            if (event.detail.changes.subjectName) {
-                console.log('Konu adı değişti:', event.detail.newData.subjectName);
-            }
-            if (event.detail.changes.testType) {
-                console.log('Test türü değişti:', event.detail.newData.testType);
-                // Apply new theme when test type changes
-                if (window.applyTheme) {
-                    window.applyTheme(event.detail.newData.testType || 'tyt');
+            let preview = PDFPreview.init({
+                container: '#pdf-root',
+                data: data,
+                toolbar: {
+                    enabled: true,
+                    showBack: true,
+                    showEdit: true,
+                    showHomework: true,
+                    showDownload: true,
+                    title: 'PDF Oluştur'
+                },
+                export: {
+                    filename: 'hedef-temelli-destek-egitimi.pdf',
+                    message: 'PDF hazırlanıyor, lütfen bekleyin...'
+                },
+                modal: {
+                    openOnFirstLoad: false,
+                },
+                // Event callbacks
+                onBack: function() {
+                    console.log('Geri butonu tıklandı');
+                    // Geri navigasyon mantığınızı buraya ekleyin
+                    // window.history.back();
+                },
+                onHomework: function(data) {
+                    console.log('Ödev gönder butonu tıklandı', data);
+                    // Ödev gönderme mantığınızı buraya ekleyin
+                    // Örnek: veriyi sunucuya gönder
+                    // fetch('/api/homework', { method: 'POST', body: JSON.stringify(data) });
+                },
+                onDataSaved: function(newData, oldData) {
+                    console.log('Yeni veri kaydedildi!', newData);
+                    console.log('Eski veri:', oldData);
+                    
+                    // You can handle specific changes here
+                    if (oldData.lessonName !== newData.lessonName) {
+                        console.log('Ders Adı değişti:', newData.lessonName);
+                    }
+                    
+                    if (oldData.testType !== newData.testType) {
+                        console.log('Test Türü değişti:', newData.testType);
+                    }
+                },
+                onError: function(message, error) {
+                    console.error('PDF Preview Error:', message, error);
+                    // Hataları düzgün bir şekilde ele al
                 }
-            }
-            
-            // Burada veritabanına kaydet, API çağır, vs. yapabilirsin
-        });
+            });
 
+            // init sonrası kullanılabilir fonksiyonlar:
+            //preview.download();
+            //preview.openEdit();
+            //preview.send();
+
+        });
     </script>
 </body>
-
 </html>

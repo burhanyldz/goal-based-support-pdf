@@ -1,647 +1,1440 @@
-// PDFPreview - vanilla JS plugin for rendering the PDF-like pages from JSON data
-// Usage: PDFPreview.render(data)  -- if data is omitted it will load example.json
+/**
+ * PDFPreview - A modern vanilla JavaScript plugin for rendering PDF-like pages from JSON data
+ * 
+ * @version 2.0.0
+ * @author PDF Preview Team
+ * 
+ * Usage:
+ *   PDFPreview.init({
+ *     container: '#pdf-root',
+ *     data: myData,
+ *     toolbar: {
+ *       enabled: true,
+ *       showBack: true,
+ *       showEdit: true,
+ *       showHomework: true,
+ *       showDownload: true
+ *     },
+ *     onLoad: function() { console.log('PDF loaded'); },
+ *     onBack: function() { console.log('Back clicked'); },
+ *     onHomework: function(data) { console.log('Homework clicked', data); },
+ *     onDataSaved: function(newData, oldData) { console.log('Data saved', newData, oldData); }
+ *   });
+ */
 
-(function () {
+(function(window, document) {
+	'use strict';
+	
 	const LETTERS = ['A', 'B', 'C', 'D', 'E'];
-
-	// Theme management for dynamic color changing based on test type
-	function applyTheme(testType) {
-		const body = document.body;
+	
+	// Default configuration
+	const defaultConfig = {
+		container: '#pdf-root',
+		data: null,
+		autoLoad: 'data.json',
+		toolbar: {
+			enabled: true,
+			showBack: true,
+			showEdit: true,
+			showHomework: true,
+			showDownload: true,
+			title: 'PDF Oluştur'
+		},
+		modal: {
+			enabled: true,
+			title: 'Test Bilgilerini Düzenle',
+			// If true, plugin will open the edit modal automatically the first time the
+			// HTML page is loaded. Control persistence with openOnFirstLoadStorage:
+			// - 'session' (per-tab; cleared when the tab closes)
+			// - 'local' (persists across sessions/tabs)
+			// - 'none' (no persistence; auto-open only once per full page load)
+			openOnFirstLoad: false,
+			openOnFirstLoadStorage: 'none'
+		},
+		export: {
+			enabled: true,
+			filename: 'hedef-temelli-destek.pdf',
+			message: 'PDF hazırlanıyor, lütfen bekleyin...'
+		},
+		scaling: {
+			enabled: true,
+			minScale: 0.45
+		},
+		imageCropping: {
+			enabled: true,
+			padding: 1,
+			bgThreshold: 180,
+			alphaThreshold: 16
+		},
+		// Event callbacks
+		onLoad: null,
+		onBack: null,
+		onHomework: null,
+		onDataSaved: null,
+		onError: null
+	};
+	
+	// Main plugin object
+	const PDFPreview = {
+		config: {},
+		data: null,
+		container: null,
+		initialized: false,
+		// runtime flag to ensure modal auto-open happens only once per full page load
+		_hasAutoOpenedModalOnce: false,
 		
-		// Remove existing theme classes
-		body.classList.remove('theme-tyt', 'theme-ayt', 'theme-ydt');
-		
-		// Apply new theme class based on test type
-		if (testType) {
-			const themeClass = `theme-${testType.toLowerCase()}`;
-			body.classList.add(themeClass);
-		} else {
-			// Default to TYT theme if no test type specified
-			body.classList.add('theme-tyt');
-		}
-	}
-
-	// Initialize theme based on current data
-	function initializeTheme(data) {
-		if (data && data.testType) {
-			applyTheme(data.testType);
-		} else {
-			applyTheme('tyt'); // default
-		}
-	}
-
-	// QR initializer: prefer local QRious (qrious.min.js) if loaded, otherwise fallback to external image
-	function initQRCodeOnPage(page, data) {
-		try {
-			const qrContainer = page.querySelector('.first-page-bar .qr-code');
-			if (!qrContainer) return;
-			qrContainer.innerHTML = '';
-
-			if (!data || !data.qrCodeUrl) return;
-
-			// create canvas to render QR
-			const canvas = document.createElement('canvas');
-			canvas.style.width = '100%';
-			canvas.style.height = '100%';
-			qrContainer.appendChild(canvas);
-
-			if (window.QRious) {
-				// use QRious if available (local script included in index.html)
-				new QRious({ element: canvas, value: String(data.qrCodeUrl), size: 256 });
-			} else {
-				// fallback: external QR image (reliable) — only used if QRious not present
-				const img = document.createElement('img');
-				img.src = `https://api.qrserver.com/v1/create-qr-code/?size=256x256&data=${encodeURIComponent(String(data.qrCodeUrl))}`;
-				img.style.width = '100%';
-				img.style.height = '100%';
-				qrContainer.innerHTML = '';
-				qrContainer.appendChild(img);
-			}
-		} catch (e) {
-			// fail silently
-			console.error('initQRCodeOnPage error', e);
-		}
-	}
-
-	function qs(sel, root = document) { return root.querySelector(sel); }
-
-	function createEl(tag, cls, attrs = {}) {
-		const el = document.createElement(tag);
-		if (cls) el.className = cls;
-		Object.keys(attrs).forEach(k => el.setAttribute(k, attrs[k]));
-		return el;
-	}
-
-	function createFirstPage(data) {
-		const page = createEl('div', 'page odd first-page');
-		page.innerHTML = `
-			<div class="header">
-				<img src="images/mebi.png" alt="MEBİ Logo" class="mebi_logo">
-				<img src="images/stripes.png" class="stripes">
-				<div class="header-ribbon"></div>
-				<div class="test-type">${escapeHtml(data.testType || '')}</div>
-				<span class="page-title">HEDEF TEMELLİ DESTEK EĞİTİMİ</span>
-				<span class="first-page-subtitle">${escapeHtml(data.schoolName || 'okul adı')}</span>
-				<div class="first-page-bar">
-					<span class="lesson-name">${escapeHtml(data.lessonName || 'ders adı')}</span>
-					<span class="subject-name">${escapeHtml(data.subjectName || 'konu adı')}</span>
-					<div class="qr-code"><img src="${escapeHtml(data.qrCodeUrl || '')}"></div>
-				</div>
-			</div>
-			<div class="content">
-				<div class="left-column"></div>
-				<div class="divider">
-					<div class="divider-text">MEBİ Hedef Temelli Destek Eğitimi</div>
-				</div>
-				<div class="right-column"></div>
-			</div>
-			<div class="footer">
-				<div class="ogm-title">Ortaöğretim Genel Müdürlüğü</div>
-				<div class="page-number"></div>
-				<div class="ogm-ribbon"></div>
-				<div class="page-number-ribbon"></div>
-				<img src="images/stripes.png" class="stripes">
-				<div class="footer-disclaimer">
-					Bu sayfada bulunan içeriklerin tüm yayın hakları Millî Eğitim Bakanlığı'na aittir. Hiçbir şekilde ticari amaçla kullanılamaz veya kullandırılamaz. Bu sayfada yer alan içeriğin ticari amaçla kullanılması, 5846 sayılı Fikir ve Sanat Eserleri Yasası'nın 36. maddesine aykırıdır ve açıkça suçtur. Aykırı davrananlar hakkında, hukuki ve cezai her türlü başvuru hakkı saklıdır.
-				</div>
-
-			</div>
-		`;
-		// set school name in title area
-		const subtitle = qs('.first-page-subtitle', page);
-		if (subtitle) subtitle.textContent = data.schoolName || 'okul adı';
-
-		// QR will be initialized after the page is appended (initQRCodeOnPage)
-		return page;
-	}
-
-	function createNormalPage(isOdd, data) {
-		const cls = 'page ' + (isOdd ? 'odd' : 'even');
-		const page = createEl('div', cls);
-		page.innerHTML = `
-			<div class="header">
-				<span class="page-title">HEDEF TEMELLİ DESTEK EĞİTİMİ</span>
-				<img src="images/mebi.png" alt="MEBİ Logo" class="mebi_logo">
-				<img src="images/stripes.png" class="stripes">
-				<div class="page-bar">
-					<span class="subject-name">${escapeHtml(data.subjectName || 'konu adı')}</span>
-				</div>
-			</div>
-			<div class="content">
-				<div class="left-column"></div>
-				<div class="divider">
-					<div class="divider-text">MEBİ Hedef Temelli Destek Eğitimi</div>
-				</div>
-				<div class="right-column"></div>
-			</div>
-			<div class="footer">
-				<div class="ogm-title">Ortaöğretim Genel Müdürlüğü</div>
-				<div class="ogm-ribbon"></div>
-				<div class="page-number-ribbon"></div>
-				<div class="page-number"></div>
-				<img src="images/stripes.png" class="stripes">
-				<div class="footer-disclaimer">
-					Bu sayfada bulunan içeriklerin tüm yayın hakları Millî Eğitim Bakanlığı'na aittir. Hiçbir şekilde ticari amaçla kullanılamaz veya kullandırılamaz. Bu sayfada yer alan içeriğin ticari amaçla kullanılması, 5846 sayılı Fikir ve Sanat Eserleri Yasası'nın 36. maddesine aykırıdır ve açıkça suçtur. Aykırı davrananlar hakkında, hukuki ve cezai her türlü başvuru hakkı saklıdır.
-				</div>
-			</div>
-		`;
-		return page;
-	}
-
-	function createQuestionElement(q) {
-		// create structure but don't set src yet — we'll crop the image first
-		const wrapper = createEl('div', 'question');
-		const num = createEl('div', 'question-number');
-		num.textContent = q.questionNumber != null ? q.questionNumber + '.' : '';
-		const img = createEl('img', 'question-image');
-		// ensure aspect ratio preserved
-		img.style.width = '100%';
-		img.style.height = 'auto';
-		wrapper.appendChild(num);
-		wrapper.appendChild(img);
-		return { wrapper, img, originalSrc: q.imageUrl || '' };
-	}
-
-	// Crop whitespace around an image by drawing it to a canvas and trimming background
-	// Returns a dataURL string for the cropped image. If cropping fails (CORS or error), resolves to the original src.
-	function cropImageWhitespace(src, options = {}) {
-		const padding = typeof options.padding === 'number' ? options.padding : 1; // pixels to keep around content (changed to 1px)
-		const bgThreshold = typeof options.bgThreshold === 'number' ? options.bgThreshold : 180; // more aggressive threshold (was 200)
-		const alphaThreshold = typeof options.alphaThreshold === 'number' ? options.alphaThreshold : 16; // alpha > this considered non-empty
-		const minCropMargin = typeof options.minCropMargin === 'number' ? options.minCropMargin : 1; // only crop if we can remove at least this many pixels
-
-		return new Promise((resolve) => {
-			if (!src) return resolve(src);
-			const img = new Image();
-			img.crossOrigin = 'Anonymous';
-			let cleaned = false;
-			// timer reference will be set later; clear it when we finish to avoid stray timeouts
-			let timer = null;
-
-			const finish = (resultSrc) => {
-				if (!cleaned) {
-					cleaned = true;
-					try { if (timer) clearTimeout(timer); } catch (e) { }
-					resolve(resultSrc);
+		/**
+		 * Initialize the plugin with configuration
+		 * @param {Object} options - Configuration options
+		 */
+		init: function(options = {}) {
+			this.config = this._mergeConfig(defaultConfig, options);
+			
+			try {
+				this._setupContainer();
+				
+				if (this.config.data) {
+					this.render(this.config.data);
+				} else if (this.config.autoLoad) {
+					this._loadData(this.config.autoLoad);
 				}
+				
+				if (this.config.toolbar.enabled) {
+					this._createToolbar();
+				}
+				
+				if (this.config.modal.enabled) {
+					this._createModal();
+					this._initModal();
+				}
+				
+				if (this.config.export.enabled) {
+					this._createExportOverlay();
+				}
+				
+				this._setupEventListeners();
+				this.initialized = true;
+				// Return the instance to allow API calls like: const preview = PDFPreview.init(...)
+				return this;
+				
+			} catch (error) {
+				this._handleError('Initialization failed', error);
+				return null;
+			}
+		},
+
+		// Public helper: programmatic download
+		download: function() {
+			if (!this.initialized) return;
+			this._exportToPDF();
+		},
+
+		// Public helper: open the edit modal programmatically
+		openEdit: function() {
+			if (!this.initialized) return;
+			const editBtn = document.getElementById('edit-meta-btn');
+			if (editBtn) editBtn.click();
+		},
+
+		// Public helper: trigger homework/send action programmatically
+		send: function() {
+			if (!this.initialized) return;
+			if (this.config.onHomework && typeof this.config.onHomework === 'function') {
+				this.config.onHomework(this.data);
+			} else {
+				// fallback: try to trigger the button
+				const hw = document.getElementById('send-homework-btn') || document.getElementById('mobile-homework-icon-btn') || document.getElementById('mobile-homework-btn');
+				if (hw) hw.click();
+			}
+		},
+		
+		/**
+		 * Render PDF with provided data
+		 * @param {Object} data - The PDF data
+		 */
+		render: function(data) {
+			if (!data) {
+				this._handleError('Render failed', new Error('Data parameter is required'));
+				return;
+			}
+			
+			this.data = data;
+			window._pdfData = data; // Keep for compatibility
+			return this._renderPDF(data, this.container);
+		},
+		
+		/**
+		 * Update configuration
+		 * @param {Object} newConfig - New configuration options
+		 */
+		updateConfig: function(newConfig) {
+			this.config = this._mergeConfig(this.config, newConfig);
+			return this;
+		},
+		
+		/**
+		 * Destroy the plugin instance
+		 */
+		destroy: function() {
+			if (this.container) {
+				this.container.innerHTML = '';
+			}
+			this._removeEventListeners();
+			this.initialized = false;
+			this.data = null;
+		},
+		
+		// Private methods
+		_mergeConfig: function(defaults, options) {
+			const merged = JSON.parse(JSON.stringify(defaults));
+			for (const key in options) {
+				if (options.hasOwnProperty(key)) {
+					if (typeof options[key] === 'object' && options[key] !== null && !Array.isArray(options[key])) {
+						merged[key] = this._mergeConfig(merged[key] || {}, options[key]);
+					} else {
+						merged[key] = options[key];
+					}
+				}
+			}
+			return merged;
+		},
+		
+		_setupContainer: function() {
+			const containerSelector = this.config.container;
+			this.container = typeof containerSelector === 'string' 
+				? document.querySelector(containerSelector) 
+				: containerSelector;
+				
+			if (!this.container) {
+				throw new Error(`Container not found: ${containerSelector}`);
+			}
+		},
+		
+		_loadData: function(url) {
+			const self = this;
+			fetch(url)
+				.then(response => response.json())
+				.then(data => self.render(data))
+				.catch(error => self._handleError('Failed to load data', error));
+		},
+		
+		_handleError: function(message, error) {
+			console.error(`PDFPreview: ${message}`, error);
+			if (this.config.onError && typeof this.config.onError === 'function') {
+				this.config.onError(message, error);
+			}
+		},
+		
+		// Core rendering methods
+		_renderPDF: function(data, rootElement) {
+			const self = this;
+			if (!rootElement) {
+				this._handleError('Render failed', new Error('No root element provided'));
+				return;
+			}
+			
+			// Initialize theme based on test type
+			this._initializeTheme(data);
+			
+			rootElement.innerHTML = '';
+			
+			// Create first page and append
+			const firstPage = this._createFirstPage(data);
+			rootElement.appendChild(firstPage);
+			
+			// Initialize QR code area
+			try { 
+				this._initQRCodeOnPage(firstPage, data); 
+			} catch (e) { 
+				console.warn('QR code initialization failed', e);
+			}
+
+			const pagesState = {
+				data,
+				pages: [firstPage],
+				pageCount: 1,
+				currentPage: firstPage,
+				currentColumn: 'left'
 			};
 
-			img.onload = () => {
+			// Place questions sequentially
+			const questions = Array.isArray(data.questions) ? data.questions : [];
+			
+			// Use a promise chain to handle async placement
+			let placementPromise = Promise.resolve();
+			questions.forEach(function(question) {
+				placementPromise = placementPromise.then(function() {
+					return self._placeQuestion(rootElement, pagesState, question);
+				});
+			});
+			
+			placementPromise.then(function() {
+				// Append answer key page
+				const answerPage = self._buildAnswerKey(data);
+				rootElement.appendChild(answerPage);
+				pagesState.pages.push(answerPage);
+
+				// Set page numbers for all pages
+				self._setPageNumbers(rootElement);
+
+				// Apply Turkish-aware casing transforms
+				self._applyLocaleTransforms(rootElement);
+
+				// Scale pages to fit viewport on small screens
+				if (self.config.scaling.enabled) {
+					self._scalePagesToFit();
+				}
+
+				// Auto-open modal on first load (configurable)
 				try {
-					const w = img.naturalWidth || img.width;
-					const h = img.naturalHeight || img.height;
-					if (!w || !h) return finish(src);
-
-					const canvas = document.createElement('canvas');
-					canvas.width = w;
-					canvas.height = h;
-					const ctx = canvas.getContext('2d');
-					// ensure we draw at native resolution and avoid any smoothing that might alter pixels
-					if (ctx) {
-						ctx.imageSmoothingEnabled = false;
-						try { ctx.imageSmoothingQuality = 'high'; } catch (e) { }
-					}
-					ctx.drawImage(img, 0, 0, w, h);
-					let data;
-					try { data = ctx.getImageData(0, 0, w, h).data; } catch (e) { return finish(src); }
-
-					// Helper function to check if a pixel is "white" (background)
-					const isWhitePixel = (r, g, b, a) => {
-						return a <= alphaThreshold || (r >= bgThreshold && g >= bgThreshold && b >= bgThreshold);
-					};
-
-					// Progressive trimming: keep removing edges until we hit non-white pixels
-					let minX = 0, minY = 0, maxX = w - 1, maxY = h - 1;
-
-					// Trim from left
-					let foundContent = false;
-					for (let x = 0; x < w && !foundContent; x++) {
-						for (let y = 0; y < h; y++) {
-							const i = (y * w + x) * 4;
-							const r = data[i], g = data[i + 1], b = data[i + 2], a = data[i + 3];
-							if (!isWhitePixel(r, g, b, a)) {
-								minX = x;
-								foundContent = true;
-								break;
-							}
-						}
-					}
-
-					// Trim from right
-					foundContent = false;
-					for (let x = w - 1; x >= minX && !foundContent; x--) {
-						for (let y = 0; y < h; y++) {
-							const i = (y * w + x) * 4;
-							const r = data[i], g = data[i + 1], b = data[i + 2], a = data[i + 3];
-							if (!isWhitePixel(r, g, b, a)) {
-								maxX = x;
-								foundContent = true;
-								break;
-							}
-						}
-					}
-
-					// Trim from top
-					foundContent = false;
-					for (let y = 0; y < h && !foundContent; y++) {
-						for (let x = minX; x <= maxX; x++) {
-							const i = (y * w + x) * 4;
-							const r = data[i], g = data[i + 1], b = data[i + 2], a = data[i + 3];
-							if (!isWhitePixel(r, g, b, a)) {
-								minY = y;
-								foundContent = true;
-								break;
-							}
-						}
-					}
-
-					// Trim from bottom
-					foundContent = false;
-					for (let y = h - 1; y >= minY && !foundContent; y--) {
-						for (let x = minX; x <= maxX; x++) {
-							const i = (y * w + x) * 4;
-							const r = data[i], g = data[i + 1], b = data[i + 2], a = data[i + 3];
-							if (!isWhitePixel(r, g, b, a)) {
-								maxY = y;
-								foundContent = true;
-								break;
-							}
-						}
-					}
-
-					// Validate bounds
-					if (minX > maxX || minY > maxY || minX >= w || minY >= h) {
-						return finish(src);
-					}
-
-					const cw = maxX - minX + 1;
-					const ch = maxY - minY + 1;
-
-					const leftTrimmed = minX;
-					const rightTrimmed = (w - 1) - maxX;
-					const topTrimmed = minY;
-					const bottomTrimmed = (h - 1) - maxY;
-
-					const out = document.createElement('canvas');
-					out.width = cw;
-					out.height = ch;
-					const outCtx = out.getContext('2d');
-					if (outCtx) {
-						outCtx.imageSmoothingEnabled = false;
-						try { outCtx.imageSmoothingQuality = 'high'; } catch (e) { }
-					}
-					outCtx.drawImage(canvas, minX, minY, cw, ch, 0, 0, cw, ch);
-
-					// Export as lossless PNG blob and return an object URL. This preserves exact pixel data
-					// (browser still drops EXIF/ICC profiles, which is unavoidable with canvas APIs).
-					try {
-						out.toBlob((blob) => {
-							if (!blob) return finish(src);
-							const url = URL.createObjectURL(blob);
-							return finish(url);
-						}, 'image/png');
-						// toBlob is async and will call finish from the callback
-						return;
-					} catch (e) {
-						// fallback to dataURL if toBlob not available
+					if (self.config.modal && self.config.modal.openOnFirstLoad && !self._hasAutoOpenedModalOnce) {
+						const storageMode = String(self.config.modal.openOnFirstLoadStorage || 'session').toLowerCase();
+						const key = 'pdfpreview_modal_shown_v1';
+						let shown = false;
 						try {
-							const dataUrl = out.toDataURL('image/png');
-							return finish(dataUrl);
-						} catch (er) {
-							return finish(src);
+							if (storageMode === 'local') {
+								shown = !!localStorage.getItem(key);
+							} else if (storageMode === 'session') {
+								shown = !!sessionStorage.getItem(key);
+							} else {
+								// 'none' or any other value -> do not persist, only in-memory
+								shown = false;
+							}
+						} catch (e) {
+							shown = false; // storage unavailable -> fall back to in-memory only
+						}
+						if (!shown) {
+							const editBtn = document.getElementById('edit-meta-btn');
+							if (editBtn) {
+								editBtn.click();
+								self._hasAutoOpenedModalOnce = true;
+								try {
+									if (storageMode === 'local') localStorage.setItem(key, '1');
+									else if (storageMode === 'session') sessionStorage.setItem(key, '1');
+								} catch (e) { /* ignore storage errors */ }
+							}
 						}
 					}
 				} catch (e) {
-					return finish(src);
+					console.warn('auto-open modal error', e);
 				}
-			};
 
-			img.onerror = () => {
-				// likely CORS or network error — can't read pixels, fallback to original src
-				finish(src);
-			};
-
-			// safety timeout: if loading hangs, bail
-			timer = setTimeout(() => finish(src), 3000);
-			img.decoding = 'async';
-			img.src = src;
-		});
-	}
-
-	function escapeHtml(s) {
-		if (!s) return '';
-		return String(s).replace(/[&<>"']/g, function (c) {
-			return ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": "&#39;" })[c];
-		});
-	}
-
-	// Apply locale-aware transforms for elements that rely on CSS text-transform
-	// Stores the original innerHTML on first run in data-original-html to avoid double transforms
-	function applyLocaleTransforms(root) {
-		try {
-			const elements = Array.from((root && root.querySelectorAll) ? root.querySelectorAll('*') : []);
-			// include root itself
-			if (root && root.nodeType === 1) elements.unshift(root);
-
-			elements.forEach(el => {
-				const cs = window.getComputedStyle(el);
-				const t = (cs && cs.textTransform) ? cs.textTransform : 'none';
-				if (!t || t === 'none') return;
-
-				// preserve original HTML the first time so we can always re-derive from source
-				if (!el.hasAttribute('data-original-html')) {
-					el.setAttribute('data-original-html', el.innerHTML);
-				}
-				const originalHtml = el.getAttribute('data-original-html') || el.innerHTML;
-
-				// Use a temporary container so we can operate on text nodes while keeping markup
-				const tmp = document.createElement('div');
-				tmp.innerHTML = originalHtml;
-
-				const walker = document.createTreeWalker(tmp, NodeFilter.SHOW_TEXT, null, false);
-				const textNodes = [];
-				while (walker.nextNode()) textNodes.push(walker.currentNode);
-
-				textNodes.forEach(node => {
-					const val = node.nodeValue || '';
-					if (!val.trim()) return; // skip whitespace-only nodes
-					let out = val;
-					if (t === 'uppercase') {
-						out = val.toLocaleUpperCase('tr');
-					} else if (t === 'lowercase') {
-						out = val.toLocaleLowerCase('tr');
-					} else if (t === 'capitalize') {
-						// capitalize each word using Turkish locale
-						out = val.split(/(\s+)/).map(part => {
-							// preserve whitespace
-							if (/^\s+$/.test(part)) return part;
-							const first = part.charAt(0).toLocaleUpperCase('tr');
-							const rest = part.slice(1).toLocaleLowerCase('tr');
-							return first + rest;
-						}).join('');
+				// Trigger onLoad callback after all initialization is complete
+				if (self.config.onLoad && typeof self.config.onLoad === 'function') {
+					try {
+						self.config.onLoad(self.data, pagesState.pages);
+					} catch (e) {
+						console.warn('Error in onLoad callback:', e);
 					}
-					if (out !== val) node.nodeValue = out;
-				});
-
-				// replace element content with transformed HTML
-				el.innerHTML = tmp.innerHTML;
+				}
 			});
-		} catch (e) {
-			// don't break rendering on locale transform errors
-			console.warn('applyLocaleTransforms error', e);
-		}
-	}
+		},
 
-	// check whether element overflows its container vertically
-	function isOverflowing(container) {
-		return container.scrollHeight > container.clientHeight + 1; // small tolerance
-	}
-
-	// place a single question into columns/pages; returns a promise that resolves once placed
-	async function placeQuestion(root, pagesState, q) {
-		// pagesState: { currentPage, currentColumnName ('left'|'right'), pageIndex }
-		const tryPlace = (pageEl, columnName) => {
-			const column = qs('.' + columnName + '-column', pageEl) || qs('.' + columnName + '-column', pageEl) || qs('.' + columnName + '-column', pageEl);
-			// our actual markup uses .left-column and .right-column
-			const col = qs('.' + columnName + '-column', pageEl) || qs('.' + columnName + ' .' + columnName, pageEl);
-		};
-
-		// simpler accessors
-		const placeInColumn = (pageEl, colSelector, questionEl) => {
-			const col = qs(colSelector, pageEl);
-			col.appendChild(questionEl.wrapper);
-		};
-
-		const ensureImageLoaded = (img) => new Promise((res) => {
-			if (img.complete && img.naturalHeight !== 0) return res();
-			img.addEventListener('load', () => res(), { once: true });
-			img.addEventListener('error', () => res(), { once: true });
-			// safety timeout
-			setTimeout(res, 1500);
-		});
-
-		let placed = false;
-		let attemptColumn = pagesState.currentColumn; // 'left' or 'right'
-
-		while (!placed) {
-			const pageEl = pagesState.currentPage;
-			const colSelector = attemptColumn === 'left' ? '.left-column' : '.right-column';
-			// create element, crop the source and set src before appending so size is known
-			const questionEl = createQuestionElement(q);
-			// attempt to crop whitespace; if cropping fails we'll get original src back
-			let croppedSrc;
-			try {
-				croppedSrc = await cropImageWhitespace(questionEl.originalSrc);
-			} catch (e) {
-				croppedSrc = questionEl.originalSrc;
+		// Theme management for dynamic color changing based on test type
+		_applyTheme: function(testType) {
+			const body = document.body;
+			
+			// Remove existing theme classes
+			body.classList.remove('theme-tyt', 'theme-ayt', 'theme-ydt');
+			
+			// Apply new theme class based on test type
+			if (testType) {
+				const themeClass = `theme-${testType.toLowerCase()}`;
+				body.classList.add(themeClass);
+			} else {
+				// Default to TYT theme if no test type specified
+				body.classList.add('theme-tyt');
 			}
-			// set src then append
-			const finalSrc = croppedSrc || questionEl.originalSrc;
-			questionEl.img.src = finalSrc;
+		},
+		
+		_initializeTheme: function(data) {
+			if (data && data.testType) {
+				this._applyTheme(data.testType);
+			} else {
+				this._applyTheme('tyt'); // default
+			}
+		},
 
-			// debugging markers: indicate whether cropping produced a data URL or fallback
+		// QR initializer: prefer local QRious (qrious.min.js) if loaded, otherwise fallback to external image
+		_initQRCodeOnPage: function(page, data) {
 			try {
-				if (questionEl.wrapper && typeof questionEl.wrapper.setAttribute === 'function') {
-					if (croppedSrc && (String(croppedSrc).startsWith('data:') || String(croppedSrc).startsWith('blob:'))) {
-						questionEl.wrapper.setAttribute('data-cropped', 'yes');
-						questionEl.wrapper.setAttribute('data-cropped-src', croppedSrc.startsWith('blob:') ? 'blob' : 'data');
-					} else {
-						questionEl.wrapper.setAttribute('data-cropped', 'no');
-						questionEl.wrapper.setAttribute('data-cropped-src', 'remote');
-					}
+				const qrContainer = page.querySelector('.first-page-bar .qr-code');
+				if (!qrContainer) return;
+				qrContainer.innerHTML = '';
+
+				if (!data || !data.qrCodeUrl) return;
+
+				// create canvas to render QR
+				const canvas = document.createElement('canvas');
+				canvas.style.width = '100%';
+				canvas.style.height = '100%';
+				qrContainer.appendChild(canvas);
+
+				if (window.QRious) {
+					// use QRious if available (local script included in index.html)
+					new QRious({ element: canvas, value: String(data.qrCodeUrl), size: 256 });
+				} else {
+					// fallback: external QR image (reliable) — only used if QRious not present
+					const img = document.createElement('img');
+					img.src = `https://api.qrserver.com/v1/create-qr-code/?size=256x256&data=${encodeURIComponent(String(data.qrCodeUrl))}`;
+					img.style.width = '100%';
+					img.style.height = '100%';
+					qrContainer.innerHTML = '';
+					qrContainer.appendChild(img);
 				}
 			} catch (e) {
-				console.warn('Error setting debug attributes:', e);
+				console.error('initQRCodeOnPage error', e);
 			}
-			placeInColumn(pageEl, colSelector, questionEl);
+		},
 
-			// wait for image to load so measurements are correct
-			await ensureImageLoaded(questionEl.img);
-			// log rendered sizes for debugging
+		_qs: function(sel, root) { 
+			return (root || document).querySelector(sel); 
+		},
 
-			const colNode = qs(colSelector, pageEl);
-			if (!isOverflowing(colNode)) {
-				// fits in this column
-				placed = true;
-				// after placing in left, next should still try left until overflow
-				pagesState.currentColumn = attemptColumn;
-				return;
+		_createEl: function(tag, cls, attrs) {
+			const el = document.createElement(tag);
+			if (cls) el.className = cls;
+			if (attrs) {
+				Object.keys(attrs).forEach(k => el.setAttribute(k, attrs[k]));
 			}
+			return el;
+		},
 
-			// doesn't fit; remove and try next column
-			questionEl.wrapper.remove();
-			if (attemptColumn === 'left') {
-				// try right column of same page
-				attemptColumn = 'right';
-				// if right column is same as left and was already tried, will fall through
-				const rightQuestion = createQuestionElement(q);
-				let croppedRight;
-				try { croppedRight = await cropImageWhitespace(rightQuestion.originalSrc); } catch (e) { croppedRight = rightQuestion.originalSrc; }
-				rightQuestion.img.src = croppedRight || rightQuestion.originalSrc;
-				try {
-					if (rightQuestion.wrapper && typeof rightQuestion.wrapper.setAttribute === 'function') {
-						if (croppedRight && (String(croppedRight).startsWith('data:') || String(croppedRight).startsWith('blob:'))) {
-							rightQuestion.wrapper.setAttribute('data-cropped', 'yes');
-							rightQuestion.wrapper.setAttribute('data-cropped-src', croppedRight.startsWith('blob:') ? 'blob' : 'data');
-						} else {
-							rightQuestion.wrapper.setAttribute('data-cropped', 'no');
-							rightQuestion.wrapper.setAttribute('data-cropped-src', 'remote');
-						}
+		_escapeHtml: function(s) {
+			if (!s) return '';
+			return String(s).replace(/[&<>"']/g, function (c) {
+				return ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": "&#39;" })[c];
+			});
+		},
+
+		_createFirstPage: function(data) {
+			const page = this._createEl('div', 'page odd first-page');
+			page.innerHTML = `
+				<div class="header">
+					<img src="images/mebi.png" alt="MEBİ Logo" class="mebi_logo">
+					<img src="images/stripes.png" class="stripes">
+					<div class="header-ribbon"></div>
+					<div class="test-type">${this._escapeHtml(data.testType || '')}</div>
+					<span class="page-title">HEDEF TEMELLİ DESTEK EĞİTİMİ</span>
+					<span class="first-page-subtitle">${this._escapeHtml(data.schoolName || 'okul adı')}</span>
+					<div class="first-page-bar">
+						<span class="lesson-name">${this._escapeHtml(data.lessonName || 'ders adı')}</span>
+						<span class="subject-name">${this._escapeHtml(data.subjectName || 'konu adı')}</span>
+						<div class="qr-code"><img src="${this._escapeHtml(data.qrCodeUrl || '')}"></div>
+					</div>
+				</div>
+				<div class="content">
+					<div class="left-column"></div>
+					<div class="divider">
+						<div class="divider-text">MEBİ Hedef Temelli Destek Eğitimi</div>
+					</div>
+					<div class="right-column"></div>
+				</div>
+				<div class="footer">
+					<div class="ogm-title">Ortaöğretim Genel Müdürlüğü</div>
+					<div class="page-number"></div>
+					<div class="ogm-ribbon"></div>
+					<div class="page-number-ribbon"></div>
+					<img src="images/stripes.png" class="stripes">
+					<div class="footer-disclaimer">
+						Bu sayfada bulunan içeriklerin tüm yayın hakları Millî Eğitim Bakanlığı'na aittir. Hiçbir şekilde ticari amaçla kullanılamaz veya kullandırılamaz. Bu sayfada yer alan içeriğin ticari amaçla kullanılması, 5846 sayılı Fikir ve Sanat Eserleri Yasası'nın 36. maddesine aykırıdır ve açıkça suçtur. Aykırı davrananlar hakkında, hukuki ve cezai her türlü başvuru hakkı saklıdır.
+					</div>
+				</div>
+			`;
+			// set school name in title area
+			const subtitle = this._qs('.first-page-subtitle', page);
+			if (subtitle) subtitle.textContent = data.schoolName || 'okul adı';
+
+			return page;
+		},
+
+		_createNormalPage: function(isOdd, data) {
+			const cls = 'page ' + (isOdd ? 'odd' : 'even');
+			const page = this._createEl('div', cls);
+			page.innerHTML = `
+				<div class="header">
+					<span class="page-title">HEDEF TEMELLİ DESTEK EĞİTİMİ</span>
+					<img src="images/mebi.png" alt="MEBİ Logo" class="mebi_logo">
+					<img src="images/stripes.png" class="stripes">
+					<div class="page-bar">
+						<span class="subject-name">${this._escapeHtml(data.subjectName || 'konu adı')}</span>
+					</div>
+				</div>
+				<div class="content">
+					<div class="left-column"></div>
+					<div class="divider">
+						<div class="divider-text">MEBİ Hedef Temelli Destek Eğitimi</div>
+					</div>
+					<div class="right-column"></div>
+				</div>
+				<div class="footer">
+					<div class="ogm-title">Ortaöğretim Genel Müdürlüğü</div>
+					<div class="ogm-ribbon"></div>
+					<div class="page-number-ribbon"></div>
+					<div class="page-number"></div>
+					<img src="images/stripes.png" class="stripes">
+					<div class="footer-disclaimer">
+						Bu sayfada bulunan içeriklerin tüm yayın hakları Millî Eğitim Bakanlığı'na aittir. Hiçbir şekilde ticari amaçla kullanılamaz veya kullandırılamaz. Bu sayfada yer alan içeriğin ticari amaçla kullanılması, 5846 sayılı Fikir ve Sanat Eserleri Yasası'nın 36. maddesine aykırıdır ve açıkça suçtur. Aykırı davrananlar hakkında, hukuki ve cezai her türlü başvuru hakkı saklıdır.
+					</div>
+				</div>
+			`;
+			return page;
+		},
+
+		_createQuestionElement: function(q) {
+			// create structure but don't set src yet — we'll crop the image first
+			const wrapper = this._createEl('div', 'question');
+			const num = this._createEl('div', 'question-number');
+			num.textContent = q.questionNumber != null ? q.questionNumber + '.' : '';
+			const img = this._createEl('img', 'question-image');
+			// ensure aspect ratio preserved
+			img.style.width = '100%';
+			img.style.height = 'auto';
+			wrapper.appendChild(num);
+			wrapper.appendChild(img);
+			return { wrapper, img, originalSrc: q.imageUrl || '' };
+		},
+
+		// Crop whitespace around an image by drawing it to a canvas and trimming background
+		_cropImageWhitespace: function(src, options) {
+			const self = this;
+			options = options || {};
+			const padding = typeof options.padding === 'number' ? options.padding : this.config.imageCropping.padding;
+			const bgThreshold = typeof options.bgThreshold === 'number' ? options.bgThreshold : this.config.imageCropping.bgThreshold;
+			const alphaThreshold = typeof options.alphaThreshold === 'number' ? options.alphaThreshold : this.config.imageCropping.alphaThreshold;
+
+			return new Promise(function(resolve) {
+				if (!src || !self.config.imageCropping.enabled) return resolve(src);
+				const img = new Image();
+				img.crossOrigin = 'Anonymous';
+				let cleaned = false;
+				let timer = null;
+
+				const finish = function(resultSrc) {
+					if (!cleaned) {
+						cleaned = true;
+						try { if (timer) clearTimeout(timer); } catch (e) { }
+						resolve(resultSrc);
 					}
-				} catch (e) { /* silent */ }
-				placeInColumn(pageEl, '.right-column', rightQuestion);
-				await ensureImageLoaded(rightQuestion.img);
-				// log rendered sizes for debugging (right column)
+				};
 
-				const rightColNode = qs('.right-column', pageEl);
-				if (!isOverflowing(rightColNode)) {
-					pagesState.currentColumn = 'right';
-					placed = true;
+				img.onload = function() {
+					try {
+						const w = img.naturalWidth || img.width;
+						const h = img.naturalHeight || img.height;
+						if (!w || !h) return finish(src);
+
+						const canvas = document.createElement('canvas');
+						canvas.width = w;
+						canvas.height = h;
+						const ctx = canvas.getContext('2d');
+						if (ctx) {
+							ctx.imageSmoothingEnabled = false;
+						}
+						ctx.drawImage(img, 0, 0, w, h);
+						let data;
+						try { 
+							data = ctx.getImageData(0, 0, w, h).data; 
+						} catch (e) { 
+							return finish(src); 
+						}
+
+						// Helper function to check if a pixel is "white" (background)
+						const isWhitePixel = function(r, g, b, a) {
+							return a <= alphaThreshold || (r >= bgThreshold && g >= bgThreshold && b >= bgThreshold);
+						};
+
+						// Progressive trimming: keep removing edges until we hit non-white pixels
+						let minX = 0, minY = 0, maxX = w - 1, maxY = h - 1;
+
+						// Trim from left
+						let foundContent = false;
+						for (let x = 0; x < w && !foundContent; x++) {
+							for (let y = 0; y < h; y++) {
+								const i = (y * w + x) * 4;
+								const r = data[i], g = data[i + 1], b = data[i + 2], a = data[i + 3];
+								if (!isWhitePixel(r, g, b, a)) {
+									minX = x;
+									foundContent = true;
+									break;
+								}
+							}
+						}
+
+						// Trim from right
+						foundContent = false;
+						for (let x = w - 1; x >= minX && !foundContent; x--) {
+							for (let y = 0; y < h; y++) {
+								const i = (y * w + x) * 4;
+								const r = data[i], g = data[i + 1], b = data[i + 2], a = data[i + 3];
+								if (!isWhitePixel(r, g, b, a)) {
+									maxX = x;
+									foundContent = true;
+									break;
+								}
+							}
+						}
+
+						// Trim from top
+						foundContent = false;
+						for (let y = 0; y < h && !foundContent; y++) {
+							for (let x = minX; x <= maxX; x++) {
+								const i = (y * w + x) * 4;
+								const r = data[i], g = data[i + 1], b = data[i + 2], a = data[i + 3];
+								if (!isWhitePixel(r, g, b, a)) {
+									minY = y;
+									foundContent = true;
+									break;
+								}
+							}
+						}
+
+						// Trim from bottom
+						foundContent = false;
+						for (let y = h - 1; y >= minY && !foundContent; y--) {
+							for (let x = minX; x <= maxX; x++) {
+								const i = (y * w + x) * 4;
+								const r = data[i], g = data[i + 1], b = data[i + 2], a = data[i + 3];
+								if (!isWhitePixel(r, g, b, a)) {
+									maxY = y;
+									foundContent = true;
+									break;
+								}
+							}
+						}
+
+						// Validate bounds
+						if (minX > maxX || minY > maxY || minX >= w || minY >= h) {
+							return finish(src);
+						}
+
+						const cw = maxX - minX + 1;
+						const ch = maxY - minY + 1;
+
+						const out = document.createElement('canvas');
+						out.width = cw;
+						out.height = ch;
+						const outCtx = out.getContext('2d');
+						if (outCtx) {
+							outCtx.imageSmoothingEnabled = false;
+						}
+						outCtx.drawImage(canvas, minX, minY, cw, ch, 0, 0, cw, ch);
+
+						// Export as blob
+						try {
+							out.toBlob(function(blob) {
+								if (!blob) return finish(src);
+								const url = URL.createObjectURL(blob);
+								return finish(url);
+							}, 'image/png');
+							return;
+						} catch (e) {
+							// fallback to dataURL
+							try {
+								const dataUrl = out.toDataURL('image/png');
+								return finish(dataUrl);
+							} catch (er) {
+								return finish(src);
+							}
+						}
+					} catch (e) {
+						return finish(src);
+					}
+				};
+
+				img.onerror = function() {
+					finish(src);
+				};
+
+				// safety timeout
+				timer = setTimeout(function() { finish(src); }, 3000);
+				img.decoding = 'async';
+				img.src = src;
+			});
+		},
+
+		// Apply locale-aware transforms for elements that rely on CSS text-transform
+		_applyLocaleTransforms: function(root) {
+			try {
+				const elements = Array.from((root && root.querySelectorAll) ? root.querySelectorAll('*') : []);
+				// include root itself
+				if (root && root.nodeType === 1) elements.unshift(root);
+
+				elements.forEach(function(el) {
+					const cs = window.getComputedStyle(el);
+					const t = (cs && cs.textTransform) ? cs.textTransform : 'none';
+					if (!t || t === 'none') return;
+
+					// preserve original HTML the first time
+					if (!el.hasAttribute('data-original-html')) {
+						el.setAttribute('data-original-html', el.innerHTML);
+					}
+					const originalHtml = el.getAttribute('data-original-html') || el.innerHTML;
+
+					// Use a temporary container
+					const tmp = document.createElement('div');
+					tmp.innerHTML = originalHtml;
+
+					const walker = document.createTreeWalker(tmp, NodeFilter.SHOW_TEXT, null, false);
+					const textNodes = [];
+					while (walker.nextNode()) textNodes.push(walker.currentNode);
+
+					textNodes.forEach(function(node) {
+						const val = node.nodeValue || '';
+						if (!val.trim()) return;
+						let out = val;
+						if (t === 'uppercase') {
+							out = val.toLocaleUpperCase('tr');
+						} else if (t === 'lowercase') {
+							out = val.toLocaleLowerCase('tr');
+						} else if (t === 'capitalize') {
+							out = val.split(/(\s+)/).map(function(part) {
+								if (/^\s+$/.test(part)) return part;
+								const first = part.charAt(0).toLocaleUpperCase('tr');
+								const rest = part.slice(1).toLocaleLowerCase('tr');
+								return first + rest;
+							}).join('');
+						}
+						if (out !== val) node.nodeValue = out;
+					});
+
+					el.innerHTML = tmp.innerHTML;
+				});
+			} catch (e) {
+				console.warn('applyLocaleTransforms error', e);
+			}
+		},
+
+		// check whether element overflows its container vertically
+		_isOverflowing: function(container) {
+			return container.scrollHeight > container.clientHeight + 1;
+		},
+
+		// place a single question into columns/pages
+		_placeQuestion: function(root, pagesState, q) {
+			const self = this;
+			
+			const placeInColumn = function(pageEl, colSelector, questionEl) {
+				const col = self._qs(colSelector, pageEl);
+				col.appendChild(questionEl.wrapper);
+			};
+
+			const ensureImageLoaded = function(img) {
+				return new Promise(function(resolve) {
+					if (img.complete && img.naturalHeight !== 0) return resolve();
+					img.addEventListener('load', function() { resolve(); }, { once: true });
+					img.addEventListener('error', function() { resolve(); }, { once: true });
+					setTimeout(resolve, 1500);
+				});
+			};
+
+			return new Promise(function(resolve) {
+				let placed = false;
+				let attemptColumn = pagesState.currentColumn;
+
+				const tryPlacement = function() {
+					if (placed) return resolve();
+					
+					const pageEl = pagesState.currentPage;
+					const colSelector = attemptColumn === 'left' ? '.left-column' : '.right-column';
+					
+					// create element, crop the source and set src before appending
+					const questionEl = self._createQuestionElement(q);
+					
+					self._cropImageWhitespace(questionEl.originalSrc).then(function(croppedSrc) {
+						const finalSrc = croppedSrc || questionEl.originalSrc;
+						questionEl.img.src = finalSrc;
+
+						// debugging markers
+						try {
+							if (questionEl.wrapper && typeof questionEl.wrapper.setAttribute === 'function') {
+								if (croppedSrc && (String(croppedSrc).startsWith('data:') || String(croppedSrc).startsWith('blob:'))) {
+									questionEl.wrapper.setAttribute('data-cropped', 'yes');
+									questionEl.wrapper.setAttribute('data-cropped-src', croppedSrc.startsWith('blob:') ? 'blob' : 'data');
+								} else {
+									questionEl.wrapper.setAttribute('data-cropped', 'no');
+									questionEl.wrapper.setAttribute('data-cropped-src', 'remote');
+								}
+							}
+						} catch (e) {
+							console.warn('Error setting debug attributes:', e);
+						}
+						
+						placeInColumn(pageEl, colSelector, questionEl);
+
+						// wait for image to load
+						ensureImageLoaded(questionEl.img).then(function() {
+							const colNode = self._qs(colSelector, pageEl);
+							if (!self._isOverflowing(colNode)) {
+								// fits in this column
+								placed = true;
+								pagesState.currentColumn = attemptColumn;
+								return resolve();
+							}
+
+							// doesn't fit; remove and try next
+							questionEl.wrapper.remove();
+							if (attemptColumn === 'left') {
+								attemptColumn = 'right';
+								tryPlacement();
+							} else {
+								// both columns full -> create new page
+								const newIsOdd = ((pagesState.pageCount + 1) % 2) === 1;
+								const newPage = self._createNormalPage(newIsOdd, pagesState.data);
+								root.appendChild(newPage);
+								pagesState.pages.push(newPage);
+								pagesState.pageCount += 1;
+								pagesState.currentPage = newPage;
+								pagesState.currentColumn = 'left';
+								attemptColumn = 'left';
+								tryPlacement();
+							}
+						});
+					});
+				};
+
+				tryPlacement();
+			});
+		},
+
+		_setPageNumbers: function(root) {
+			const self = this;
+			const pages = Array.from(root.querySelectorAll('.page'));
+			pages.forEach(function(p, idx) {
+				const pn = self._qs('.page-number', p);
+				if (pn) pn.textContent = String(idx + 1);
+			});
+		},
+
+		_buildAnswerKey: function(data) {
+			const page = this._createEl('div', 'page answer-key');
+			page.innerHTML = `
+				<div class="content">
+					<div class="answer-key-title">CEVAP ANAHTARI</div>
+					<div class="answers"></div>
+				</div>
+			`;
+			const answersContainer = this._qs('.answers', page);
+			const answers = Array.isArray(data.answers) ? data.answers.slice() : [];
+			const questions = Array.isArray(data.questions) ? data.questions.slice() : [];
+			const groups = Math.ceil(answers.length / 10) || 1;
+			const total = groups * 10;
+			
+			// create total slots
+			for (let i = 0; i < total; i++) {
+				const slot = this._createEl('div', 'answer-question');
+				const spanNum = this._createEl('span');
+				// Only display the question number if a corresponding question exists
+				const questionExists = questions.some(q => q.questionNumber === (i + 1));
+				spanNum.textContent = questionExists ? (i + 1) + '.' : '';
+				const spanChoice = this._createEl('span');
+				const ans = answers.find(a => a.questionNumber === (i + 1));
+				if (ans && typeof ans.correctChoiceIndex === 'number') {
+					const idx = ans.correctChoiceIndex;
+					spanChoice.textContent = LETTERS[idx] || '';
+				} else {
+					spanChoice.textContent = '';
+				}
+				slot.appendChild(spanNum);
+				slot.appendChild(spanChoice);
+				answersContainer.appendChild(slot);
+			}
+			return page;
+		},
+
+		// Scale pages so their A4 proportions remain intact but fit into narrow viewports
+		_scalePagesToFit: function() {
+			try {
+				const pages = Array.from(document.querySelectorAll('.page'));
+				if (!pages.length) return;
+				
+				const root = this.container || document.body;
+				const rootStyles = window.getComputedStyle(root);
+				const rootPaddingLeft = parseFloat(rootStyles.paddingLeft || 0);
+				const rootPaddingRight = parseFloat(rootStyles.paddingRight || 0);
+				const rootWidth = root.clientWidth - rootPaddingLeft - rootPaddingRight;
+
+				// Only apply scaling on small screens
+				if (rootWidth > 900) {
+					pages.forEach(function(p) {
+						const parent = p.parentElement;
+						if (parent && parent.classList.contains('page-wrap')) {
+							parent.parentNode.insertBefore(p, parent);
+							parent.remove();
+						}
+						p.style.transform = '';
+						p.style.margin = '';
+					});
 					return;
 				}
-				rightQuestion.wrapper.remove();
-				// both columns full -> create new page and continue loop
+
+				const available = Math.max(1, rootWidth - 8);
+				const minScale = this.config.scaling.minScale;
+
+				pages.forEach(function(p) {
+					let wrapper = p.parentElement;
+					if (!wrapper || !wrapper.classList.contains('page-wrap')) {
+						wrapper = document.createElement('div');
+						wrapper.className = 'page-wrap';
+						p.parentNode.insertBefore(wrapper, p);
+						wrapper.appendChild(p);
+					}
+
+					const cs = window.getComputedStyle(p);
+					const marginTop = parseFloat(cs.marginTop || 0);
+					const marginBottom = parseFloat(cs.marginBottom || 0);
+					
+					p.style.transform = 'none';
+					p.style.margin = '0';
+					const naturalW = Math.max(1, p.getBoundingClientRect().width);
+					const naturalH = Math.max(1, p.getBoundingClientRect().height);
+
+					let scale = 1;
+					if (naturalW > available) {
+						scale = available / naturalW;
+					}
+					scale = Math.max(scale, minScale);
+
+					p.style.transformOrigin = 'top left';
+					p.style.transform = `scale(${scale}) translateZ(0)`;
+
+					wrapper.style.width = (naturalW * scale) + 'px';
+					wrapper.style.height = (naturalH * scale) + 'px';
+					wrapper.style.overflow = 'visible';
+					wrapper.style.boxSizing = 'content-box';
+					wrapper.style.marginTop = (marginTop * scale) + 'px';
+					wrapper.style.marginBottom = (marginBottom * scale) + 'px';
+					p.style.margin = '0';
+				});
+			} catch (e) {
+				console.error('scalePagesToFit error', e);
+			}
+		},
+
+		// Toolbar creation and management
+		_createToolbar: function() {
+			if (document.querySelector('.top-toolbar') || !this.config.toolbar.enabled) return;
+			
+			const toolbar = this._createEl('div', 'top-toolbar');
+			toolbar.setAttribute('role', 'toolbar');
+			toolbar.setAttribute('aria-label', 'Page toolbar');
+
+			const inner = this._createEl('div', 'toolbar-inner');
+			
+			// Left section
+			const leftSection = this._createEl('div', 'toolbar-left');
+			
+			// Back button
+			if (this.config.toolbar.showBack) {
+				const backBtn = this._createEl('button', 'btn btn-icon');
+				backBtn.id = 'back-btn';
+				backBtn.type = 'button';
+				backBtn.title = 'Geri';
+				backBtn.innerHTML = `
+					<svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" focusable="false">
+						<path d="M19 12H5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+						<path d="M12 19l-7-7 7-7" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+					</svg>
+					<span class="sr-only">Geri</span>`;
+				leftSection.appendChild(backBtn);
+			}
+			
+			const title = this._createEl('div', 'toolbar-title');
+			title.textContent = this.config.toolbar.title;
+			leftSection.appendChild(title);
+
+			// Right section with actions
+			const actions = this._createEl('div', 'toolbar-actions');
+
+			// Desktop buttons
+			if (this.config.toolbar.showEdit) {
+				const editBtn = this._createEl('button', 'btn btn-primary desktop-btn');
+				editBtn.id = 'edit-meta-btn';
+				editBtn.type = 'button';
+				editBtn.innerHTML = `
+					<svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" focusable="false">
+						<path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+						<path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+					</svg>
+					<span>Düzenle</span>`;
+				actions.appendChild(editBtn);
 			}
 
-			// create a new page and append to root
-			const newIsOdd = ((pagesState.pageCount + 1) % 2) === 1; // alternation
-			const newPage = createNormalPage(newIsOdd, pagesState.data);
-			root.appendChild(newPage);
-			pagesState.pages.push(newPage);
-			pagesState.pageCount += 1;
-			pagesState.currentPage = newPage;
-			pagesState.currentColumn = 'left';
-			attemptColumn = 'left';
-			// loop will try placing on new page
-		}
-	}
+			if (this.config.toolbar.showHomework) {
+				const homeworkBtn = this._createEl('button', 'btn btn-secondary desktop-btn');
+				homeworkBtn.id = 'send-homework-btn';
+				homeworkBtn.type = 'button';
+				homeworkBtn.innerHTML = `
+					<svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" focusable="false">
+						<path d="M22 2L11 13" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+						<path d="M22 2L15 22L11 13L2 9L22 2z" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+					</svg>
+					<span>Ödev olarak Gönder</span>`;
+				actions.appendChild(homeworkBtn);
+			}
 
-	function setPageNumbers(root) {
-		const pages = Array.from(root.querySelectorAll('.page'));
-		pages.forEach((p, idx) => {
-			const pn = qs('.page-number', p);
-			if (pn) pn.textContent = String(idx + 1);
-		});
-	}
+			if (this.config.toolbar.showDownload) {
+				const downloadBtn = this._createEl('button', 'btn desktop-btn');
+				downloadBtn.id = 'download-pdf-btn';
+				downloadBtn.type = 'button';
+				downloadBtn.title = 'PDF indir';
+				downloadBtn.innerHTML = `
+					<svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" focusable="false">
+						<path d="M12 3v10" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+						<path d="M8 11l4 4 4-4" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+						<path d="M21 21H3" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+					</svg>
+					<span class="sr-only">PDF İndir</span>`;
+				actions.appendChild(downloadBtn);
+			}
 
-	function buildAnswerKey(data) {
-		const page = createEl('div', 'page answer-key');
-		page.innerHTML = `
-			<div class="content">
-				<div class="answer-key-title">CEVAP ANAHTARI</div>
-				<div class="answers"></div>
-			</div>
-		`;
-		const answersContainer = qs('.answers', page);
-		const answers = Array.isArray(data.answers) ? data.answers.slice() : [];
-		const questions = Array.isArray(data.questions) ? data.questions.slice() : [];
-		const groups = Math.ceil(answers.length / 10) || 1;
-		const total = groups * 10;
-		// create total slots
-		for (let i = 0; i < total; i++) {
-			const slot = createEl('div', 'answer-question');
-			const spanNum = createEl('span');
-			// Only display the question number if a corresponding question exists
-			const questionExists = questions.some(q => q.questionNumber === (i + 1));
-			spanNum.textContent = questionExists ? (i + 1) + '.' : '';
-			const spanChoice = createEl('span');
-			const ans = answers.find(a => a.questionNumber === (i + 1));
-			if (ans && typeof ans.correctChoiceIndex === 'number') {
-				const idx = ans.correctChoiceIndex;
-				spanChoice.textContent = LETTERS[idx] || '';
+			// Mobile icon-only buttons
+			if (this.config.toolbar.showEdit) {
+				const mobileEditBtn = this._createEl('button', 'btn btn-icon mobile-btn');
+				mobileEditBtn.id = 'mobile-edit-icon-btn';
+				mobileEditBtn.type = 'button';
+				mobileEditBtn.title = 'Düzenle';
+				mobileEditBtn.innerHTML = `
+					<svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" focusable="false">
+						<path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+						<path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+					</svg>
+					<span class="sr-only">Düzenle</span>`;
+				actions.appendChild(mobileEditBtn);
+			}
+
+			if (this.config.toolbar.showHomework) {
+				const mobileHomeworkBtn = this._createEl('button', 'btn btn-icon mobile-btn');
+				mobileHomeworkBtn.id = 'mobile-homework-icon-btn';
+				mobileHomeworkBtn.type = 'button';
+				mobileHomeworkBtn.title = 'Ödev olarak Gönder';
+				mobileHomeworkBtn.innerHTML = `
+					<svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" focusable="false">
+						<path d="M22 2L11 13" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+						<path d="M22 2L15 22L11 13L2 9L22 2z" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+					</svg>
+					<span class="sr-only">Ödev olarak Gönder</span>`;
+				actions.appendChild(mobileHomeworkBtn);
+			}
+
+			// Mobile menu button (three dots)
+			const mobileMenuBtn = this._createEl('button', 'btn btn-icon mobile-btn');
+			mobileMenuBtn.id = 'mobile-menu-btn';
+			mobileMenuBtn.type = 'button';
+			mobileMenuBtn.title = 'Menü';
+			mobileMenuBtn.innerHTML = `
+				<svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" focusable="false">
+					<circle cx="12" cy="12" r="1" fill="currentColor"/>
+					<circle cx="12" cy="5" r="1" fill="currentColor"/>
+					<circle cx="12" cy="19" r="1" fill="currentColor"/>
+				</svg>
+				<span class="sr-only">Menü</span>`;
+			actions.appendChild(mobileMenuBtn);
+
+			// Mobile context menu
+			const contextMenu = this._createEl('div', 'mobile-context-menu');
+			contextMenu.id = 'mobile-context-menu';
+			let contextMenuHTML = '';
+			
+			if (this.config.toolbar.showEdit) {
+				contextMenuHTML += `
+					<button id="mobile-edit-btn" class="context-menu-item">
+						<svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" focusable="false">
+							<path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+							<path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+						</svg>
+						<span>Düzenle</span>
+					</button>`;
+			}
+			
+			if (this.config.toolbar.showHomework) {
+				contextMenuHTML += `
+					<button id="mobile-homework-btn" class="context-menu-item">
+						<svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" focusable="false">
+							<path d="M22 2L11 13" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+							<path d="M22 2L15 22L11 13L2 9L22 2z" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+						</svg>
+						<span>Ödev olarak Gönder</span>
+					</button>`;
+			}
+			
+			if (this.config.toolbar.showDownload) {
+				contextMenuHTML += `
+					<button id="mobile-download-btn" class="context-menu-item">
+						<svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" focusable="false">
+							<path d="M12 3v10" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+							<path d="M8 11l4 4 4-4" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+							<path d="M21 21H3" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+						</svg>
+						<span>PDF İndir</span>
+					</button>`;
+			}
+			
+			contextMenu.innerHTML = contextMenuHTML;
+			actions.appendChild(contextMenu);
+
+			inner.appendChild(leftSection);
+			inner.appendChild(actions);
+			toolbar.appendChild(inner);
+
+			// insert at top of body
+			document.body.insertBefore(toolbar, document.body.firstChild);
+		},
+
+		_createModal: function() {
+			if (document.getElementById('edit-modal') || !this.config.modal.enabled) return;
+
+			const modalOverlay = this._createEl('div', 'modal-overlay');
+			modalOverlay.id = 'edit-modal';
+			modalOverlay.setAttribute('aria-hidden', 'true');
+
+			const modal = this._createEl('div', 'modal');
+			modal.setAttribute('role', 'dialog');
+			modal.setAttribute('aria-modal', 'true');
+
+			// header
+			const header = this._createEl('header', 'modal-header');
+			const h3 = this._createEl('h3');
+			h3.id = 'edit-modal-title';
+			h3.textContent = this.config.modal.title;
+			const closeBtn = this._createEl('button', 'modal-close');
+			closeBtn.id = 'edit-modal-close';
+			closeBtn.type = 'button';
+			closeBtn.innerHTML = `
+				<svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+					<path d="M18.3 5.71a1 1 0 0 0-1.41 0L12 10.59 7.11 5.7A1 1 0 0 0 5.7 7.11L10.59 12l-4.89 4.89a1 1 0 1 0 1.41 1.41L12 13.41l4.89 4.89a1 1 0 0 0 1.41-1.41L13.41 12l4.89-4.89a1 1 0 0 0 0-1.4z" fill="currentColor"/>
+				</svg>`;
+			header.appendChild(h3);
+			header.appendChild(closeBtn);
+
+			// body
+			const body = this._createEl('div', 'modal-body');
+			body.innerHTML = `
+				<label>
+					Ders Adı
+					<input id="input-lessonName" type="text" placeholder="Ders adı">
+				</label>
+				<label>
+					Konu
+					<input id="input-subjectName" type="text" placeholder="Konu">
+				</label>
+				<label>
+					Test Türü
+					<select id="select-testType">
+						<!-- options populated dynamically -->
+					</select>
+				</label>
+			`;
+
+			// footer
+			const footer = this._createEl('footer', 'modal-footer');
+			const cancelBtn = this._createEl('button', 'btn');
+			cancelBtn.id = 'modal-cancel';
+			cancelBtn.type = 'button';
+			cancelBtn.textContent = 'İptal';
+			const saveBtn = this._createEl('button', 'btn btn-primary');
+			saveBtn.id = 'modal-save';
+			saveBtn.type = 'button';
+			saveBtn.textContent = 'Kaydet';
+			footer.appendChild(cancelBtn);
+			footer.appendChild(saveBtn);
+
+			modal.appendChild(header);
+			modal.appendChild(body);
+			modal.appendChild(footer);
+			modalOverlay.appendChild(modal);
+
+			// Insert before pdf-root if available, otherwise append to body
+			if (this.container && this.container.parentNode) {
+				this.container.parentNode.insertBefore(modalOverlay, this.container);
 			} else {
-				spanChoice.textContent = '';
+				document.body.appendChild(modalOverlay);
 			}
-			slot.appendChild(spanNum);
-			slot.appendChild(spanChoice);
-			answersContainer.appendChild(slot);
-		}
-		return page;
-	}
+		},
 
-	async function render(data, rootElement) {
-		if (!data) {
-			console.error('PDFPreview.render: data parameter is required');
-			return;
-		}
+		_createExportOverlay: function() {
+			if (document.getElementById('export-overlay') || !this.config.export.enabled) return;
+			
+			const overlay = this._createEl('div', 'export-overlay');
+			overlay.id = 'export-overlay';
+			overlay.setAttribute('aria-hidden', 'true');
 
-		const root = rootElement || document.getElementById('pdf-root');
-		if (!root) {
-			console.error('PDFPreview.render: no root element provided or #pdf-root element found in DOM');
-			return;
-		}
-		
-		// Initialize theme based on test type
-		initializeTheme(data);
-		
-		root.innerHTML = '';		// create first page and append
-		const firstPage = createFirstPage(data);
-		root.appendChild(firstPage);
-		// initialize QR code area (prefers local QRious if available)
-		try { initQRCodeOnPage(firstPage, data); } catch (e) { /* silent */ }
+			const inner = this._createEl('div', 'export-overlay-inner');
+			const spinner = this._createEl('div', 'spinner');
+			const msg = this._createEl('div', 'export-message');
+			msg.textContent = this.config.export.message;
+			inner.appendChild(spinner);
+			inner.appendChild(msg);
+			overlay.appendChild(inner);
 
-		const pagesState = {
-			data,
-			pages: [firstPage],
-			pageCount: 1,
-			currentPage: firstPage,
-			currentColumn: 'left'
-		};
+			document.body.appendChild(overlay);
+		},
 
-		// iterate questions sequentially so measurements are predictable
-		const qsArr = Array.isArray(data.questions) ? data.questions : [];
-		for (const q of qsArr) {
-			// Place question, awaiting placement
-			// Adjust: the placeQuestion function will create and place
-			await placeQuestion(root, pagesState, q);
-		}
+		_initModal: function() {
+			const self = this;
+			const modal = document.getElementById('edit-modal');
+			if (!modal) return;
 
-		// after questions placed, append answer key page
-		const answerPage = buildAnswerKey(data);
-		root.appendChild(answerPage);
-		pagesState.pages.push(answerPage);
+			const editBtn = document.getElementById('edit-meta-btn');
+			const closeBtn = document.getElementById('edit-modal-close');
+			const cancelBtn = document.getElementById('modal-cancel');
+			const saveBtn = document.getElementById('modal-save');
 
-		// set page numbers for all pages
-		setPageNumbers(root);
+			function openModal() {
+				const data = self.data || {};
+				
+				const inputLesson = document.getElementById('input-lessonName');
+				const inputSubject = document.getElementById('input-subjectName');
+				const selectTest = document.getElementById('select-testType');
 
-		// apply Turkish-aware casing transforms for elements that use CSS text-transform
-		applyLocaleTransforms(root);
+				if (inputLesson) inputLesson.value = data.lessonName || '';
+				if (inputSubject) inputSubject.value = data.subjectName || '';
 
-		// After layout is complete, scale pages to fit viewport on small screens
-		if (typeof scalePagesToFit === 'function') {
-			scalePagesToFit();
-		}
-	}
+				// populate select
+				if (selectTest) {
+					selectTest.innerHTML = '<option value="">(Boş bırak)</option>';
+					const types = Array.isArray(data.availableTestTypes) ? data.availableTestTypes : [];
+					types.forEach(function(t) {
+						const o = document.createElement('option');
+						o.value = t;
+						o.textContent = String(t).toUpperCase();
+						selectTest.appendChild(o);
+					});
+					selectTest.value = data.testType || '';
+				}
 
-	// expose API
-	window.PDFPreview = { render };
-	window.exportPagesToPdf = exportPagesToPdf;
-	window.applyTheme = applyTheme;
-	window.initializeTheme = initializeTheme;
+				modal.setAttribute('aria-hidden', 'false');
+				modal.classList.add('open');
+				document.body.classList.add('modal-open');
+				
+				if (inputLesson) inputLesson.focus();
+			}
 
-	// PDF export: capture all .page nodes and assemble an A4 PDF using html2canvas + jsPDF
-	async function exportPagesToPdf(filename = 'document.pdf') {
-		try {
-			// detect html2canvas
-			if (typeof window.html2canvas !== 'function') {
-				console.warn('html2canvas bulunamadı. Sayfayı PDF olarak oluşturmak için html2canvas yüklü olmalıdır.');
+			function closeModal() {
+				modal.setAttribute('aria-hidden', 'true');
+				modal.classList.remove('open');
+				document.body.classList.remove('modal-open');
+			}
+
+			function saveModal() {
+				const inputLesson = document.getElementById('input-lessonName');
+				const inputSubject = document.getElementById('input-subjectName');
+				const selectTest = document.getElementById('select-testType');
+
+				const oldData = JSON.parse(JSON.stringify(self.data || {}));
+				
+				if (inputLesson) self.data.lessonName = inputLesson.value.trim();
+				if (inputSubject) self.data.subjectName = inputSubject.value.trim();
+				if (selectTest) self.data.testType = selectTest.value || '';
+
+				// Apply theme change
+				if (selectTest && selectTest.value !== oldData.testType) {
+					self._applyTheme(selectTest.value || 'tyt');
+				}
+
+				// Callback
+				if (self.config.onDataSaved && typeof self.config.onDataSaved === 'function') {
+					self.config.onDataSaved(self.data, oldData);
+				}
+
+				// Re-render
+				self.render(self.data);
+				closeModal();
+			}
+
+			if (editBtn) editBtn.addEventListener('click', openModal);
+			if (closeBtn) closeBtn.addEventListener('click', closeModal);
+			if (cancelBtn) cancelBtn.addEventListener('click', closeModal);
+			if (saveBtn) saveBtn.addEventListener('click', saveModal);
+
+			// close on outside click or ESC
+			modal.addEventListener('click', function(e) {
+				if (e.target === modal) closeModal();
+			});
+			
+			document.addEventListener('keydown', function(e) {
+				if (e.key === 'Escape' && modal.classList.contains('open')) closeModal();
+			});
+		},
+
+		_setupEventListeners: function() {
+			const self = this;
+
+			// Back button
+			const backBtn = document.getElementById('back-btn');
+			if (backBtn) {
+				backBtn.addEventListener('click', function() {
+					if (self.config.onBack && typeof self.config.onBack === 'function') {
+						self.config.onBack();
+					}
+				});
+			}
+
+			// Homework button
+			const homeworkBtn = document.getElementById('send-homework-btn');
+			if (homeworkBtn) {
+				homeworkBtn.addEventListener('click', function() {
+					if (self.config.onHomework && typeof self.config.onHomework === 'function') {
+						self.config.onHomework(self.data);
+					}
+				});
+			}
+
+			// Download button
+			const downloadBtn = document.getElementById('download-pdf-btn');
+			if (downloadBtn) {
+				downloadBtn.addEventListener('click', function() {
+					self._exportToPDF();
+				});
+			}
+
+			// Mobile edit button
+			const mobileEditBtn = document.getElementById('mobile-edit-icon-btn');
+			if (mobileEditBtn) {
+				mobileEditBtn.addEventListener('click', function() {
+					// Open the modal just like the desktop edit button
+					const modal = document.getElementById('edit-modal');
+					if (modal) {
+						const openModalEvent = new Event('click');
+						const editMetaBtn = document.getElementById('edit-meta-btn');
+						if (editMetaBtn) {
+							editMetaBtn.dispatchEvent(openModalEvent);
+						}
+					}
+				});
+			}
+
+			// Mobile homework button
+			const mobileHomeworkBtn = document.getElementById('mobile-homework-icon-btn');
+			if (mobileHomeworkBtn) {
+				mobileHomeworkBtn.addEventListener('click', function() {
+					if (self.config.onHomework && typeof self.config.onHomework === 'function') {
+						self.config.onHomework(self.data);
+					}
+				});
+			}
+
+			// Mobile menu button
+			const mobileMenuBtn = document.getElementById('mobile-menu-btn');
+			const mobileContextMenu = document.getElementById('mobile-context-menu');
+			if (mobileMenuBtn && mobileContextMenu) {
+				mobileMenuBtn.addEventListener('click', function(e) {
+					e.stopPropagation();
+					const isVisible = mobileContextMenu.classList.contains('show');
+					if (isVisible) {
+						mobileContextMenu.classList.remove('show');
+					} else {
+						mobileContextMenu.classList.add('show');
+					}
+				});
+
+				// Close menu when clicking outside
+				document.addEventListener('click', function() {
+					mobileContextMenu.classList.remove('show');
+				});
+
+				// Prevent menu from closing when clicking inside it
+				mobileContextMenu.addEventListener('click', function(e) {
+					e.stopPropagation();
+				});
+
+				// Context menu download button
+				const contextDownloadBtn = mobileContextMenu.querySelector('#mobile-download-btn');
+				if (contextDownloadBtn) {
+					contextDownloadBtn.addEventListener('click', function() {
+						self._exportToPDF();
+						mobileContextMenu.classList.remove('show');
+					});
+				}
+
+				// Context menu edit button
+				const contextEditBtn = mobileContextMenu.querySelector('#mobile-edit-btn');
+				if (contextEditBtn) {
+					contextEditBtn.addEventListener('click', function() {
+						// Open the modal just like the desktop edit button
+						const modal = document.getElementById('edit-modal');
+						if (modal) {
+							const openModalEvent = new Event('click');
+							const editMetaBtn = document.getElementById('edit-meta-btn');
+							if (editMetaBtn) {
+								editMetaBtn.dispatchEvent(openModalEvent);
+							}
+						}
+						mobileContextMenu.classList.remove('show');
+					});
+				}
+
+				// Context menu homework button
+				const contextHomeworkBtn = mobileContextMenu.querySelector('#mobile-homework-btn');
+				if (contextHomeworkBtn) {
+					contextHomeworkBtn.addEventListener('click', function() {
+						if (self.config.onHomework && typeof self.config.onHomework === 'function') {
+							self.config.onHomework(self.data);
+						}
+						mobileContextMenu.classList.remove('show');
+					});
+				}
+			}
+
+			// Re-scale on resize
+			let scaleTimer = null;
+			window.addEventListener('resize', function() {
+				if (scaleTimer) clearTimeout(scaleTimer);
+				scaleTimer = setTimeout(function() {
+					if (self.config.scaling.enabled) {
+						self._scalePagesToFit();
+					}
+				}, 120);
+			});
+			
+			window.addEventListener('orientationchange', function() {
+				setTimeout(function() {
+					if (self.config.scaling.enabled) {
+						self._scalePagesToFit();
+					}
+				}, 140);
+			});
+		},
+
+		_removeEventListeners: function() {
+			// This is a simplified cleanup - in a full implementation you'd store references
+			// to event handlers and remove them properly
+		},
+
+		// PDF export functionality
+		_exportToPDF: function() {
+			const self = this;
+			const overlay = document.getElementById('export-overlay');
+			
+			function showOverlay() {
+				if (overlay) {
+					overlay.setAttribute('aria-hidden', 'false');
+					overlay.classList.add('visible');
+				}
+			}
+			
+			function hideOverlay() {
+				if (overlay) {
+					overlay.setAttribute('aria-hidden', 'true');
+					overlay.classList.remove('visible');
+				}
+			}
+
+			// Check for required libraries
+			if (!window.html2canvas) {
 				alert('PDF kütüphanesi "html2canvas" yüklenmedi. Lütfen script bağlantılarını kontrol edin.');
 				return;
 			}
 
-			// detect jspdf (UMD bundles expose differently across versions)
 			let jsPDF = null;
 			if (window.jspdf && typeof window.jspdf.jsPDF === 'function') {
 				jsPDF = window.jspdf.jsPDF;
-			} else if (window.jspdf && window.jspdf.default && typeof window.jspdf.default.jsPDF === 'function') {
-				jsPDF = window.jspdf.default.jsPDF;
-			} else if (typeof window.jsPDF === 'function') {
-				jsPDF = window.jsPDF; // some bundles expose directly
+			} else if (window.jsPDF && typeof window.jsPDF === 'function') {
+				jsPDF = window.jsPDF;
 			}
 
 			if (!jsPDF) {
-				console.warn('jsPDF bulunamadı. window.jspdf veya window.jsPDF bekleniyordu. window keys:', Object.keys(window).filter(k => /pdf/i.test(k)).slice(0, 20));
-				alert('PDF kütüphanesi "jsPDF" yüklenmedi veya farklı bir export şekli kullanıyor. Lütfen script bağlantılarını kontrol edin.');
+				alert('PDF kütüphanesi "jsPDF" yüklenmedi. Lütfen script bağlantılarını kontrol edin.');
 				return;
 			}
 
@@ -651,812 +1444,124 @@
 				return;
 			}
 
-			// A4 in points for jsPDF (mm -> pt conversion is handled by jsPDF with unit: 'mm')
-			const pdf = new jsPDF({ unit: 'mm', format: 'a4', compress: true });
+			showOverlay();
 
-			// We'll capture each .page at its natural CSS size (210mm x 297mm). To get good quality,
-			// render at devicePixelRatio * scaleFactor. Use scaleFactor = 2 for crisper images.
-			const scaleFactor = Math.max(1, Math.min(3, (window.devicePixelRatio || 1)));
-
-			for (let i = 0; i < pages.length; i++) {
-				const page = pages[i];
-
-				// Clone the page to avoid altering the live document (scale wrappers, transforms exist)
-				const clone = page.cloneNode(true);
-				// Put the clone off-screen but visible so styles apply
-				clone.style.position = 'fixed';
-				clone.style.left = '-10000px';
-				clone.style.top = '0';
-				clone.style.margin = '0';
-				clone.style.transform = 'none';
-				clone.style.width = page.style.width || getComputedStyle(page).width;
-				clone.style.height = page.style.height || getComputedStyle(page).height;
-				document.body.appendChild(clone);
-
-				// Before rendering: copy over any canvas content (cloneNode doesn't copy pixels)
-				try {
-					const origCanvases = page.querySelectorAll('canvas');
+			// Small delay to show overlay
+			setTimeout(function() {
+				const pdf = new jsPDF({ unit: 'mm', format: 'a4', compress: true });
+				const scaleFactor = Math.max(1, Math.min(3, (window.devicePixelRatio || 1)));
+				
+				let processIndex = 0;
+				
+				function processNextPage() {
+					if (processIndex >= pages.length) {
+						// All done
+						pdf.save(self.config.export.filename);
+						hideOverlay();
+						return;
+					}
+					
+					const page = pages[processIndex];
+					const clone = page.cloneNode(true);
+					
+					// Copy canvas content from original to clone
+					const originalCanvases = page.querySelectorAll('canvas');
 					const cloneCanvases = clone.querySelectorAll('canvas');
-					for (let ci = 0; ci < origCanvases.length; ci++) {
-						const oCan = origCanvases[ci];
-						const cCan = cloneCanvases[ci];
-						if (!oCan || !cCan) continue;
+					
+					for (let i = 0; i < originalCanvases.length && i < cloneCanvases.length; i++) {
 						try {
-							const dataUrl = oCan.toDataURL();
-							// draw into cloned canvas
-							const img = new Image();
-							img.src = dataUrl;
-							// synchronous draw when loaded
-							await new Promise((res) => {
-								img.onload = () => {
-									try {
-										cCan.width = img.width;
-										cCan.height = img.height;
-										const ctx = cCan.getContext('2d');
-										if (ctx) ctx.drawImage(img, 0, 0);
-									} catch (e) { console.warn('drawing cloned canvas failed', e); }
-									res();
-								};
-								img.onerror = () => res();
-							});
+							const originalCanvas = originalCanvases[i];
+							const cloneCanvas = cloneCanvases[i];
+							
+							// Set the same dimensions
+							cloneCanvas.width = originalCanvas.width;
+							cloneCanvas.height = originalCanvas.height;
+							
+							// Copy the canvas content
+							const cloneCtx = cloneCanvas.getContext('2d');
+							cloneCtx.drawImage(originalCanvas, 0, 0);
 						} catch (e) {
-							console.warn('copy canvas content failed', e);
+							console.warn('Could not copy canvas content:', e);
 						}
 					}
-				} catch (e) {
-					console.warn('error copying canvases to clone', e);
-				}
-
-				// Ensure cloned <img> tags can be loaded by html2canvas: inline SVGs and set crossorigin when possible
-				try {
-					const origImgs = page.querySelectorAll('img');
-					const cloneImgs = clone.querySelectorAll('img');
-					const imgPromises = [];
-					for (let ii = 0; ii < cloneImgs.length; ii++) {
-						const cImg = cloneImgs[ii];
-						const oImg = origImgs[ii];
-						if (!cImg) continue;
-						const src = cImg.getAttribute('src') || '';
-						// If SVG, try to fetch and inline as data URL (safer for cross-origin issues)
-						if (src && src.trim().toLowerCase().endsWith('.svg')) {
-							try {
-								// Try fetching the SVG text from same-origin
-								const absolute = new URL(src, window.location.href).href;
-								const p = fetch(absolute)
-									.then(r => r.ok ? r.text() : Promise.reject(r.status))
-									.then(text => {
-										const dataUrl = 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(text);
-										cImg.setAttribute('src', dataUrl);
-									})
-									.catch(() => {
-										// If fetch fails, fall back to leaving src as-is but set crossorigin to anonymous
-										try { cImg.setAttribute('crossorigin', 'anonymous'); } catch (e) { }
-									});
-								imgPromises.push(p);
-							} catch (e) {
-								try { cImg.setAttribute('crossorigin', 'anonymous'); } catch (er) { }
-							}
-						} else {
-							// non-SVG images: set crossorigin attribute if the origin matches so html2canvas can load them
-							try {
-								const abs = new URL(src, window.location.href);
-								if (abs.origin === window.location.origin) {
-									cImg.setAttribute('crossorigin', 'anonymous');
+					
+					// Position clone off-screen
+					clone.style.position = 'fixed';
+					clone.style.left = '-10000px';
+					clone.style.top = '0';
+					clone.style.margin = '0';
+					clone.style.transform = 'none';
+					document.body.appendChild(clone);
+					
+					// Use html2canvas to render
+					window.html2canvas(clone, {
+						scale: scaleFactor * 2,
+						useCORS: true,
+						allowTaint: false,
+						backgroundColor: '#ffffff',
+						imageTimeout: 3000,
+						logging: false,
+						onclone: function(clonedDoc) {
+							// Additional canvas handling after cloning
+							const clonedCanvases = clonedDoc.querySelectorAll('canvas');
+							const origCanvases = page.querySelectorAll('canvas');
+							
+							for (let i = 0; i < origCanvases.length && i < clonedCanvases.length; i++) {
+								try {
+									const origCanvas = origCanvases[i];
+									const clonedCanvas = clonedCanvases[i];
+									
+									clonedCanvas.width = origCanvas.width;
+									clonedCanvas.height = origCanvas.height;
+									
+									const clonedCtx = clonedCanvas.getContext('2d');
+									clonedCtx.drawImage(origCanvas, 0, 0);
+								} catch (e) {
+									console.warn('Could not copy canvas in onclone:', e);
 								}
-							} catch (e) {
-								// ignore
 							}
 						}
+					}).then(function(canvas) {
+						clone.remove();
+						
+						const imgData = canvas.toDataURL('image/jpeg', 0.98);
+						const pdfWidth = 210; // mm
+						const pdfHeight = 297; // mm
 
-						// Wait until the clone image is loaded (or errored) so html2canvas has image data
-						imgPromises.push(new Promise((res) => {
-							if (cImg.complete && cImg.naturalHeight !== 0) return res();
-							cImg.addEventListener('load', () => res(), { once: true });
-							cImg.addEventListener('error', () => res(), { once: true });
-							// fallback timeout
-							setTimeout(res, 2000);
-						}));
-					}
-					// await all image fetches/copies
-					await Promise.all(imgPromises);
-				} catch (e) {
-					console.warn('error preparing images on clone', e);
+						if (processIndex > 0) pdf.addPage();
+						pdf.addImage(imgData, 'JPEG', 0, 0, pdfWidth, pdfHeight);
+						
+						processIndex++;
+						// Process next page
+						setTimeout(processNextPage, 10);
+					}).catch(function(error) {
+						clone.remove();
+						console.error('Error processing page', processIndex, error);
+						processIndex++;
+						setTimeout(processNextPage, 10);
+					});
 				}
-
-				// Use html2canvas to render the clone. Provide scale to boost resolution.
-				const canvas = await window.html2canvas(clone, {
-					scale: scaleFactor * 2, // extra upscale for crisp text/images
-					useCORS: true,
-					allowTaint: false,
-					backgroundColor: '#ffffff',
-					imageTimeout: 3000,
-					logging: false,
-				});
-
-				// Remove clone immediately after rendering
-				clone.remove();
-
-				const imgData = canvas.toDataURL('image/jpeg', 0.98);
-
-				// jsPDF expects dimensions in mm when unit:'mm'
-				const pdfWidth = 210; // mm
-				const pdfHeight = 297; // mm
-
-				if (i > 0) pdf.addPage();
-				pdf.addImage(imgData, 'JPEG', 0, 0, pdfWidth, pdfHeight);
-			}
-
-			pdf.save(filename);
-		} catch (err) {
-			console.error('exportPagesToPdf error', err);
-			alert('PDF oluşturulurken hata oluştu. Konsolu kontrol edin.');
+				
+				processNextPage();
+			}, 50);
 		}
-	}
+	};
 
-	// Wire up download button when DOM ready
-	document.addEventListener('DOMContentLoaded', () => {
-		// Ensure export overlay exists; create dynamically if missing so HTML can remain clean
-		try {
-			if (!document.getElementById('export-overlay') && typeof window.createExportOverlayElements === 'function') {
-				window.createExportOverlayElements();
-			}
-		} catch (e) { /* ignore */ }
-		// Download button event listener is now set up in setupToolbarEventListeners()
-		// which is called from createToolbarElements() after the button is created
-	});
+	// Expose the plugin globally
+	window.PDFPreview = PDFPreview;
 
-	// Scale pages so their A4 proportions remain intact but fit into narrow viewports.
-	// This function calculates the available width (accounting for some gutters and the
-	// fixed toolbar) and applies a CSS transform to each .page element.
-	function scalePagesToFit() {
-		try {
-			const pages = Array.from(document.querySelectorAll('.page'));
-			if (!pages.length) return;
-			// Determine available width from the pdf root container so we respect its padding
-			const root = document.getElementById('pdf-root') || document.body;
-			const rootStyles = window.getComputedStyle(root);
-			const rootPaddingLeft = parseFloat(rootStyles.paddingLeft || 0);
-			const rootPaddingRight = parseFloat(rootStyles.paddingRight || 0);
-			const rootWidth = root.clientWidth - rootPaddingLeft - rootPaddingRight;
-
-			// Only apply scaling/wrapping on small screens. On larger screens reset any transforms/wrappers.
-			if (rootWidth > 900) {
-				// unwrap pages if they are wrapped and reset transforms
-				pages.forEach(p => {
-					const parent = p.parentElement;
-					if (parent && parent.classList.contains('page-wrap')) {
-						// move page out of wrapper and remove wrapper
-						parent.parentNode.insertBefore(p, parent);
-						parent.remove();
-					}
-					p.style.transform = '';
-					p.style.margin = '';
-				});
-				return;
-			}
-
-			const available = Math.max(1, rootWidth - 8); // small safety gutter
-
-			pages.forEach(p => {
-				// ensure pages are wrapped in a layout container that we can size to match the
-				// visual (scaled) height. This lets document flow follow the scaled size.
-				let wrapper = p.parentElement;
-				if (!wrapper || !wrapper.classList.contains('page-wrap')) {
-					wrapper = document.createElement('div');
-					wrapper.className = 'page-wrap';
-					// insert wrapper before page and move page inside it
-					p.parentNode.insertBefore(wrapper, p);
-					wrapper.appendChild(p);
-				}
-
-				// Capture computed margins first, then clear the page margin and measure size
-				const cs = window.getComputedStyle(p);
-				const marginTop = parseFloat(cs.marginTop || 0);
-				const marginBottom = parseFloat(cs.marginBottom || 0);
-				// Temporarily clear transform to measure natural (unscaled) size
-				p.style.transform = 'none';
-				p.style.margin = '0'; // we'll manage spacing on the wrapper
-				const naturalW = Math.max(1, p.getBoundingClientRect().width);
-				const naturalH = Math.max(1, p.getBoundingClientRect().height);
-
-				// compute scale to fit within available width while preserving proportions
-				let scale = 1;
-				if (naturalW > available) {
-					scale = available / naturalW;
-				}
-				// clamp a reasonable minimum so text isn't too small
-				scale = Math.max(scale, 0.45);
-
-				// Apply visual scale to the page element
-				p.style.transformOrigin = 'top left';
-				p.style.transform = `scale(${scale}) translateZ(0)`;
-
-				// Size the wrapper so the document flow height equals the scaled visual height
-				wrapper.style.width = (naturalW * scale) + 'px';
-				wrapper.style.height = (naturalH * scale) + 'px';
-				wrapper.style.overflow = 'visible';
-				wrapper.style.boxSizing = 'content-box';
-				wrapper.style.marginTop = (marginTop * scale) + 'px';
-				wrapper.style.marginBottom = (marginBottom * scale) + 'px';
-				// ensure page itself doesn't contribute extra margins in flow
-				p.style.margin = '0';
-			});
-		} catch (e) {
-			// fail silently
-			console.error('scalePagesToFit error', e);
+	// Backward compatibility - expose some methods globally
+	window.exportPagesToPdf = function(filename) {
+		if (PDFPreview.initialized) {
+			PDFPreview.config.export.filename = filename || PDFPreview.config.export.filename;
+			PDFPreview._exportToPDF();
 		}
-	}
-
-	// Re-scale on orientation / resize
-	let _scaleTimer = null;
-	window.addEventListener('resize', () => {
-		if (_scaleTimer) clearTimeout(_scaleTimer);
-		_scaleTimer = setTimeout(scalePagesToFit, 120);
-	});
-	window.addEventListener('orientationchange', () => {
-		setTimeout(scalePagesToFit, 140);
-	});
-})();
-
-// --- Moved model logic from index.html ---
-// Fetch demo data and wire up modal after initial render
-
-
-// Modal wiring: open, populate, save
-function initEditModal() {
-	const editBtn = document.getElementById('edit-meta-btn');
-	const modal = document.getElementById('edit-modal');
-	const closeBtn = document.getElementById('edit-modal-close');
-	const cancelBtn = document.getElementById('modal-cancel');
-	const saveBtn = document.getElementById('modal-save');
-
-	const inputLesson = document.getElementById('input-lessonName');
-	const inputSubject = document.getElementById('input-subjectName');
-	const selectTest = document.getElementById('select-testType');
-
-	function openModal() {
-		const data = window._pdfData || {};
-		
-		// Store the original theme for restoration on cancel
-		window._originalTheme = data.testType || 'tyt';
-		
-		if (inputLesson) inputLesson.value = data.lessonName || '';
-		if (inputSubject) inputSubject.value = data.subjectName || '';
-
-		// populate select with availableTestTypes and an empty option
-		if (selectTest) {
-			selectTest.innerHTML = '';
-			const emptyOpt = document.createElement('option');
-			emptyOpt.value = '';
-			emptyOpt.textContent = '(Boş bırak)';
-			selectTest.appendChild(emptyOpt);
-			const arr = Array.isArray(data.availableTestTypes) ? data.availableTestTypes : [];
-			arr.forEach(t => {
-				const o = document.createElement('option');
-				o.value = t;
-				o.textContent = String(t).toUpperCase();
-				selectTest.appendChild(o);
-			});
-			selectTest.value = data.testType || '';
-		}
-
-		if (modal) {
-			modal.setAttribute('aria-hidden', 'false');
-			modal.classList.add('open');
-			document.body.classList.add('modal-open');
-		}
-		// focus first editable input (skip school which is read-only)
-		if (inputLesson) inputLesson.focus();
-	}
-
-	function closeModal() {
-		if (!modal) return;
-		
-		// Restore original theme when closing without saving
-		if (window._originalTheme) {
-			applyTheme(window._originalTheme);
-			delete window._originalTheme; // Clean up
-		}
-		
-		modal.setAttribute('aria-hidden', 'true');
-		modal.classList.remove('open');
-		document.body.classList.remove('modal-open');
-	}
-
-	function save() {
-		const oldData = { ...window._pdfData };
-		window._pdfData = window._pdfData || {};
-		// School name is not editable via the modal; keep original value from data (do not reference missing inputSchool)
-		// window._pdfData.schoolName remains unchanged unless provided elsewhere
-		if (inputLesson) window._pdfData.lessonName = inputLesson.value.trim();
-		if (inputSubject) window._pdfData.subjectName = inputSubject.value.trim();
-		if (selectTest) window._pdfData.testType = selectTest.value || '';
-		
-		// Clean up original theme variable since we're saving
-		delete window._originalTheme;
-		
-		// Broadcast modal save event with old and new data
-		const saveEvent = new CustomEvent('modal:dataSaved', {
-			detail: {
-				oldData: oldData,
-				newData: { ...window._pdfData },
-				changes: {
-					lessonName: oldData.lessonName !== window._pdfData.lessonName,
-					subjectName: oldData.subjectName !== window._pdfData.subjectName,
-					testType: oldData.testType !== window._pdfData.testType
-				}
-			},
-			bubbles: true,
-			cancelable: true
-		});
-		document.dispatchEvent(saveEvent);
-		
-		// re-render with updated data
-		if (window.PDFPreview && typeof window.PDFPreview.render === 'function') {
-			window.PDFPreview.render(window._pdfData);
-		}
-		closeModal();
-	}
-
-	if (editBtn) editBtn.addEventListener('click', openModal);
-	if (closeBtn) closeBtn.addEventListener('click', closeModal);
-	if (cancelBtn) cancelBtn.addEventListener('click', closeModal);
-	if (saveBtn) saveBtn.addEventListener('click', save);
-
-	// close when clicking outside modal
-	if (modal) modal.addEventListener('click', (e) => {
-		if (e.target === modal) closeModal();
-	});
-	// close on ESC
-	document.addEventListener('keydown', (e) => {
-		if (e.key === 'Escape' && modal && modal.classList.contains('open')) closeModal();
-	});
-
-	// Expose openModal function globally
-	window.openEditModal = openModal;
-}
-
-// --- End moved model logic ---
-
-// Creates modal DOM elements and inserts them into the document.
-// Call this from HTML before calling initEditModal() if you prefer to control initialization from HTML.
-function createModalElements() {
-	if (document.getElementById('edit-modal')) return; // already inserted
-
-	// container overlay
-	const modalOverlay = document.createElement('div');
-	modalOverlay.id = 'edit-modal';
-	modalOverlay.className = 'modal-overlay';
-	modalOverlay.setAttribute('aria-hidden', 'true');
-
-	const modal = document.createElement('div');
-	modal.className = 'modal';
-	modal.setAttribute('role', 'dialog');
-	modal.setAttribute('aria-modal', 'true');
-	modal.setAttribute('aria-labelledby', 'edit-modal-title');
-
-	// header
-	const header = document.createElement('header');
-	header.className = 'modal-header';
-	const h3 = document.createElement('h3');
-	h3.id = 'edit-modal-title';
-	h3.textContent = 'Sayfa Bilgilerini Düzenle';
-	const closeBtn = document.createElement('button');
-	closeBtn.className = 'modal-close';
-	closeBtn.id = 'edit-modal-close';
-	closeBtn.type = 'button';
-	closeBtn.setAttribute('aria-label', 'Kapat');
-	closeBtn.innerHTML = `
-		<svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" focusable="false">
-			<path d="M18.3 5.71a1 1 0 0 0-1.41 0L12 10.59 7.11 5.7A1 1 0 0 0 5.7 7.11L10.59 12l-4.89 4.89a1 1 0 1 0 1.41 1.41L12 13.41l4.89 4.89a1 1 0 0 0 1.41-1.41L13.41 12l4.89-4.89a1 1 0 0 0 0-1.4z" fill="currentColor"/>
-		</svg>`;
-	header.appendChild(h3);
-	header.appendChild(closeBtn);
-
-	// body
-	const body = document.createElement('div');
-	body.className = 'modal-body';
-
-	// Ders Adı
-	const labelLesson = document.createElement('label');
-	labelLesson.textContent = '\n                    Ders Adı\n                    ';
-	const inputLesson = document.createElement('input');
-	inputLesson.id = 'input-lessonName';
-	inputLesson.type = 'text';
-	inputLesson.placeholder = 'Ders adı';
-	labelLesson.appendChild(document.createTextNode('\n                    '));
-	labelLesson.appendChild(inputLesson);
-
-	// Konu
-	const labelSubject = document.createElement('label');
-	labelSubject.textContent = '\n                    Konu\n                    ';
-	const inputSubject = document.createElement('input');
-	inputSubject.id = 'input-subjectName';
-	inputSubject.type = 'text';
-	inputSubject.placeholder = 'Konu';
-	labelSubject.appendChild(document.createTextNode('\n                    '));
-	labelSubject.appendChild(inputSubject);
-
-	// Test Türü select
-	const labelTest = document.createElement('label');
-	labelTest.textContent = '\n                    Test Türü\n                    ';
-	const selectTest = document.createElement('select');
-	selectTest.id = 'select-testType';
-	selectTest.innerHTML = '<!-- options populated dynamically -->';
-	labelTest.appendChild(document.createTextNode('\n                    '));
-	labelTest.appendChild(selectTest);
-
-	body.appendChild(labelLesson);
-	body.appendChild(labelSubject);
-	body.appendChild(labelTest);
-
-	// footer
-	const footer = document.createElement('footer');
-	footer.className = 'modal-footer';
-	const cancelBtn = document.createElement('button');
-	cancelBtn.id = 'modal-cancel';
-	cancelBtn.className = 'btn';
-	cancelBtn.type = 'button';
-	cancelBtn.textContent = 'İptal';
-	const saveBtn = document.createElement('button');
-	saveBtn.id = 'modal-save';
-	saveBtn.className = 'btn btn-primary';
-	saveBtn.type = 'button';
-	saveBtn.textContent = 'Kaydet';
-	footer.appendChild(cancelBtn);
-	footer.appendChild(saveBtn);
-
-	modal.appendChild(header);
-	modal.appendChild(body);
-	modal.appendChild(footer);
-	modalOverlay.appendChild(modal);
-
-	// insert before pdf-root if available, otherwise append to body
-	const pdfRoot = document.getElementById('pdf-root');
-	if (pdfRoot && pdfRoot.parentNode) {
-		pdfRoot.parentNode.insertBefore(modalOverlay, pdfRoot);
-	} else {
-		document.body.appendChild(modalOverlay);
-	}
-
-	// expose created elements for convenience (non-enumerable)
-	try {
-		Object.defineProperty(window, '__createdEditModal', { value: true, configurable: true });
-	} catch (e) { /* ignore */ }
-}
-
-// expose factory for callers in HTML
-window.createModalElements = createModalElements;
-
-// Creates export overlay elements and inserts them into the document.
-function createExportOverlayElements() {
-	if (document.getElementById('export-overlay')) return;
-	const overlay = document.createElement('div');
-	overlay.id = 'export-overlay';
-	overlay.className = 'export-overlay';
-	overlay.setAttribute('aria-hidden', 'true');
-	overlay.setAttribute('role', 'status');
-	overlay.setAttribute('aria-live', 'polite');
-
-	const inner = document.createElement('div');
-	inner.className = 'export-overlay-inner';
-	const spinner = document.createElement('div');
-	spinner.className = 'spinner';
-	spinner.setAttribute('aria-hidden', 'true');
-	const msg = document.createElement('div');
-	msg.className = 'export-message';
-	msg.textContent = 'PDF hazırlanıyor, lütfen bekleyin...';
-	inner.appendChild(spinner);
-	inner.appendChild(msg);
-	overlay.appendChild(inner);
-
-	// Insert at end of body
-	document.body.appendChild(overlay);
-}
-
-window.createExportOverlayElements = createExportOverlayElements;
-
-// Creates the top toolbar (back button, title, edit, send homework and download buttons) and inserts into the document.
-function createToolbarElements() {
-	if (document.querySelector('.top-toolbar')) return;
-	const toolbar = document.createElement('div');
-	toolbar.className = 'top-toolbar';
-	toolbar.setAttribute('role', 'toolbar');
-	toolbar.setAttribute('aria-label', 'Page toolbar');
-
-	const inner = document.createElement('div');
-	inner.className = 'toolbar-inner';
+	};
 	
-	// Left section with back button and title
-	const leftSection = document.createElement('div');
-	leftSection.className = 'toolbar-left';
-	
-	// Back button
-	const backBtn = document.createElement('button');
-	backBtn.id = 'back-btn';
-	backBtn.className = 'btn btn-icon';
-	backBtn.type = 'button';
-	backBtn.title = 'Geri';
-	backBtn.innerHTML = `
-		<svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" focusable="false">
-			<path d="M19 12H5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
-			<path d="M12 19l-7-7 7-7" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
-		</svg>
-		<span class="sr-only">Geri</span>`;
-	
-	const title = document.createElement('div');
-	title.className = 'toolbar-title';
-	title.textContent = 'PDF Oluştur';
-	
-	leftSection.appendChild(backBtn);
-	leftSection.appendChild(title);
-
-	// Right section with actions
-	const actions = document.createElement('div');
-	actions.className = 'toolbar-actions';
-
-	// Desktop buttons (always visible on desktop)
-	const editBtn = document.createElement('button');
-	editBtn.id = 'edit-meta-btn';
-	editBtn.className = 'btn btn-primary desktop-btn';
-	editBtn.type = 'button';
-	editBtn.innerHTML = `
-		<svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" focusable="false">
-			<path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
-			<path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
-		</svg>
-		<span>Düzenle</span>`;
-
-	const homeworkBtn = document.createElement('button');
-	homeworkBtn.id = 'send-homework-btn';
-	homeworkBtn.className = 'btn btn-secondary desktop-btn';
-	homeworkBtn.type = 'button';
-	homeworkBtn.innerHTML = `
-		<svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" focusable="false">
-			<path d="M22 2L11 13" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
-			<path d="M22 2L15 22L11 13L2 9L22 2z" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
-		</svg>
-		<span>Ödev olarak Gönder</span>`;
-
-	// Mobile icon-only buttons
-	const mobileEditBtn = document.createElement('button');
-	mobileEditBtn.id = 'mobile-edit-icon-btn';
-	mobileEditBtn.className = 'btn btn-icon mobile-btn';
-	mobileEditBtn.type = 'button';
-	mobileEditBtn.title = 'Düzenle';
-	mobileEditBtn.innerHTML = `
-		<svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" focusable="false">
-			<path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
-			<path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
-		</svg>
-		<span class="sr-only">Düzenle</span>`;
-
-	const mobileHomeworkBtn = document.createElement('button');
-	mobileHomeworkBtn.id = 'mobile-homework-icon-btn';
-	mobileHomeworkBtn.className = 'btn btn-icon mobile-btn';
-	mobileHomeworkBtn.type = 'button';
-	mobileHomeworkBtn.title = 'Ödev olarak Gönder';
-	mobileHomeworkBtn.innerHTML = `
-		<svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" focusable="false">
-			<path d="M22 2L11 13" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
-			<path d="M22 2L15 22L11 13L2 9L22 2z" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
-		</svg>
-		<span class="sr-only">Ödev olarak Gönder</span>`;
-
-	const downloadBtn = document.createElement('button');
-	downloadBtn.id = 'download-pdf-btn';
-	downloadBtn.className = 'btn desktop-btn';
-	downloadBtn.type = 'button';
-	downloadBtn.title = 'PDF indir';
-	downloadBtn.innerHTML = `
-		<svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" focusable="false">
-			<path d="M12 3v10" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
-			<path d="M8 11l4 4 4-4" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
-			<path d="M21 21H3" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
-		</svg>
-		<span class="sr-only">PDF İndir</span>`;
-
-	// Mobile menu button (three dots)
-	const mobileMenuBtn = document.createElement('button');
-	mobileMenuBtn.id = 'mobile-menu-btn';
-	mobileMenuBtn.className = 'btn btn-icon mobile-btn';
-	mobileMenuBtn.type = 'button';
-	mobileMenuBtn.title = 'Menü';
-	mobileMenuBtn.innerHTML = `
-		<svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" focusable="false">
-			<circle cx="12" cy="12" r="1" fill="currentColor"/>
-			<circle cx="12" cy="5" r="1" fill="currentColor"/>
-			<circle cx="12" cy="19" r="1" fill="currentColor"/>
-		</svg>
-		<span class="sr-only">Menü</span>`;
-
-	// Mobile context menu
-	const contextMenu = document.createElement('div');
-	contextMenu.id = 'mobile-context-menu';
-	contextMenu.className = 'mobile-context-menu';
-	contextMenu.innerHTML = `
-		<button id="mobile-edit-btn" class="context-menu-item">
-			<svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" focusable="false">
-				<path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
-				<path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
-			</svg>
-			<span>Düzenle</span>
-		</button>
-		<button id="mobile-homework-btn" class="context-menu-item">
-			<svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" focusable="false">
-				<path d="M22 2L11 13" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
-				<path d="M22 2L15 22L11 13L2 9L22 2z" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
-			</svg>
-			<span>Ödev olarak Gönder</span>
-		</button>
-		<button id="mobile-download-btn" class="context-menu-item">
-			<svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" focusable="false">
-				<path d="M12 3v10" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
-				<path d="M8 11l4 4 4-4" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
-				<path d="M21 21H3" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
-			</svg>
-			<span>PDF İndir</span>
-		</button>
-	`;
-
-	// Append buttons to actions
-	actions.appendChild(editBtn);
-	actions.appendChild(homeworkBtn);
-	actions.appendChild(downloadBtn);
-	actions.appendChild(mobileEditBtn);
-	actions.appendChild(mobileHomeworkBtn);
-	actions.appendChild(mobileMenuBtn);
-	actions.appendChild(contextMenu);
-
-	inner.appendChild(leftSection);
-	inner.appendChild(actions);
-	toolbar.appendChild(inner);
-
-	// insert at top of body
-	document.body.insertBefore(toolbar, document.body.firstChild);
-
-	// Add event listeners for new buttons
-	setupToolbarEventListeners();
-
-	// ensure overlay exists
-	if (!document.getElementById('export-overlay') && typeof window.createExportOverlayElements === 'function') {
-		window.createExportOverlayElements();
-	}
-
-	// If download button wiring already exists in DOMContentLoaded listener, it will pick up this button.
-}
-
-// Event broadcasting function
-function broadcastEvent(eventName, data = {}) {
-	const customEvent = new CustomEvent(eventName, {
-		detail: data,
-		bubbles: true,
-		cancelable: true
-	});
-	document.dispatchEvent(customEvent);
-}
-
-// Setup event listeners for toolbar buttons
-function setupToolbarEventListeners() {
-	// Back button
-	const backBtn = document.getElementById('back-btn');
-	if (backBtn) {
-		backBtn.addEventListener('click', () => {
-			broadcastEvent('toolbar:back');
-		});
-	}
-
-	// Homework button (desktop)
-	const homeworkBtn = document.getElementById('send-homework-btn');
-	if (homeworkBtn) {
-		homeworkBtn.addEventListener('click', () => {
-			broadcastEvent('toolbar:sendHomework', window._pdfData || {});
-		});
-	}
-
-	// Mobile icon buttons
-	const mobileEditIconBtn = document.getElementById('mobile-edit-icon-btn');
-	if (mobileEditIconBtn) {
-		mobileEditIconBtn.addEventListener('click', () => {
-			// Trigger the same action as desktop edit button
-			const desktopEditBtn = document.getElementById('edit-meta-btn');
-			if (desktopEditBtn) {
-				desktopEditBtn.click();
-			}
-		});
-	}
-
-	const mobileHomeworkIconBtn = document.getElementById('mobile-homework-icon-btn');
-	if (mobileHomeworkIconBtn) {
-		mobileHomeworkIconBtn.addEventListener('click', () => {
-			broadcastEvent('toolbar:sendHomework', window._pdfData || {});
-		});
-	}
-
-	// Download button event listener (moved from DOMContentLoaded)
-	const downloadBtn = document.getElementById('download-pdf-btn');
-	if (downloadBtn) {
-		// overlay helpers
-		const overlay = document.getElementById('export-overlay');
-		function showExportOverlay() {
-			if (!overlay) return;
-			overlay.setAttribute('aria-hidden', 'false');
-			overlay.classList.add('visible');
+	window.applyTheme = function(testType) {
+		if (PDFPreview.initialized) {
+			PDFPreview._applyTheme(testType);
 		}
-		function hideExportOverlay() {
-			if (!overlay) return;
-			overlay.setAttribute('aria-hidden', 'true');
-			overlay.classList.remove('visible');
-		}
+	};
 
-		downloadBtn.addEventListener('click', async (e) => {
-			// update UI immediately so user knows something started
-			downloadBtn.setAttribute('disabled', 'true');
-			downloadBtn.classList.add('btn-primary');
-			try {
-				showExportOverlay();
-				// Small delay helps ensure overlay is painted before heavy work begins
-				await new Promise(r => setTimeout(r, 50));
-				await exportPagesToPdf('hedef-temelli-destek.pdf');
-			} finally {
-				hideExportOverlay();
-				downloadBtn.removeAttribute('disabled');
-				downloadBtn.classList.remove('btn-primary');
-			}
-		});
-	}
-
-	// Mobile menu functionality
-	const mobileMenuBtn = document.getElementById('mobile-menu-btn');
-	const contextMenu = document.getElementById('mobile-context-menu');
-	if (mobileMenuBtn && contextMenu) {
-		// Toggle context menu
-		mobileMenuBtn.addEventListener('click', (e) => {
-			e.stopPropagation();
-			contextMenu.classList.toggle('show');
-		});
-
-		// Close menu when clicking outside
-		document.addEventListener('click', (e) => {
-			if (!contextMenu.contains(e.target) && !mobileMenuBtn.contains(e.target)) {
-				contextMenu.classList.remove('show');
-			}
-		});
-
-		// Mobile menu item handlers
-		const mobileEditBtn = document.getElementById('mobile-edit-btn');
-		const mobileHomeworkBtn = document.getElementById('mobile-homework-btn');
-		const mobileDownloadBtn = document.getElementById('mobile-download-btn');
-
-		if (mobileEditBtn) {
-			mobileEditBtn.addEventListener('click', () => {
-				contextMenu.classList.remove('show');
-				// Trigger the same action as desktop edit button
-				const desktopEditBtn = document.getElementById('edit-meta-btn');
-				if (desktopEditBtn) {
-					desktopEditBtn.click();
-				}
-			});
-		}
-
-		if (mobileHomeworkBtn) {
-			mobileHomeworkBtn.addEventListener('click', () => {
-				contextMenu.classList.remove('show');
-				broadcastEvent('toolbar:sendHomework');
-			});
-		}
-
-		if (mobileDownloadBtn) {
-			mobileDownloadBtn.addEventListener('click', () => {
-				contextMenu.classList.remove('show');
-				// Trigger the same action as desktop download button
-				const desktopDownloadBtn = document.getElementById('download-pdf-btn');
-				if (desktopDownloadBtn) {
-					desktopDownloadBtn.click();
-				}
-			});
-		}
-	}
-}
-
-window.createToolbarElements = createToolbarElements;
+})(window, document);

@@ -9,6 +9,8 @@ $ydt-color: #e46664;
   --primary-color-hover: #{darken($tyt-color, 10%)};
   --primary-color-light: #{lighten($tyt-color, 20%)};
   --primary-color-transparent: #{$tyt-color}99;
+  --primary-color-lightest: #{lighten($tyt-color, 41%)};
+  --primary-color-lightest-alt: #{lighten($tyt-color, 38%)};
 }
 
 // Add smooth transitions for elements that use theme colors
@@ -30,6 +32,8 @@ $ydt-color: #e46664;
   --primary-color-hover: #{darken($tyt-color, 10%)};
   --primary-color-light: #{lighten($tyt-color, 20%)};
   --primary-color-transparent: #{$tyt-color}99;
+  --primary-color-lightest: #{lighten($tyt-color, 41%)};
+  --primary-color-lightest-alt: #{lighten($tyt-color, 38%)};
 }
 
 .theme-ayt {
@@ -37,6 +41,8 @@ $ydt-color: #e46664;
   --primary-color-hover: #{darken($ayt-color, 10%)};
   --primary-color-light: #{lighten($ayt-color, 20%)};
   --primary-color-transparent: #{$ayt-color}99;
+  --primary-color-lightest: #{lighten($ayt-color, 66%)};
+  --primary-color-lightest-alt: #{lighten($ayt-color, 64%)};
 }
 
 .theme-ydt {
@@ -44,6 +50,8 @@ $ydt-color: #e46664;
   --primary-color-hover: #{darken($ydt-color, 10%)};
   --primary-color-light: #{lighten($ydt-color, 20%)};
   --primary-color-transparent: #{$ydt-color}99;
+  --primary-color-lightest: #{lighten($ydt-color, 35%)};
+  --primary-color-lightest-alt: #{lighten($ydt-color, 33%)};
 }
 
 /* Screen reader only content */
@@ -807,7 +815,7 @@ $ydt-color: #e46664;
         font-weight: 700;
         margin: 11.5mm 3mm 0 3mm;
         color: #ffffff;
-        background: #ac8fc3;
+        background: var(--primary-color-light);
         height: 7mm;
         display: flex;
         justify-content: center;
@@ -831,7 +839,7 @@ $ydt-color: #e46664;
           background: transparent;
           display: flex;
           padding: 0 6.3mm 0 0;
-          border-bottom: 1px solid #dcd8e2;
+          border-bottom: 1px solid var(--primary-color-light);
 
           span:nth-child(2) {
             margin-left: 1mm;
@@ -849,7 +857,7 @@ $ydt-color: #e46664;
         .answer-question:nth-child(20n + 8),
         .answer-question:nth-child(20n + 9),
         .answer-question:nth-child(20n + 10) {
-          background: #f5f3fa;
+          background: var(--primary-color-lightest);
         }
 
         .answer-question:nth-child(20n + 11),
@@ -862,7 +870,7 @@ $ydt-color: #e46664;
         .answer-question:nth-child(20n + 18),
         .answer-question:nth-child(20n + 19),
         .answer-question:nth-child(20n + 20) {
-          background: #fcfbfd;
+          background: var(--primary-color-lightest-alt);
         }
       }
     }

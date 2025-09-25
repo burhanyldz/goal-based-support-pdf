@@ -89,6 +89,18 @@
         {
             "imageUrl": "https://mebi.eba.gov.tr/upload/question/image/3d616d3d97.png",
             "questionNumber": 20
+        },
+        {
+            "imageUrl": "https://mebi.eba.gov.tr/upload/question/image/2aa575d518.jpg",
+            "questionNumber": 21
+        },
+        {
+            "imageUrl": "https://mebi.eba.gov.tr/upload/question/image/635c69f8c3.png",
+            "questionNumber": 22
+        },
+        {
+            "imageUrl": "https://mebi.eba.gov.tr/upload/question/image/3d616d3d97.png",
+            "questionNumber": 23
         }
     ],
     "answers": [
@@ -171,6 +183,18 @@
         {
             "correctChoiceIndex": 4,
             "questionNumber": 20
+        },
+        {
+            "correctChoiceIndex": 2,
+            "questionNumber": 21
+        },
+        {
+            "correctChoiceIndex": 3,
+            "questionNumber": 22
+        },
+        {
+            "correctChoiceIndex": 4,
+            "questionNumber": 23
         }
     ]
 }

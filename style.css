@@ -3,6 +3,8 @@
   --primary-color-hover: rgb(121.5, 81, 162);
   --primary-color-light: #c6b3d9;
   --primary-color-transparent: #936fb799;
+  --primary-color-lightest: rgb(251.55, 250.4, 252.7);
+  --primary-color-lightest-alt: rgb(243.9, 240.2, 247.6);
 }
 
 .btn-primary,
@@ -22,6 +24,8 @@
   --primary-color-hover: rgb(121.5, 81, 162);
   --primary-color-light: #c6b3d9;
   --primary-color-transparent: #936fb799;
+  --primary-color-lightest: rgb(251.55, 250.4, 252.7);
+  --primary-color-lightest-alt: rgb(243.9, 240.2, 247.6);
 }
 
 .theme-ayt {
@@ -29,6 +33,8 @@
   --primary-color-hover: rgb(25.7005988024, 90.2994011976, 69.4610778443);
   --primary-color-light: rgb(67.3952095808, 201.6047904192, 158.3113772455);
   --primary-color-transparent: #25826499;
+  --primary-color-lightest: rgb(250.0179640719, 253.5820359281, 252.4323353293);
+  --primary-color-lightest-alt: rgb(242.0778443114, 251.3221556886, 248.3401197605);
 }
 
 .theme-ydt {
@@ -36,6 +42,8 @@
   --primary-color-hover: rgb(220.4340659341, 59.1263736264, 56.5659340659);
   --primary-color-light: rgb(243.1318681319, 187.7472527473, 186.8681318681);
   --primary-color-transparent: #e4666499;
+  --primary-color-lightest: rgb(254.4807692308, 252.0576923077, 252.0192307692);
+  --primary-color-lightest-alt: rgb(252.9675824176, 243.482967033, 243.3324175824);
 }
 
 /* Screen reader only content */
@@ -697,7 +705,7 @@
   font-weight: 700;
   margin: 11.5mm 3mm 0 3mm;
   color: #ffffff;
-  background: #ac8fc3;
+  background: var(--primary-color-light);
   height: 7mm;
   display: flex;
   justify-content: center;
@@ -721,7 +729,7 @@
   background: transparent;
   display: flex;
   padding: 0 6.3mm 0 0;
-  border-bottom: 1px solid #dcd8e2;
+  border-bottom: 1px solid var(--primary-color-light);
 }
 .page.answer-key .content .answers .answer-question span:nth-child(2) {
   margin-left: 1mm;
@@ -736,7 +744,7 @@
 .page.answer-key .content .answers .answer-question:nth-child(20n+8),
 .page.answer-key .content .answers .answer-question:nth-child(20n+9),
 .page.answer-key .content .answers .answer-question:nth-child(20n+10) {
-  background: #f5f3fa;
+  background: var(--primary-color-lightest);
 }
 .page.answer-key .content .answers .answer-question:nth-child(20n+11),
 .page.answer-key .content .answers .answer-question:nth-child(20n+12),
@@ -748,7 +756,7 @@
 .page.answer-key .content .answers .answer-question:nth-child(20n+18),
 .page.answer-key .content .answers .answer-question:nth-child(20n+19),
 .page.answer-key .content .answers .answer-question:nth-child(20n+20) {
-  background: #fcfbfd;
+  background: var(--primary-color-lightest-alt);
 }
 
 /* Mobile / small screen: preserve page internals but scale whole page to fit viewport */
