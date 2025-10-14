@@ -1018,6 +1018,7 @@ $ydt-color: #e46664;
   padding: 18px 22px;
   border-radius: 10px;
   display: flex;
+  flex-direction: column;
   gap: 12px;
   align-items: center;
   box-shadow: 0 10px 30px rgba(0, 0, 0, 0.35);
@@ -1028,6 +1029,15 @@ $ydt-color: #e46664;
   font-weight: 700;
   color: #333;
   font-size: 15px;
+  text-align: center;
+}
+
+.export-progress {
+  font-weight: 500;
+  color: #666;
+  font-size: 13px;
+  text-align: center;
+  min-height: 18px;
 }
 
 .spinner {

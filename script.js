@@ -1163,8 +1163,11 @@
 			const spinner = this._createEl('div', 'spinner');
 			const msg = this._createEl('div', 'export-message');
 			msg.textContent = this.config.export.message;
+			const progress = this._createEl('div', 'export-progress');
+			progress.textContent = '';
 			inner.appendChild(spinner);
 			inner.appendChild(msg);
+			inner.appendChild(progress);
 			overlay.appendChild(inner);
 
 			document.body.appendChild(overlay);
@@ -1419,6 +1422,15 @@
 					overlay.classList.remove('visible');
 				}
 			}
+			
+			function updateOverlayProgress(current, total) {
+				if (overlay) {
+					const progressText = overlay.querySelector('.export-progress');
+					if (progressText) {
+						progressText.textContent = 'Sayfa ' + current + ' / ' + total + ' işleniyor...';
+					}
+				}
+			}
 
 			// Check for required libraries
 			if (!window.html2canvas) {
@@ -1445,12 +1457,22 @@
 			}
 
 			showOverlay();
+			
+			// Debugging: Log export start
+			console.log('PDF Export Started: ' + pages.length + ' pages total');
+			console.log('Device Info:', {
+				userAgent: navigator.userAgent,
+				devicePixelRatio: window.devicePixelRatio,
+				memory: navigator.deviceMemory || 'unknown',
+				hardwareConcurrency: navigator.hardwareConcurrency || 'unknown',
+				screenResolution: window.screen.width + 'x' + window.screen.height
+			});
 
 			// Optimal settings for consistent quality across all devices
 			const OPTIMAL_SCALE = 3; // High quality baseline
 			const USE_PNG = true; // Lossless format
-			const CANVAS_TIMEOUT = 8000; // More time for slow devices
-			const PROCESS_DELAY = 100; // Longer delay between pages for resource management
+			const CANVAS_TIMEOUT = 10000; // Even more time for slow devices
+			const PROCESS_DELAY = 200; // Longer delay between pages for better reliability
 
 			// Small delay to show overlay
 			setTimeout(function() {
@@ -1463,7 +1485,9 @@
 				
 				let processIndex = 0;
 				let failedAttempts = 0;
-				const MAX_RETRIES = 2;
+				const MAX_RETRIES = 3;
+				const processedPages = [];
+				const failedPages = [];
 				
 				function processNextPage() {
 					if (processIndex >= pages.length) {
@@ -1473,7 +1497,19 @@
 						return;
 					}
 					
+					// Update progress display (after checking if we're done)
+					updateOverlayProgress(processIndex + 1, pages.length);
+					
 					const page = pages[processIndex];
+					const pageNumber = processIndex + 1;
+					
+					console.log('Processing page ' + pageNumber + ' of ' + pages.length);
+					
+					// Check if page exists and is visible
+					if (!page || !page.offsetParent) {
+						console.warn('Page ' + pageNumber + ' is not visible or does not exist');
+					}
+					
 					const clone = page.cloneNode(true);
 					
 					// Copy canvas content from original to clone with high fidelity
@@ -1570,12 +1606,23 @@
 					// Use html2canvas to render
 					window.html2canvas(clone, html2canvasOptions)
 						.then(function(canvas) {
+							console.log('Page ' + pageNumber + ' rendered successfully. Canvas size: ' + canvas.width + 'x' + canvas.height);
 							clone.remove();
+							
+							// Validate canvas
+							if (!canvas || canvas.width === 0 || canvas.height === 0) {
+								throw new Error('Invalid canvas generated for page ' + pageNumber);
+							}
 							
 							// Convert to high-quality image
 							const format = USE_PNG ? 'image/png' : 'image/jpeg';
 							const quality = USE_PNG ? 1.0 : 0.98;
 							const imgData = canvas.toDataURL(format, quality);
+							
+							// Validate image data
+							if (!imgData || imgData.length < 100) {
+								throw new Error('Invalid image data generated for page ' + pageNumber);
+							}
 							
 							const pdfWidth = 210; // mm (A4)
 							const pdfHeight = 297; // mm (A4)
@@ -1595,6 +1642,8 @@
 								compression
 							);
 							
+							console.log('Page ' + pageNumber + ' added to PDF successfully');
+							processedPages.push(pageNumber);
 							processIndex++;
 							failedAttempts = 0; // Reset on success
 							
@@ -1602,17 +1651,18 @@
 							setTimeout(processNextPage, PROCESS_DELAY);
 						})
 						.catch(function(error) {
-							console.error('Error processing page', processIndex, error);
+							console.error('Error processing page ' + pageNumber, error);
 							clone.remove();
 							
 							// Retry logic for failed pages
 							if (failedAttempts < MAX_RETRIES) {
 								failedAttempts++;
-								console.log('Retrying page ' + processIndex + ', attempt ' + failedAttempts);
-								setTimeout(processNextPage, PROCESS_DELAY * 2);
+								console.log('Retrying page ' + pageNumber + ', attempt ' + failedAttempts + ' of ' + MAX_RETRIES);
+								setTimeout(processNextPage, PROCESS_DELAY * 3); // Longer delay on retry
 							} else {
 								// Skip failed page and continue
-								console.error('Skipping page ' + processIndex + ' after ' + MAX_RETRIES + ' attempts');
+								console.error('Skipping page ' + pageNumber + ' after ' + MAX_RETRIES + ' attempts');
+								failedPages.push(pageNumber);
 								processIndex++;
 								failedAttempts = 0;
 								setTimeout(processNextPage, PROCESS_DELAY);
