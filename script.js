@@ -1446,12 +1446,24 @@
 
 			showOverlay();
 
+			// Optimal settings for consistent quality across all devices
+			const OPTIMAL_SCALE = 3; // High quality baseline
+			const USE_PNG = true; // Lossless format
+			const CANVAS_TIMEOUT = 8000; // More time for slow devices
+			const PROCESS_DELAY = 100; // Longer delay between pages for resource management
+
 			// Small delay to show overlay
 			setTimeout(function() {
-				const pdf = new jsPDF({ unit: 'mm', format: 'a4', compress: true });
-				const scaleFactor = Math.max(1, Math.min(3, (window.devicePixelRatio || 1)));
+				const pdf = new jsPDF({ 
+					unit: 'mm', 
+					format: 'a4', 
+					compress: true,
+					precision: 16 // Higher precision for better quality
+				});
 				
 				let processIndex = 0;
+				let failedAttempts = 0;
+				const MAX_RETRIES = 2;
 				
 				function processNextPage() {
 					if (processIndex >= pages.length) {
@@ -1464,7 +1476,7 @@
 					const page = pages[processIndex];
 					const clone = page.cloneNode(true);
 					
-					// Copy canvas content from original to clone
+					// Copy canvas content from original to clone with high fidelity
 					const originalCanvases = page.querySelectorAll('canvas');
 					const cloneCanvases = clone.querySelectorAll('canvas');
 					
@@ -1473,12 +1485,19 @@
 							const originalCanvas = originalCanvases[i];
 							const cloneCanvas = cloneCanvases[i];
 							
-							// Set the same dimensions
+							// Preserve original dimensions
 							cloneCanvas.width = originalCanvas.width;
 							cloneCanvas.height = originalCanvas.height;
 							
-							// Copy the canvas content
-							const cloneCtx = cloneCanvas.getContext('2d');
+							// High quality canvas copy
+							const cloneCtx = cloneCanvas.getContext('2d', {
+								alpha: true,
+								desynchronized: false,
+								willReadFrequently: false
+							});
+							
+							// Disable smoothing for crisp rendering
+							cloneCtx.imageSmoothingEnabled = false;
 							cloneCtx.drawImage(originalCanvas, 0, 0);
 						} catch (e) {
 							console.warn('Could not copy canvas content:', e);
@@ -1491,18 +1510,27 @@
 					clone.style.top = '0';
 					clone.style.margin = '0';
 					clone.style.transform = 'none';
+					clone.style.opacity = '1';
 					document.body.appendChild(clone);
 					
-					// Use html2canvas to render
-					window.html2canvas(clone, {
-						scale: scaleFactor * 2,
+					// Optimal html2canvas configuration
+					const html2canvasOptions = {
+						scale: OPTIMAL_SCALE,
 						useCORS: true,
 						allowTaint: false,
 						backgroundColor: '#ffffff',
-						imageTimeout: 3000,
+						imageTimeout: CANVAS_TIMEOUT,
 						logging: false,
+						// Quality-focused options
+						letterRendering: true,
+						foreignObjectRendering: false, // More reliable
+						removeContainer: false,
+						// Window sizing
+						windowWidth: clone.scrollWidth,
+						windowHeight: clone.scrollHeight,
+						// Canvas rendering options
 						onclone: function(clonedDoc) {
-							// Additional canvas handling after cloning
+							// Ensure all canvases are properly copied
 							const clonedCanvases = clonedDoc.querySelectorAll('canvas');
 							const origCanvases = page.querySelectorAll('canvas');
 							
@@ -1514,32 +1542,82 @@
 									clonedCanvas.width = origCanvas.width;
 									clonedCanvas.height = origCanvas.height;
 									
-									const clonedCtx = clonedCanvas.getContext('2d');
+									const clonedCtx = clonedCanvas.getContext('2d', {
+										alpha: true,
+										desynchronized: false
+									});
+									
+									clonedCtx.imageSmoothingEnabled = false;
 									clonedCtx.drawImage(origCanvas, 0, 0);
 								} catch (e) {
 									console.warn('Could not copy canvas in onclone:', e);
 								}
 							}
+							
+							// Ensure all images are loaded
+							const imgs = clonedDoc.querySelectorAll('img');
+							imgs.forEach(function(img) {
+								if (!img.complete) {
+									// Force reload if not complete
+									const src = img.src;
+									img.src = '';
+									img.src = src;
+								}
+							});
 						}
-					}).then(function(canvas) {
-						clone.remove();
-						
-						const imgData = canvas.toDataURL('image/jpeg', 0.98);
-						const pdfWidth = 210; // mm
-						const pdfHeight = 297; // mm
+					};
+					
+					// Use html2canvas to render
+					window.html2canvas(clone, html2canvasOptions)
+						.then(function(canvas) {
+							clone.remove();
+							
+							// Convert to high-quality image
+							const format = USE_PNG ? 'image/png' : 'image/jpeg';
+							const quality = USE_PNG ? 1.0 : 0.98;
+							const imgData = canvas.toDataURL(format, quality);
+							
+							const pdfWidth = 210; // mm (A4)
+							const pdfHeight = 297; // mm (A4)
 
-						if (processIndex > 0) pdf.addPage();
-						pdf.addImage(imgData, 'JPEG', 0, 0, pdfWidth, pdfHeight);
-						
-						processIndex++;
-						// Process next page
-						setTimeout(processNextPage, 10);
-					}).catch(function(error) {
-						clone.remove();
-						console.error('Error processing page', processIndex, error);
-						processIndex++;
-						setTimeout(processNextPage, 10);
-					});
+							if (processIndex > 0) pdf.addPage();
+							
+							// Add image with compression options for smaller file size
+							const compression = USE_PNG ? 'SLOW' : 'FAST';
+							pdf.addImage(
+								imgData, 
+								USE_PNG ? 'PNG' : 'JPEG', 
+								0, 
+								0, 
+								pdfWidth, 
+								pdfHeight,
+								undefined,
+								compression
+							);
+							
+							processIndex++;
+							failedAttempts = 0; // Reset on success
+							
+							// Process next page with delay for resource cleanup
+							setTimeout(processNextPage, PROCESS_DELAY);
+						})
+						.catch(function(error) {
+							console.error('Error processing page', processIndex, error);
+							clone.remove();
+							
+							// Retry logic for failed pages
+							if (failedAttempts < MAX_RETRIES) {
+								failedAttempts++;
+								console.log('Retrying page ' + processIndex + ', attempt ' + failedAttempts);
+								setTimeout(processNextPage, PROCESS_DELAY * 2);
+							} else {
+								// Skip failed page and continue
+								console.error('Skipping page ' + processIndex + ' after ' + MAX_RETRIES + ' attempts');
+								processIndex++;
+								failedAttempts = 0;
+								setTimeout(processNextPage, PROCESS_DELAY);
+							}
+						});
 				}
 				
 				processNextPage();
