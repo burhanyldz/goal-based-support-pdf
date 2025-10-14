@@ -110,6 +110,7 @@
 				
 				if (this.config.export.enabled) {
 					this._createExportOverlay();
+					this._createSuccessOverlay();
 				}
 				
 				this._setupEventListeners();
@@ -1172,6 +1173,62 @@
 
 			document.body.appendChild(overlay);
 		},
+		
+		_createSuccessOverlay: function() {
+			if (document.getElementById('success-overlay')) return;
+			
+			const overlay = this._createEl('div', 'export-overlay');
+			overlay.id = 'success-overlay';
+			overlay.setAttribute('aria-hidden', 'true');
+
+			const inner = this._createEl('div', 'export-overlay-inner success-inner');
+			
+			// Success icon (checkmark)
+			const icon = this._createEl('div', 'success-icon');
+			icon.innerHTML = `
+				<svg width="48" height="48" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+					<circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="2"/>
+					<path d="M8 12.5l2.5 2.5 5.5-5.5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+				</svg>
+			`;
+			
+			const msg = this._createEl('div', 'export-message');
+			msg.textContent = 'PDF başarıyla indirildi!';
+			
+			const button = this._createEl('button', 'btn btn-primary success-button');
+			button.textContent = 'Tamam';
+			button.type = 'button';
+			
+			inner.appendChild(icon);
+			inner.appendChild(msg);
+			inner.appendChild(button);
+			overlay.appendChild(inner);
+
+			document.body.appendChild(overlay);
+			
+			// Add click event to close
+			const self = this;
+			button.addEventListener('click', function() {
+				overlay.setAttribute('aria-hidden', 'true');
+				overlay.classList.remove('visible');
+			});
+			
+			// Close on overlay click (outside the inner box)
+			overlay.addEventListener('click', function(e) {
+				if (e.target === overlay) {
+					overlay.setAttribute('aria-hidden', 'true');
+					overlay.classList.remove('visible');
+				}
+			});
+		},
+		
+		_showSuccessOverlay: function() {
+			const overlay = document.getElementById('success-overlay');
+			if (overlay) {
+				overlay.setAttribute('aria-hidden', 'false');
+				overlay.classList.add('visible');
+			}
+		},
 
 		_initModal: function() {
 			const self = this;
@@ -1494,6 +1551,12 @@
 						// All done
 						pdf.save(self.config.export.filename);
 						hideOverlay();
+						
+						// Show success overlay after a short delay
+						setTimeout(function() {
+							self._showSuccessOverlay();
+						}, 300);
+						
 						return;
 					}
 					

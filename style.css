@@ -917,4 +917,36 @@
   to {
     transform: rotate(360deg);
   }
+}
+/* Success overlay (shown after PDF is downloaded) */
+.success-inner {
+  flex-direction: column;
+  gap: 16px;
+  padding: 28px 32px;
+}
+
+.success-icon {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  color: #4caf50;
+  animation: successPop 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+}
+
+.success-button {
+  margin-top: 8px;
+  padding: 10px 32px;
+  min-width: 120px;
+  font-size: 15px;
+}
+
+@keyframes successPop {
+  0% {
+    transform: scale(0);
+    opacity: 0;
+  }
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  }
 }/*# sourceMappingURL=style.css.map */
