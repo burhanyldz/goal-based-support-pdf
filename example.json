@@ -1,155 +1,138 @@
 {
-    "qrCodeUrl": "https://mebi.eba.gov.tr",
-    "schoolName": "Şehit Binbaşı Bedir Karabıyık Mesleki ve Teknik Anadolu Lisesi",
+    "qrCodeUrl": "https://mebi.eba.gov.tr/student/goal-based-assignments/qr-details/fa98fd23-3a6e-4b98-b4c0-08de0afa1260",
+    "schoolName": "Yozgat Nida T\u00FCfek\u00E7i G\u00FCzel Sanatlar Lisesi",
     "lessonName": "Tarih",
-    "subjectName": "Osmanlı Tarihi",
-    "testType": "tyt",
+    "subjectName": null,
+    "testType": null,
     "availableTestTypes": [
         "tyt",
-        "ayt",
-        "ydt"
+        "ayt"
     ],
     "questions": [
         {
-            "imageUrl": "https://mebi.eba.gov.tr/upload/question/image/a38109a62f.png",
+            "imageUrl": "https://ogm-large-cdn.eba.gov.tr/mebi/question/image/a38109a62f.png",
             "questionNumber": 1
         },
         {
-            "imageUrl": "https://mebi.eba.gov.tr/upload/question/image/fe40b17486.png",
+            "imageUrl": "https://ogm-large-cdn.eba.gov.tr/mebi/question/image/fe40b17486.png",
             "questionNumber": 2
         },
         {
-            "imageUrl": "https://mebi.eba.gov.tr/upload/question/image/4325c15bac.jpg",
+            "imageUrl": "https://ogm-large-cdn.eba.gov.tr/mebi/question/image/afe8de2858.png",
             "questionNumber": 3
         },
         {
-            "imageUrl": "https://mebi.eba.gov.tr/upload/question/image/5a6c8c0305.png",
+            "imageUrl": "https://ogm-large-cdn.eba.gov.tr/mebi/question/image/5a6c8c0305.png",
             "questionNumber": 4
         },
         {
-            "imageUrl": "https://mebi.eba.gov.tr/upload/question/image/1efd8f4685.png",
+            "imageUrl": "https://ogm-large-cdn.eba.gov.tr/mebi/question/image/1efd8f4685.png",
             "questionNumber": 5
         },
         {
-            "imageUrl": "https://mebi.eba.gov.tr/upload/question/image/b59e8803dc.png",
+            "imageUrl": "https://ogm-large-cdn.eba.gov.tr/mebi/question/image/b59e8803dc.png",
             "questionNumber": 6
         },
         {
-            "imageUrl": "https://mebi.eba.gov.tr/upload/question/image/70e8ed45d6.png",
+            "imageUrl": "https://ogm-large-cdn.eba.gov.tr/mebi/question/image/70e8ed45d6.png",
             "questionNumber": 7
         },
         {
-            "imageUrl": "https://mebi.eba.gov.tr/upload/question/image/9800b63c71.png",
+            "imageUrl": "https://ogm-large-cdn.eba.gov.tr/mebi/question/image/9800b63c71.png",
             "questionNumber": 8
         },
         {
-            "imageUrl": "https://mebi.eba.gov.tr/upload/question/image/9fe59a8d96.jpg",
+            "imageUrl": "https://ogm-large-cdn.eba.gov.tr/mebi/question/image/9fe59a8d96.jpg",
             "questionNumber": 9
         },
         {
-            "imageUrl": "https://mebi.eba.gov.tr/upload/question/image/74f179ebc0.jpg",
+            "imageUrl": "https://ogm-large-cdn.eba.gov.tr/mebi/question/image/74f179ebc0.jpg",
             "questionNumber": 10
         },
         {
-            "imageUrl": "https://mebi.eba.gov.tr/upload/question/image/6b57fbde66.png",
+            "imageUrl": "https://ogm-large-cdn.eba.gov.tr/mebi/question/image/6b57fbde66.png",
             "questionNumber": 11
         },
         {
-            "imageUrl": "https://mebi.eba.gov.tr/upload/question/image/f5120f54df.png",
+            "imageUrl": "https://ogm-large-cdn.eba.gov.tr/mebi/question/image/f5120f54df.png",
             "questionNumber": 12
         },
         {
-            "imageUrl": "https://mebi.eba.gov.tr/upload/question/image/6cb03ff79b.jpg",
+            "imageUrl": "https://ogm-large-cdn.eba.gov.tr/mebi/question/image/6cb03ff79b.jpg",
             "questionNumber": 13
         },
         {
-            "imageUrl": "https://mebi.eba.gov.tr/upload/question/image/a6c429c879.png",
+            "imageUrl": "https://ogm-large-cdn.eba.gov.tr/mebi/question/image/a6c429c879.png",
             "questionNumber": 14
         },
         {
-            "imageUrl": "https://mebi.eba.gov.tr/upload/question/image/bfd800292d.jpg",
+            "imageUrl": "https://ogm-large-cdn.eba.gov.tr/mebi/question/image/bfd800292d.jpg",
             "questionNumber": 15
         },
         {
-            "imageUrl": "https://mebi.eba.gov.tr/upload/question/image/d80b2e175e.png",
+            "imageUrl": "https://ogm-large-cdn.eba.gov.tr/mebi/question/image/d80b2e175e.png",
             "questionNumber": 16
         },
         {
-            "imageUrl": "https://mebi.eba.gov.tr/upload/question/image/d44a0437fa.png",
+            "imageUrl": "https://ogm-large-cdn.eba.gov.tr/mebi/question/image/d44a0437fa.png",
             "questionNumber": 17
         },
         {
-            "imageUrl": "https://mebi.eba.gov.tr/upload/question/image/2aa575d518.jpg",
+            "imageUrl": "https://ogm-large-cdn.eba.gov.tr/mebi/question/image/2aa575d518.jpg",
             "questionNumber": 18
         },
         {
-            "imageUrl": "https://mebi.eba.gov.tr/upload/question/image/635c69f8c3.png",
+            "imageUrl": "https://ogm-large-cdn.eba.gov.tr/mebi/question/image/635c69f8c3.png",
             "questionNumber": 19
-        },
-        {
-            "imageUrl": "https://mebi.eba.gov.tr/upload/question/image/3d616d3d97.png",
-            "questionNumber": 20
-        },
-        {
-            "imageUrl": "https://mebi.eba.gov.tr/upload/question/image/2aa575d518.jpg",
-            "questionNumber": 21
-        },
-        {
-            "imageUrl": "https://mebi.eba.gov.tr/upload/question/image/635c69f8c3.png",
-            "questionNumber": 22
-        },
-        {
-            "imageUrl": "https://mebi.eba.gov.tr/upload/question/image/3d616d3d97.png",
-            "questionNumber": 23
         }
     ],
     "answers": [
         {
-            "correctChoiceIndex": 0,
+            "correctChoiceIndex": 1,
             "questionNumber": 1
         },
         {
-            "correctChoiceIndex": 1,
+            "correctChoiceIndex": 2,
             "questionNumber": 2
         },
         {
-            "correctChoiceIndex": 2,
+            "correctChoiceIndex": 3,
             "questionNumber": 3
         },
         {
-            "correctChoiceIndex": 3,
+            "correctChoiceIndex": 1,
             "questionNumber": 4
         },
         {
-            "correctChoiceIndex": 4,
+            "correctChoiceIndex": 2,
             "questionNumber": 5
         },
         {
-            "correctChoiceIndex": 0,
+            "correctChoiceIndex": 2,
             "questionNumber": 6
         },
         {
-            "correctChoiceIndex": 1,
+            "correctChoiceIndex": 3,
             "questionNumber": 7
         },
         {
-            "correctChoiceIndex": 2,
+            "correctChoiceIndex": 1,
             "questionNumber": 8
         },
         {
-            "correctChoiceIndex": 3,
+            "correctChoiceIndex": 2,
             "questionNumber": 9
         },
         {
-            "correctChoiceIndex": 4,
+            "correctChoiceIndex": 3,
             "questionNumber": 10
         },
         {
-            "correctChoiceIndex": 0,
+            "correctChoiceIndex": 1,
             "questionNumber": 11
         },
         {
-            "correctChoiceIndex": 1,
+            "correctChoiceIndex": 0,
             "questionNumber": 12
         },
         {
@@ -157,19 +140,19 @@
             "questionNumber": 13
         },
         {
-            "correctChoiceIndex": 3,
+            "correctChoiceIndex": 1,
             "questionNumber": 14
         },
         {
-            "correctChoiceIndex": 4,
+            "correctChoiceIndex": 0,
             "questionNumber": 15
         },
         {
-            "correctChoiceIndex": 0,
+            "correctChoiceIndex": 4,
             "questionNumber": 16
         },
         {
-            "correctChoiceIndex": 1,
+            "correctChoiceIndex": 4,
             "questionNumber": 17
         },
         {
@@ -179,22 +162,6 @@
         {
             "correctChoiceIndex": 3,
             "questionNumber": 19
-        },
-        {
-            "correctChoiceIndex": 4,
-            "questionNumber": 20
-        },
-        {
-            "correctChoiceIndex": 2,
-            "questionNumber": 21
-        },
-        {
-            "correctChoiceIndex": 3,
-            "questionNumber": 22
-        },
-        {
-            "correctChoiceIndex": 4,
-            "questionNumber": 23
         }
     ]
 }
