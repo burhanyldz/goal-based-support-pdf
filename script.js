@@ -418,12 +418,16 @@
 			}else{
 				firstPageBarContent += `<span class="lesson-name" style="visibility:hidden;">ders adı</span>`;
 			}
-			if (!data.hideSubjectName) {
-				firstPageBarContent += `<span class="subject-name">${this._escapeHtml(data.subjectName || 'konu adı')}</span>`;
-			}
-			firstPageBarContent += `<div class="qr-code"><img src="${this._escapeHtml(data.qrCodeUrl || '')}"></div>`;
-			
-			page.innerHTML = `
+		if (!data.hideSubjectName) {
+			firstPageBarContent += `<span class="subject-name">${this._escapeHtml(data.subjectName || 'konu adı')}</span>`;
+		}
+		// Add QR code with shadow element for better PDF rendering
+		firstPageBarContent += `
+			<div class="qr-code-wrapper">
+				<div class="qr-code-shadow"></div>
+				<div class="qr-code"><img src="${this._escapeHtml(data.qrCodeUrl || '')}"></div>
+			</div>
+		`;			page.innerHTML = `
 				<div class="header">
 					<img src="images/mebi.png" alt="MEBİ Logo" class="mebi_logo">
 					<img src="images/stripes.png" class="stripes">
