@@ -410,6 +410,19 @@
 
 		_createFirstPage: function(data) {
 			const page = this._createEl('div', 'page odd first-page');
+			
+			// Build the first-page-bar content conditionally
+			let firstPageBarContent = '';
+			if (!data.hideLessonName) {
+				firstPageBarContent += `<span class="lesson-name">${this._escapeHtml(data.lessonName || 'ders adı')}</span>`;
+			}else{
+				firstPageBarContent += `<span class="lesson-name" style="visibility:hidden;">ders adı</span>`;
+			}
+			if (!data.hideSubjectName) {
+				firstPageBarContent += `<span class="subject-name">${this._escapeHtml(data.subjectName || 'konu adı')}</span>`;
+			}
+			firstPageBarContent += `<div class="qr-code"><img src="${this._escapeHtml(data.qrCodeUrl || '')}"></div>`;
+			
 			page.innerHTML = `
 				<div class="header">
 					<img src="images/mebi.png" alt="MEBİ Logo" class="mebi_logo">
@@ -419,9 +432,7 @@
 					<span class="page-title">HEDEF TEMELLİ DESTEK EĞİTİMİ</span>
 					<span class="first-page-subtitle">${this._escapeHtml(data.schoolName || 'okul adı')}</span>
 					<div class="first-page-bar">
-						<span class="lesson-name">${this._escapeHtml(data.lessonName || 'ders adı')}</span>
-						<span class="subject-name">${this._escapeHtml(data.subjectName || 'konu adı')}</span>
-						<div class="qr-code"><img src="${this._escapeHtml(data.qrCodeUrl || '')}"></div>
+						${firstPageBarContent}
 					</div>
 				</div>
 				<div class="content">
@@ -452,13 +463,20 @@
 		_createNormalPage: function(isOdd, data) {
 			const cls = 'page ' + (isOdd ? 'odd' : 'even');
 			const page = this._createEl('div', cls);
+			
+			// Build the page-bar content conditionally
+			let pageBarContent = '';
+			if (!data.hideSubjectName) {
+				pageBarContent = `<span class="subject-name">${this._escapeHtml(data.subjectName || 'konu adı')}</span>`;
+			}
+			
 			page.innerHTML = `
 				<div class="header">
 					<span class="page-title">HEDEF TEMELLİ DESTEK EĞİTİMİ</span>
 					<img src="images/mebi.png" alt="MEBİ Logo" class="mebi_logo">
 					<img src="images/stripes.png" class="stripes">
 					<div class="page-bar">
-						<span class="subject-name">${this._escapeHtml(data.subjectName || 'konu adı')}</span>
+						${pageBarContent}
 					</div>
 				</div>
 				<div class="content">
@@ -1108,27 +1126,35 @@
 			header.appendChild(h3);
 			header.appendChild(closeBtn);
 
-			// body
-			const body = this._createEl('div', 'modal-body');
-			body.innerHTML = `
-				<label>
-					Ders Adı
-					<input id="input-lessonName" type="text" placeholder="Ders adı">
-				</label>
-				<label>
-					Konu
-					<input id="input-subjectName" type="text" placeholder="Konu">
-				</label>
-				<label>
-					Test Türü
-					<select id="select-testType">
-						<!-- options populated dynamically -->
-					</select>
-				</label>
-			`;
+		// body
+		const body = this._createEl('div', 'modal-body');
+		body.innerHTML = `
+			<label>
+				Ders Adı
+				<input id="input-lessonName" type="text" placeholder="Ders adı">
+			</label>
+			<label class="checkbox-label">
+				<input id="checkbox-hideLessonName" type="checkbox">
+				<span>Ders Adını Boş Bırak (Gösterme)</span>
+			</label>
+			<label>
+				Konu
+				<input id="input-subjectName" type="text" placeholder="Konu">
+			</label>
+			<label class="checkbox-label">
+				<input id="checkbox-hideSubjectName" type="checkbox">
+				<span>Konu Adını Boş Bırak (Gösterme)</span>
+			</label>
+			<label>
+				Test Türü
+				<select id="select-testType">
+					<!-- options populated dynamically -->
+				</select>
+			</label>
+		`;
 
-			// footer
-			const footer = this._createEl('footer', 'modal-footer');
+		// footer
+		const footer = this._createEl('footer', 'modal-footer');
 			const cancelBtn = this._createEl('button', 'btn btn-secondary');
 			cancelBtn.id = 'modal-cancel';
 			cancelBtn.type = 'button';
@@ -1240,69 +1266,99 @@
 			const cancelBtn = document.getElementById('modal-cancel');
 			const saveBtn = document.getElementById('modal-save');
 
-			function openModal() {
-				const data = self.data || {};
-				
-				const inputLesson = document.getElementById('input-lessonName');
-				const inputSubject = document.getElementById('input-subjectName');
-				const selectTest = document.getElementById('select-testType');
+		function openModal() {
+			const data = self.data || {};
+			
+			const inputLesson = document.getElementById('input-lessonName');
+			const inputSubject = document.getElementById('input-subjectName');
+			const selectTest = document.getElementById('select-testType');
+			const checkboxHideLesson = document.getElementById('checkbox-hideLessonName');
+			const checkboxHideSubject = document.getElementById('checkbox-hideSubjectName');
 
-				if (inputLesson) inputLesson.value = data.lessonName || '';
-				if (inputSubject) inputSubject.value = data.subjectName || '';
-
-				// populate select
-				if (selectTest) {
-					selectTest.innerHTML = '<option value="">(Boş bırak)</option>';
-					const types = Array.isArray(data.availableTestTypes) ? data.availableTestTypes : [];
-					types.forEach(function(t) {
-						const o = document.createElement('option');
-						o.value = t;
-						o.textContent = String(t).toUpperCase();
-						selectTest.appendChild(o);
-					});
-					selectTest.value = data.testType || '';
-				}
-
-				modal.setAttribute('aria-hidden', 'false');
-				modal.classList.add('open');
-				document.body.classList.add('modal-open');
-				
-				if (inputLesson) inputLesson.focus();
+			if (inputLesson) inputLesson.value = data.lessonName || '';
+			if (inputSubject) inputSubject.value = data.subjectName || '';
+			
+			// Set checkbox states and disable inputs if hidden
+			if (checkboxHideLesson) {
+				checkboxHideLesson.checked = data.hideLessonName || false;
+				if (inputLesson) inputLesson.disabled = checkboxHideLesson.checked;
+			}
+			
+			if (checkboxHideSubject) {
+				checkboxHideSubject.checked = data.hideSubjectName || false;
+				if (inputSubject) inputSubject.disabled = checkboxHideSubject.checked;
 			}
 
-			function closeModal() {
+			// populate select
+			if (selectTest) {
+				selectTest.innerHTML = '<option value="">(Boş bırak)</option>';
+				const types = Array.isArray(data.availableTestTypes) ? data.availableTestTypes : [];
+				types.forEach(function(t) {
+					const o = document.createElement('option');
+					o.value = t;
+					o.textContent = String(t).toUpperCase();
+					selectTest.appendChild(o);
+				});
+				selectTest.value = data.testType || '';
+			}
+			
+			// Add event listeners for checkboxes to disable/enable inputs
+			if (checkboxHideLesson && inputLesson) {
+				checkboxHideLesson.addEventListener('change', function() {
+					inputLesson.disabled = this.checked;
+					if (this.checked) inputLesson.value = '';
+				});
+			}
+			
+			if (checkboxHideSubject && inputSubject) {
+				checkboxHideSubject.addEventListener('change', function() {
+					inputSubject.disabled = this.checked;
+					if (this.checked) inputSubject.value = '';
+				});
+			}
+
+			modal.setAttribute('aria-hidden', 'false');
+			modal.classList.add('open');
+			document.body.classList.add('modal-open');
+			
+			if (inputLesson && !inputLesson.disabled) inputLesson.focus();
+		}			function closeModal() {
 				modal.setAttribute('aria-hidden', 'true');
 				modal.classList.remove('open');
 				document.body.classList.remove('modal-open');
 			}
 
-			function saveModal() {
-				const inputLesson = document.getElementById('input-lessonName');
-				const inputSubject = document.getElementById('input-subjectName');
-				const selectTest = document.getElementById('select-testType');
+		function saveModal() {
+			const inputLesson = document.getElementById('input-lessonName');
+			const inputSubject = document.getElementById('input-subjectName');
+			const selectTest = document.getElementById('select-testType');
+			const checkboxHideLesson = document.getElementById('checkbox-hideLessonName');
+			const checkboxHideSubject = document.getElementById('checkbox-hideSubjectName');
 
-				const oldData = JSON.parse(JSON.stringify(self.data || {}));
-				
-				if (inputLesson) self.data.lessonName = inputLesson.value.trim();
-				if (inputSubject) self.data.subjectName = inputSubject.value.trim();
-				if (selectTest) self.data.testType = selectTest.value || '';
+			const oldData = JSON.parse(JSON.stringify(self.data || {}));
+			
+			if (inputLesson) self.data.lessonName = inputLesson.value.trim();
+			if (inputSubject) self.data.subjectName = inputSubject.value.trim();
+			if (selectTest) self.data.testType = selectTest.value || '';
+			
+			// Save hide states
+			if (checkboxHideLesson) self.data.hideLessonName = checkboxHideLesson.checked;
+			if (checkboxHideSubject) self.data.hideSubjectName = checkboxHideSubject.checked;
 
-				// Apply theme change
-				if (selectTest && selectTest.value !== oldData.testType) {
-					self._applyTheme(selectTest.value || 'tyt');
-				}
-
-				// Callback
-				if (self.config.onDataSaved && typeof self.config.onDataSaved === 'function') {
-					self.config.onDataSaved(self.data, oldData);
-				}
-
-				// Re-render
-				self.render(self.data);
-				closeModal();
+			// Apply theme change
+			if (selectTest && selectTest.value !== oldData.testType) {
+				self._applyTheme(selectTest.value || 'tyt');
 			}
 
-			if (editBtn) editBtn.addEventListener('click', openModal);
+			// Callback
+			if (self.config.onDataSaved && typeof self.config.onDataSaved === 'function') {
+				self.config.onDataSaved(self.data, oldData);
+			}
+
+			// Re-render
+			self.render(self.data);
+			closeModal();
+		}			if (editBtn) editBtn.addEventListener('click', openModal);
 			if (closeBtn) closeBtn.addEventListener('click', closeModal);
 			if (cancelBtn) cancelBtn.addEventListener('click', closeModal);
 			if (saveBtn) saveBtn.addEventListener('click', saveModal);

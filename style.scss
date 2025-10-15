@@ -380,6 +380,27 @@ $ydt-color: #e46664;
   color: #333;
 }
 
+.modal-body label.checkbox-label {
+  flex-direction: row;
+  align-items: center;
+  gap: 8px;
+  font-size: 13px;
+  color: #666;
+  margin-top: -6px;
+  
+  input[type="checkbox"] {
+    margin: 0;
+    width: 18px;
+    height: 18px;
+    cursor: pointer;
+  }
+  
+  span {
+    cursor: pointer;
+    user-select: none;
+  }
+}
+
 .modal-body input,
 .modal-body select {
   margin-top: 6px;
@@ -387,6 +408,12 @@ $ydt-color: #e46664;
   border: 1px solid #ddd;
   border-radius: 6px;
   font-size: 14px;
+  
+  &:disabled {
+    background-color: #f5f5f5;
+    color: #999;
+    cursor: not-allowed;
+  }
 }
 
 .modal-footer {
