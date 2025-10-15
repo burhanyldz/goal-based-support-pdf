@@ -622,10 +622,10 @@
 }
 .page.first-page .header .first-page-bar .qr-code {
   position: absolute;
-  bottom: 0.9mm;
-  right: 11.9mm;
-  width: 11.8mm;
-  height: 11.8mm;
+  bottom: -1.5mm;
+  right: 12mm;
+  width: 16mm;
+  height: 16mm;
   background: #ffffff;
   box-sizing: border-box;
   padding: 0.4mm;

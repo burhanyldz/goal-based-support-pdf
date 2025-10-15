@@ -1129,7 +1129,7 @@
 
 			// footer
 			const footer = this._createEl('footer', 'modal-footer');
-			const cancelBtn = this._createEl('button', 'btn');
+			const cancelBtn = this._createEl('button', 'btn btn-secondary');
 			cancelBtn.id = 'modal-cancel';
 			cancelBtn.type = 'button';
 			cancelBtn.textContent = 'İptal';
