@@ -1,0 +1,31 @@
+{
+    "qrCodeUrl": "https://mebi.eba.gov.tr/student/goal-based-assignments/qr-details/fa98fd23-3a6e-4b98-b4c0-08de0afa1260",
+    "schoolName": "Yozgat Nida T\u00FCfek\u00E7i G\u00FCzel Sanatlar Lisesi",
+    "testType": null,
+    "availableTestTypes": [
+        "tyt",
+        "ayt"
+    ],
+    "tests": [
+        {
+            "name": "Türkçe",
+            "lessonCode": "tde",
+            "rank": 1,
+            "maxQuestion": 40,
+            "isOptional": false,
+            "id": "18c7055c-acdc-47fa-0d63-08dc1ab3018c",
+            "questions": [
+                {
+                    "imageUrl": "https://ogm-large-cdn.eba.gov.tr/mebi/question/image/70e8ed45d6.png",
+                    "questionNumber": 1
+                }
+            ],
+            "answers": [
+                {
+                    "correctChoiceIndex": 1,
+                    "questionNumber": 1
+                }
+            ]
+        }
+    ]
+}

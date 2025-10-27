@@ -1,0 +1,274 @@
+[
+  {
+    "name": "TYT",
+    "examType": 0,
+    "category": 0,
+    "examTemplateLessons": [
+      {
+        "name": "Türkçe",
+        "lessonCode": "tde",
+        "rank": 1,
+        "maxQuestion": 40,
+        "isOptional": false,
+        "id": "18c7055c-acdc-47fa-0d63-08dc1ab3018c"
+      },
+      {
+        "name": "Tarih",
+        "lessonCode": "tar",
+        "rank": 2,
+        "maxQuestion": 5,
+        "isOptional": false,
+        "id": "7a950821-da80-495c-0d64-08dc1ab3018c"
+      },
+      {
+        "name": "Coğrafya",
+        "lessonCode": "cog",
+        "rank": 3,
+        "maxQuestion": 5,
+        "isOptional": false,
+        "id": "92492c19-7fba-4fa4-0d65-08dc1ab3018c"
+      },
+      {
+        "name": "Felsefe",
+        "lessonCode": "fel",
+        "rank": 4,
+        "maxQuestion": 5,
+        "isOptional": false,
+        "id": "9eec4088-888b-468c-0d66-08dc1ab3018c"
+      },
+      {
+        "name": "Din Kültürü ve Ahlâk Bilgisi",
+        "lessonCode": "dikab",
+        "rank": 5,
+        "maxQuestion": 5,
+        "isOptional": true,
+        "id": "b9268992-b282-47c7-0d67-08dc1ab3018c"
+      },
+      {
+        "name": "Felsefe 2",
+        "lessonCode": "fel",
+        "rank": 6,
+        "maxQuestion": 5,
+        "isOptional": true,
+        "id": "401b9e4a-b8fa-4aa0-0d68-08dc1ab3018c"
+      },
+      {
+        "name": "Matematik",
+        "lessonCode": "mat",
+        "rank": 7,
+        "maxQuestion": 40,
+        "isOptional": false,
+        "id": "e54c6989-c610-4845-0d69-08dc1ab3018c"
+      },
+      {
+        "name": "Fizik",
+        "lessonCode": "fiz",
+        "rank": 8,
+        "maxQuestion": 7,
+        "isOptional": false,
+        "id": "1044268f-5abc-486b-0d6a-08dc1ab3018c"
+      },
+      {
+        "name": "Kimya",
+        "lessonCode": "kim",
+        "rank": 9,
+        "maxQuestion": 7,
+        "isOptional": false,
+        "id": "0dd197fd-1aa7-4482-0d6b-08dc1ab3018c"
+      },
+      {
+        "name": "Biyoloji",
+        "lessonCode": "biy",
+        "rank": 10,
+        "maxQuestion": 6,
+        "isOptional": false,
+        "id": "a73236bf-6f66-4978-0d6c-08dc1ab3018c"
+      }
+    ],
+    "id": "b2f902d9-f0da-4191-497f-08dc1ab2f05d"
+  },
+  {
+    "name": "AYT",
+    "examType": 1,
+    "category": 0,
+    "examTemplateLessons": [
+      {
+        "name": "Türk Dili ve Edebiyatı",
+        "lessonCode": "tde",
+        "rank": 1,
+        "maxQuestion": 24,
+        "isOptional": false,
+        "id": "3eb865dd-abdf-44bc-93fa-08dcf471333e"
+      },
+      {
+        "name": "Tarih - 1",
+        "lessonCode": "tar",
+        "rank": 2,
+        "maxQuestion": 10,
+        "isOptional": false,
+        "id": "983ed10f-8492-48e1-93fb-08dcf471333e"
+      },
+      {
+        "name": "Coğrafya - 1",
+        "lessonCode": "cog",
+        "rank": 3,
+        "maxQuestion": 6,
+        "isOptional": false,
+        "id": "2d5da757-8677-4c46-93fc-08dcf471333e"
+      },
+      {
+        "name": "Tarih - 2",
+        "lessonCode": "tar",
+        "rank": 4,
+        "maxQuestion": 11,
+        "isOptional": false,
+        "id": "332cfce7-fb1d-4085-93fd-08dcf471333e"
+      },
+      {
+        "name": "Coğrafya - 2",
+        "lessonCode": "cog",
+        "rank": 5,
+        "maxQuestion": 11,
+        "isOptional": false,
+        "id": "7fa59203-d988-40cd-93fe-08dcf471333e"
+      },
+      {
+        "name": "Felsefe Grubu",
+        "lessonCode": "fel",
+        "rank": 6,
+        "maxQuestion": 12,
+        "isOptional": false,
+        "id": "88566d7b-9ced-4947-75e5-08dcf471ad5f"
+      },
+      {
+        "name": "Din Kültürü ve Ahlâk Bilgisi",
+        "lessonCode": "dikab",
+        "rank": 7,
+        "maxQuestion": 6,
+        "isOptional": true,
+        "id": "9647ad6b-e3ff-4264-75e6-08dcf471ad5f"
+      },
+      {
+        "name": "Felsefe Grubu",
+        "lessonCode": "fel",
+        "rank": 8,
+        "maxQuestion": 6,
+        "isOptional": true,
+        "id": "e9b02a21-8737-4c3e-75e7-08dcf471ad5f"
+      },
+      {
+        "name": "Matematik",
+        "lessonCode": "mat",
+        "rank": 9,
+        "maxQuestion": 40,
+        "isOptional": false,
+        "id": "ee3c0a0b-e9a1-4573-75e8-08dcf471ad5f"
+      },
+      {
+        "name": "Fizik",
+        "lessonCode": "fiz",
+        "rank": 10,
+        "maxQuestion": 14,
+        "isOptional": false,
+        "id": "bf9b32e5-7176-449d-75e9-08dcf471ad5f"
+      },
+      {
+        "name": "Kimya",
+        "lessonCode": "kim",
+        "rank": 11,
+        "maxQuestion": 14,
+        "isOptional": false,
+        "id": "1edd9b53-c19c-4ba7-75ea-08dcf471ad5f"
+      },
+      {
+        "name": "Biyoloji",
+        "lessonCode": "biy",
+        "rank": 12,
+        "maxQuestion": 13,
+        "isOptional": false,
+        "id": "55ac63c9-f699-4f62-75eb-08dcf471ad5f"
+      }
+    ],
+    "id": "a9d283b2-1791-48d4-bd16-08dcf471143e"
+  },
+  {
+    "name": "YDT",
+    "examType": 2,
+    "category": 0,
+    "examTemplateLessons": [
+      {
+        "name": "İngilizce",
+        "lessonCode": "ing",
+        "rank": 1,
+        "maxQuestion": 80,
+        "isOptional": false,
+        "id": "1716fa26-c2d7-4e88-cc87-08dcd94c3fa4"
+      }
+    ],
+    "id": "1da12c3a-f3a2-48b8-060f-08dcd0ccb247"
+  },
+  {
+    "name": "LGS Sözel",
+    "examType": 3,
+    "category": 1,
+    "examTemplateLessons": [
+      {
+        "name": "Türkçe",
+        "lessonCode": "tur",
+        "rank": 1,
+        "maxQuestion": 20,
+        "isOptional": false,
+        "id": "a61fbe9d-f0dc-4eba-22cb-08dd4393ad81"
+      },
+      {
+        "name": "T.C. İnkîlap Tarihi ve Atatürkçülük",
+        "lessonCode": "sos",
+        "rank": 2,
+        "maxQuestion": 10,
+        "isOptional": false,
+        "id": "64ea5d1c-e008-44a6-22cc-08dd4393ad81"
+      },
+      {
+        "name": "Din Kültürü ve Ahlâk Bilgisi",
+        "lessonCode": "dikab",
+        "rank": 3,
+        "maxQuestion": 10,
+        "isOptional": false,
+        "id": "639e2b6f-d3af-4835-22cd-08dd4393ad81"
+      },
+      {
+        "name": "Yabancı Dil (İngilizce)",
+        "lessonCode": "ing",
+        "rank": 4,
+        "maxQuestion": 10,
+        "isOptional": false,
+        "id": "d91914d1-31c5-4caf-22ce-08dd4393ad81"
+      }
+    ],
+    "id": "432db5ea-903a-499e-33dc-08dd43934a0f"
+  },
+  {
+    "name": "LGS Sayısal",
+    "examType": 4,
+    "category": 1,
+    "examTemplateLessons": [
+      {
+        "name": "Matematik",
+        "lessonCode": "mat",
+        "rank": 1,
+        "maxQuestion": 20,
+        "isOptional": false,
+        "id": "1082bc48-49b6-4145-22cf-08dd4393ad81"
+      },
+      {
+        "name": "Fen Bilimleri",
+        "lessonCode": "fen",
+        "rank": 2,
+        "maxQuestion": 20,
+        "isOptional": false,
+        "id": "d5b5f967-6f62-4565-22d0-08dd4393ad81"
+      }
+    ],
+    "id": "364bd7e8-46b6-44d5-e188-08de005a4ddd"
+  }
+]

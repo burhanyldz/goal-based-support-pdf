@@ -1,0 +1,1137 @@
+//define color variables
+$tyt-color: #936fb7;
+$ayt-color: #258264;
+$ydt-color: #e46664;
+
+// CSS custom properties for dynamic theme colors
+:root {
+  --primary-color: #{$tyt-color}; // default to TYT color
+  --primary-color-hover: #{darken($tyt-color, 10%)};
+  --primary-color-light: #{lighten($tyt-color, 20%)};
+  --primary-color-transparent: #{$tyt-color}99;
+  --primary-color-lightest: #{lighten($tyt-color, 41%)};
+  --primary-color-lightest-alt: #{lighten($tyt-color, 38%)};
+}
+
+// Add smooth transitions for elements that use theme colors
+.btn-primary,
+.divider,
+.divider-text,
+.ogm-ribbon,
+.page-number-ribbon,
+.footer-disclaimer,
+.header-ribbon,
+.first-page-subtitle,
+.spinner {
+  transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease;
+}
+
+// Dynamic theme classes
+.theme-tyt {
+  --primary-color: #{$tyt-color};
+  --primary-color-hover: #{darken($tyt-color, 10%)};
+  --primary-color-light: #{lighten($tyt-color, 20%)};
+  --primary-color-transparent: #{$tyt-color}99;
+  --primary-color-lightest: #{lighten($tyt-color, 41%)};
+  --primary-color-lightest-alt: #{lighten($tyt-color, 38%)};
+}
+
+.theme-ayt {
+  --primary-color: #{$ayt-color};
+  --primary-color-hover: #{darken($ayt-color, 10%)};
+  --primary-color-light: #{lighten($ayt-color, 20%)};
+  --primary-color-transparent: #{$ayt-color}99;
+  --primary-color-lightest: #{lighten($ayt-color, 66%)};
+  --primary-color-lightest-alt: #{lighten($ayt-color, 64%)};
+}
+
+.theme-ydt {
+  --primary-color: #{$ydt-color};
+  --primary-color-hover: #{darken($ydt-color, 10%)};
+  --primary-color-light: #{lighten($ydt-color, 20%)};
+  --primary-color-transparent: #{$ydt-color}99;
+  --primary-color-lightest: #{lighten($ydt-color, 35%)};
+  --primary-color-lightest-alt: #{lighten($ydt-color, 33%)};
+}
+
+/* Screen reader only content */
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+.pdf-export {
+  font-family: 'Jost', Arial, sans-serif;
+  background-color: #282828;
+  margin: 0;
+  padding: 26px 0 0 0;
+  /* leave space for fixed toolbar */
+}
+
+/* Fixed top toolbar */
+.top-toolbar {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 48px;
+  background: #3c3c3c;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.12);
+  z-index: 9999;
+  display: flex;
+  align-items: center;
+
+  .toolbar-inner {
+    width: 100%;
+    margin: 0 auto;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0 16px;
+  }
+
+  .toolbar-left {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .toolbar-title {
+    font-weight: 700;
+    color: #ffffff;
+    font-size: 16px;
+  }
+
+  .toolbar-actions {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+    position: relative;
+  }
+}
+
+/* Buttons used in toolbar/modal */
+.btn {
+  border: 0;
+  background: transparent;
+  padding: 8px 12px;
+  border-radius: 6px;
+  font-weight: 600;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  transition: all 0.2s ease;
+  white-space: nowrap;
+
+  &:hover {
+    background: rgba(255, 255, 255, 0.1);
+    color: #ffffff;
+    transform: translateY(-1px);
+  }
+
+  &:active {
+    transform: translateY(0);
+  }
+
+  svg {
+    flex-shrink: 0;
+  }
+}
+
+.btn-icon {
+  padding: 8px;
+  color: #ffffff;
+  gap: 0;
+
+  &:hover {
+    background: rgba(255, 255, 255, 0.15);
+    transform: translateY(-1px);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+  }
+
+  &:active {
+    transform: translateY(0);
+  }
+
+  svg {
+    margin: 0;
+  }
+}
+
+.btn-primary {
+  background: var(--primary-color);
+  color: #ffffff;
+
+  &:hover {
+    background: var(--primary-color-hover);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+  }
+
+  &:active {
+    transform: translateY(-1px);
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
+  }
+}
+
+.btn-secondary {
+  background: #6c757d;
+  color: #ffffff;
+
+  &:hover {
+    background: #5a6268;
+    transform: translateY(-1px);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+  }
+
+  &:active {
+    transform: translateY(0);
+  }
+}
+
+/* Mobile context menu */
+.mobile-context-menu {
+  position: absolute;
+  top: 100%;
+  right: 0;
+  margin-top: 8px;
+  background: #ffffff;
+  border: 1px solid #e0e0e0;
+  border-radius: 8px;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.15);
+  min-width: 200px;
+  opacity: 0;
+  visibility: hidden;
+  transform: translateY(-10px);
+  transition: all 0.2s ease;
+  z-index: 10000;
+
+  &.show {
+    opacity: 1;
+    visibility: visible;
+    transform: translateY(0);
+  }
+}
+
+.context-menu-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+  padding: 12px 16px;
+  border: none;
+  background: none;
+  color: #333;
+  font-size: 14px;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+  text-align: left;
+
+  &:hover {
+    background-color: #f5f5f5;
+  }
+
+  &:first-child {
+    border-radius: 8px 8px 0 0;
+  }
+
+  &:last-child {
+    border-radius: 0 0 8px 8px;
+  }
+}
+
+/* Responsive button visibility */
+.mobile-btn {
+  display: none;
+}
+
+.desktop-btn {
+  display: flex;
+}
+
+/* PDF download button: subtle outline, icon sizing and focus state */
+.btn[title="PDF indir"] {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 10px;
+  background: transparent;
+  color: #ffffff;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  transition: background 120ms ease, color 120ms ease, transform 120ms ease;
+}
+
+.btn[title="PDF indir"] svg {
+  color: #ffffff;
+}
+
+.btn[title="PDF indir"]:hover {
+  background: rgba(255, 255, 255, 0.04);
+}
+
+.btn[title="PDF indir"]:active {
+  transform: translateY(1px);
+}
+
+.btn[title="PDF indir"]:focus {
+  outline: 3px solid rgba(126, 41, 144, 0.18);
+  outline-offset: 2px;
+}
+
+/* Modal styles */
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  display: none;
+  align-items: center;
+  justify-content: center;
+  background: rgba(0, 0, 0, 0.45);
+  z-index: 10000;
+  padding: 24px;
+}
+
+.modal-overlay.open {
+  display: flex;
+}
+
+.modal {
+  width: 100%;
+  max-width: 600px;
+  background: #fff;
+  border-radius: 8px;
+  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.25);
+  overflow: hidden;
+}
+
+.modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 16px 20px;
+  border-bottom: 1px solid #eee;
+
+  h3 {
+    margin: 0;
+  }
+}
+
+/* Close button for modal header */
+.modal-close {
+  background: transparent;
+  border: 0;
+  padding: 6px;
+  margin: -6px -6px -6px 0;
+  /* pull into header corner visually while keeping accessible hit area */
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  border-radius: 8px;
+  color: #333333;
+  cursor: pointer;
+}
+
+.modal-close svg {
+  width: 18px;
+  height: 18px;
+}
+
+.modal-close:hover {
+  background: rgba(0, 0, 0, 0.04);
+}
+
+.modal-close:focus {
+  outline: 3px solid rgba(126, 41, 144, 0.2);
+  outline-offset: 2px;
+}
+
+/* Small helper for screen-reader only text */
+.sr-only {
+  position: absolute !important;
+  width: 1px !important;
+  height: 1px !important;
+  padding: 0 !important;
+  margin: -1px !important;
+  overflow: hidden !important;
+  clip: rect(0, 0, 0, 0) !important;
+  white-space: nowrap !important;
+  border: 0 !important;
+}
+
+.modal-body {
+  padding: 16px 20px;
+  display: grid;
+  gap: 12px;
+}
+
+.modal-body label {
+  display: flex;
+  flex-direction: column;
+  font-size: 14px;
+  color: #333;
+}
+
+.modal-body label.checkbox-label {
+  flex-direction: row;
+  align-items: center;
+  gap: 8px;
+  font-size: 13px;
+  color: #666;
+  margin-top: -6px;
+  
+  input[type="checkbox"] {
+    margin: 0;
+    width: 18px;
+    height: 18px;
+    cursor: pointer;
+  }
+  
+  span {
+    cursor: pointer;
+    user-select: none;
+  }
+}
+
+.modal-body input,
+.modal-body select {
+  margin-top: 6px;
+  padding: 10px 12px;
+  border: 1px solid #ddd;
+  border-radius: 6px;
+  font-size: 14px;
+  
+  &:disabled {
+    background-color: #f5f5f5;
+    color: #999;
+    cursor: not-allowed;
+  }
+}
+
+.modal-footer {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+  padding: 12px 20px;
+  border-top: 1px solid #eee;
+}
+
+/* small helper when modal open to prevent accidental scrolling */
+.modal-open {
+  overflow: hidden;
+}
+
+.page {
+  background-color: #ffffff;
+  border-radius: 1mm;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+  width: 210mm;
+  height: 297mm;
+  margin: 10mm auto;
+  box-sizing: border-box;
+  position: relative; // establish stacking context for pseudo-element
+  overflow: hidden;
+
+
+  &>* {
+    position: relative;
+    z-index: 1; // ensure content is above the background
+  }
+
+  // Mebi logo in header
+  .header {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    height: 28mm;
+
+    .page-title {
+      font-size: 5.03mm;
+      font-weight: 700;
+      margin: 4.4mm 0 0 0;
+      padding: 0;
+      color: #333333;
+    }
+
+    .stripes {
+      position: absolute;
+      z-index: 2;
+    }
+
+
+    .mebi_logo {
+      position: absolute;
+      height: auto;
+      z-index: 2;
+    }
+
+    .page-bar {
+      height: 10.5mm;
+      width: 100%;
+      background: #e0ebf7;
+      margin: 5.5mm 0 0 0;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      font-size: 3.8mm;
+      font-weight: 600;
+      z-index: 1;
+
+      .subject-name {
+        text-transform: capitalize;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+        max-width: 170mm;
+        overflow: hidden;
+      }
+    }
+
+  }
+
+  .content {
+    padding: 2mm 10mm;
+    height: 248mm;
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+
+    .left-column,
+    .right-column {
+      width: 50%;
+      display: flex;
+      flex-direction: column;
+      gap: 10mm;
+      justify-content: space-between;
+
+      .question {
+        display: flex;
+        flex-direction: row;
+        align-items: flex-start;
+        justify-content: flex-end;
+
+        .question-number {
+          font-size: 3.5mm;
+          font-weight: 600;
+          color: #333333;
+          margin-top: -1mm;
+          width: 9mm;
+          display: flex;
+          justify-content: flex-end;
+          padding: 0 2mm 0 0;
+        }
+
+        img {
+          max-width: calc(100% - 9mm);
+        }
+      }
+
+    }
+
+    .left-column {
+
+      .question {
+        padding: 3mm 5mm 3mm 0;
+      }
+    }
+
+    .right-column {
+
+      .question {
+
+        padding: 3mm 0 3mm 2mm;
+      }
+    }
+
+
+    .divider {
+      width: 1px;
+      background-color: var(--primary-color);
+      margin: 2mm 0 0 0;
+      position: relative;
+
+      .divider-text {
+        position: absolute;
+        left: -36.5mm;
+        transform: rotate(270deg) translate(-115mm, -1px);
+        white-space: nowrap;
+        background: white;
+        padding: 0 6mm;
+        color: var(--primary-color);
+        border: 1px solid var(--primary-color);
+        border-radius: 20mm;
+      }
+    }
+  }
+
+  .footer {
+    height: 20mm;
+
+    .ogm-title {
+      font-size: 3.5mm;
+      font-weight: 500;
+      color: white;
+      position: absolute;
+      top: 2.8mm;
+      z-index: 2;
+    }
+
+    .ogm-ribbon {
+      position: absolute;
+      top: 0.6mm;
+      width: 79.5mm;
+      height: 9.4mm;
+      z-index: 1;
+      background-color: var(--primary-color);
+    }
+
+    .page-number-ribbon {
+      position: absolute;
+      top: 0.6mm;
+      width: 27mm;
+      height: 9.4mm;
+      z-index: 1;
+      background-color: var(--primary-color);
+    }
+
+
+    .stripes {
+      position: absolute;
+      bottom: -3mm;
+      width: 15.3mm;
+      z-index: 2;
+      transform: rotate(184deg);
+    }
+
+    .page-number {
+      font-size: 4.9mm;
+      font-weight: 500;
+      color: white;
+      position: absolute;
+      bottom: 11mm;
+      z-index: 3;
+      width: 9mm;
+      text-align: center;
+    }
+
+    .footer-disclaimer {
+      position: absolute;
+      bottom: 4mm;
+      font-size: 2.3mm;
+      padding: 0 17mm;
+      text-align: center;
+      line-height: 2.5mm;
+      color: var(--primary-color);
+
+    }
+  }
+
+
+  &.first-page {
+    .header {
+      .mebi_logo {
+        top: 2mm !important;
+        width: 18.6mm !important;
+        right: 8.5mm !important;
+      }
+
+      .page-title {
+        margin: 2.7mm 0 0 0 !important;
+      }
+
+      .test-type {
+        position: absolute;
+        top: 11.7mm;
+        left: 18.4mm;
+        font-size: 8mm;
+        font-weight: 700;
+        color: #ffffff;
+        z-index: 4;
+        text-transform: uppercase; // Detected by JavaScript and replaced with toLocaleUpperCase('tr')
+      }
+
+      .stripes {
+        top: 0 !important;
+        left: 0 !important;
+        transform: rotate(unset) !important;
+        width: 16.4mm !important;
+      }
+
+      .header-ribbon {
+        position: absolute;
+        top: 13mm;
+        left: -5mm;
+        width: 41mm;
+        background: var(--primary-color);
+        z-index: 1;
+        height: 9.4mm;
+        transform: skew(-20deg);
+      }
+
+
+
+      .first-page-subtitle {
+        font-size: 3.8mm;
+        font-weight: 600;
+        font-style: italic;
+        margin: -1mm 0 0 0;
+        padding: 0 1mm;
+        color: var(--primary-color);
+        min-height: 5.4mm;
+        text-transform: uppercase; // Detected by JavaScript and replaced with toLocaleUpperCase('tr')
+        text-overflow: ellipsis;
+        white-space: nowrap;
+        max-width: 160mm;
+        overflow: hidden;
+      }
+
+      .first-page-bar {
+        height: 13.5mm;
+        width: 100%;
+        background: #e0ebf7;
+        display: flex;
+        flex-direction: column;
+
+        .lesson-name {
+          margin: 1mm 0 0 37.6mm;
+          padding: 0;
+          font-weight: 600;
+          text-transform: uppercase; // Detected by JavaScript and replaced with toLocaleUpperCase('tr')
+          text-overflow: ellipsis;
+          white-space: nowrap;
+          max-width: 150mm;
+          overflow: hidden;
+        }
+
+        .subject-name {
+          margin: 0 0 0 37.6mm;
+          padding: 0;
+          font-weight: 400;
+          font-size: 3.8mm;
+          text-transform: capitalize;
+          text-overflow: ellipsis;
+          white-space: nowrap;
+          max-width: 150mm;
+          overflow: hidden;
+        }
+
+        // QR code wrapper to contain both the QR and its shadow
+        .qr-code-wrapper {
+          position: absolute;
+          bottom: -1.5mm;
+          right: 12mm;
+          width: 16mm;
+          height: 16mm;
+        }
+        
+        // Shadow element - rendered as actual DOM element for PDF compatibility
+        .qr-code-shadow {
+          position: absolute;
+          top: 1px;
+          left: 1px;
+          width: 16mm;
+          height: 16mm;
+          background: rgba(0, 0, 0, 0.25);
+          border-radius: .6mm;
+          z-index: 0;
+        }
+
+        .qr-code {
+          position: absolute;
+          top: 0;
+          left: 0;
+          width: 16mm;
+          height: 16mm;
+          background: #ffffff;
+          box-sizing: border-box;
+          padding: .4mm;
+          border-radius: .6mm;
+          z-index: 1;
+
+          img {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+          }
+        }
+      }
+    }
+  }
+
+  &.odd {
+    .header {
+      .mebi_logo {
+        top: 4.4mm;
+        width: 15.8mm;
+        right: 13.3mm;
+      }
+
+      .stripes {
+        top: -1.6mm;
+        left: -4.2mm;
+        transform: rotate(0);
+        width: 18mm;
+      }
+    }
+
+    .footer {
+
+      .ogm-title {
+        left: 13.3mm;
+      }
+
+      .stripes {
+        right: -6mm;
+      }
+
+      .page-number {
+        right: 11mm;
+      }
+
+      .ogm-ribbon {
+        left: -5mm;
+        transform: skew(-20deg);
+      }
+
+      .page-number-ribbon {
+        right: -5mm;
+        transform: skew(-20deg);
+      }
+    }
+  }
+
+  &.even {
+    .header {
+      .mebi_logo {
+        top: 4.4mm;
+        width: 15.8mm;
+        left: 13.3mm;
+      }
+
+      .stripes {
+        top: -8mm;
+        right: -4.3mm;
+        transform: rotate(166deg);
+        width: 18mm;
+      }
+    }
+
+    .footer {
+
+      .ogm-title {
+        right: 13.6mm;
+      }
+
+      .ogm-ribbon {
+        right: -5mm;
+        transform: scaleX(-1) skew(20deg);
+      }
+
+      .page-number-ribbon {
+        left: -5mm;
+        transform: scaleX(-1) skew(20deg);
+      }
+
+
+      .stripes {
+        left: -6mm;
+        transform: scaleX(-1) rotate(166deg);
+      }
+
+      .page-number {
+        left: 11mm;
+      }
+    }
+  }
+
+  &.answer-key {
+    .content {
+
+      display: flex;
+      flex-direction: column;
+      justify-content: flex-start;
+
+      .answer-key-title {
+        font-size: 3.5mm;
+        font-weight: 700;
+        margin: 11.5mm 3mm 0 3mm;
+        color: #ffffff;
+        background: var(--primary-color-light);
+        height: 7mm;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+      }
+
+      .answers {
+        display: grid;
+        grid-template-columns: repeat(10, 1fr);
+        margin: 0 3mm 0 3mm;
+
+        .answer-question {
+          font-size: 3.7mm;
+          font-weight: 500;
+          color: #333333;
+          margin: 0;
+          display: flex;
+          align-items: center;
+          justify-content: flex-end;
+          height: 6.6mm;
+          background: transparent;
+          display: flex;
+          padding: 0 6.3mm 0 0;
+          border-bottom: 1px solid var(--primary-color-light);
+
+          span:nth-child(2) {
+            margin-left: 1mm;
+          }
+        }
+
+        /* alternating backgrounds in blocks of 10 */
+        .answer-question:nth-child(20n + 1),
+        .answer-question:nth-child(20n + 2),
+        .answer-question:nth-child(20n + 3),
+        .answer-question:nth-child(20n + 4),
+        .answer-question:nth-child(20n + 5),
+        .answer-question:nth-child(20n + 6),
+        .answer-question:nth-child(20n + 7),
+        .answer-question:nth-child(20n + 8),
+        .answer-question:nth-child(20n + 9),
+        .answer-question:nth-child(20n + 10) {
+          background: var(--primary-color-lightest);
+        }
+
+        .answer-question:nth-child(20n + 11),
+        .answer-question:nth-child(20n + 12),
+        .answer-question:nth-child(20n + 13),
+        .answer-question:nth-child(20n + 14),
+        .answer-question:nth-child(20n + 15),
+        .answer-question:nth-child(20n + 16),
+        .answer-question:nth-child(20n + 17),
+        .answer-question:nth-child(20n + 18),
+        .answer-question:nth-child(20n + 19),
+        .answer-question:nth-child(20n + 20) {
+          background: var(--primary-color-lightest-alt);
+        }
+      }
+    }
+  }
+
+}
+
+/* Mobile / small screen: preserve page internals but scale whole page to fit viewport */
+@media (max-width: 900px) {
+
+  /* Responsive button visibility */
+  .desktop-btn {
+    display: none;
+  }
+
+  .mobile-btn {
+    display: flex;
+  }
+
+  /* Toolbar and button sizing remain as-is or as previously adjusted */
+  .top-toolbar {
+    height: 56px;
+
+    .toolbar-inner {
+      padding: 0 10px;
+    }
+
+    .toolbar-left {
+      gap: 6px;
+    }
+
+    .toolbar-title {
+      font-size: 18px;
+      font-weight: 700;
+    }
+
+    .toolbar-actions {
+      gap: 6px;
+    }
+  }
+
+  .btn {
+    padding: 6px 16px;
+    min-height: 34px;
+    font-size: 15px;
+    border-radius: 8px;
+  }
+
+  .btn-icon {
+    padding: 6px 8px;
+  }
+
+  .modal-overlay {
+    padding: 12px;
+  }
+
+  /* Prevent horizontal scrollbar caused by scaled pages and reduce vertical gap */
+  html,
+  body {
+    overflow-x: hidden;
+  }
+
+  #pdf-root {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 36px 8px 24px 8px !important;
+    /* top matches toolbar (56px) + small gap, bottom padding for last page */
+    box-sizing: border-box;
+    width: 100%;
+    overflow-x: hidden;
+    /* ensure scaled pages don't cause horizontal scroll */
+  }
+
+  .page {
+    /* Preserve A4 sizing; JS will apply transform: scale(...) to fit available width */
+    width: 210mm !important;
+    height: 297mm !important;
+    max-width: none !important;
+    margin: 6px 0 !important;
+    /* reduced vertical spacing */
+    transform-origin: top center;
+    will-change: transform;
+    display: block;
+  }
+}
+
+/* Default container padding for desktop to avoid toolbar overlap and give breathing room */
+#pdf-root {
+  padding-top: 20px;
+  /* enough space for fixed toolbar (48px) plus a gap */
+  padding-bottom: 0px;
+  /* room after last page */
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+/* Desktop and wider screens: ensure page-wrap centers pages and has spacing */
+@media (min-width: 901px) {
+  .page-wrap {
+    display: block;
+    width: 100%;
+    max-width: 1200px;
+    /* keep pages centered within main content width */
+    margin: 12px auto !important;
+    /* larger vertical gap on desktop */
+    display: flex;
+    justify-content: center;
+    box-sizing: border-box;
+    padding: 0 16px !important;
+    /* keep some horizontal breathing room inside wrapper */
+  }
+
+  /* Ensure page itself keeps its default auto margin when not scaled on desktop */
+  .page {
+    margin: 5mm auto;
+  }
+}
+
+
+/* Export progress overlay (shown when creating PDF) */
+.export-overlay {
+  position: fixed;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(0, 0, 0, 0.55);
+  z-index: 11000;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 180ms ease;
+}
+
+.export-overlay.visible {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.export-overlay-inner {
+  background: rgba(255, 255, 255, 0.98);
+  padding: 18px 22px;
+  border-radius: 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  align-items: center;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.35);
+  min-width: 260px;
+}
+
+.export-message {
+  font-weight: 700;
+  color: #333;
+  font-size: 15px;
+  text-align: center;
+}
+
+.export-progress {
+  font-weight: 500;
+  color: #666;
+  font-size: 13px;
+  text-align: center;
+  min-height: 18px;
+}
+
+.spinner {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  border: 3px solid rgba(0, 0, 0, 0.08);
+  border-top-color: var(--primary-color);
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* Success overlay (shown after PDF is downloaded) */
+.success-inner {
+  flex-direction: column;
+  gap: 16px;
+  padding: 28px 32px;
+}
+
+.success-icon {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  color: #4caf50;
+  animation: successPop 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+}
+
+.success-button {
+  margin-top: 8px;
+  padding: 10px 32px;
+  min-width: 120px;
+  font-size: 15px;
+}
+
+@keyframes successPop {
+  0% {
+    transform: scale(0);
+    opacity: 0;
+  }
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
