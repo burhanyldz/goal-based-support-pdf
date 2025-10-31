@@ -225,10 +225,10 @@
   box-sizing: border-box;
   position: relative;
   overflow: hidden;
-  background-image: url("images/first.jpg");
+  /* background-image: url('images/normal.jpg');
   background-size: cover;
   background-color: rgba(255, 255, 255, 0.5);
-  background-blend-mode: color;
+  background-blend-mode: color; */
 }
 .page > * {
   position: relative;
@@ -343,7 +343,7 @@
   padding-top: 1.2mm;
 }
 .page.first-page .content {
-  padding: 2mm 10mm;
+  padding: 4mm 10mm;
   height: 248mm;
   display: flex;
   flex-direction: row;
@@ -387,7 +387,6 @@
 }
 .page.first-page .content .divider {
   width: 1px;
-  background-color: var(--primary-color);
   margin: 2mm 0 0 0;
   position: relative;
 }
@@ -398,20 +397,57 @@
   white-space: nowrap;
   background: white;
   padding: 0 6mm;
-  color: var(--primary-color);
-  border: 1px solid var(--primary-color);
   border-radius: 20mm;
 }
-.page.first-page .footer {
-  height: 20mm;
+
+.footer {
+  height: 14mm;
+  display: flex;
+  flex-direction: row;
+  align-items: flex-start;
+  justify-content: space-between;
+  border-top: 0.5mm solid #e0e0e0;
+  padding: 0 10mm;
+  position: relative;
+}
+.footer .footer-page-number {
+  width: 10mm;
+  height: 5.5mm;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 3.4mm;
+  font-weight: 700;
+  color: white;
+  position: absolute;
+  z-index: 4;
+}
+.footer .footer-test-name {
+  font-size: 3.7mm;
+  font-weight: 600;
+  position: absolute;
+}
+.footer .footer-page-number-ribbon {
+  width: 15mm;
+  height: 5mm;
+  position: absolute;
+  transform: skew(-24deg);
+  background: var(--primary-color);
+}
+.footer .footer-page-number-ribbon .light-ribbon {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: 1.5mm;
 }
 
 /* Normal pages header */
 .page:not(.cover-page):not(.first-page):not(.answer-key) .header {
-  height: 15mm;
+  height: 24mm;
   display: flex;
   flex-direction: row;
-  align-items: center;
+  align-items: flex-end;
   justify-content: space-between;
   padding: 0 10mm;
   border-bottom: 0.5mm solid #e0e0e0;
@@ -419,16 +455,15 @@
 .page:not(.cover-page):not(.first-page):not(.answer-key) .header .header-left,
 .page:not(.cover-page):not(.first-page):not(.answer-key) .header .header-center,
 .page:not(.cover-page):not(.first-page):not(.answer-key) .header .header-right {
-  font-size: 3.5mm;
+  font-size: 3.7mm;
   font-weight: 600;
   color: #333;
 }
 .page:not(.cover-page):not(.first-page):not(.answer-key) .header .header-center {
   text-align: center;
-  flex: 1;
 }
 .page:not(.cover-page):not(.first-page):not(.answer-key) .content {
-  padding: 2mm 10mm;
+  padding: 4mm 10mm;
   height: 248mm;
   display: flex;
   flex-direction: row;
@@ -468,7 +503,7 @@
   padding: 3mm 5mm 3mm 0;
 }
 .page:not(.cover-page):not(.first-page):not(.answer-key) .content .right-column .question {
-  padding: 3mm 0 3mm 2mm;
+  padding: 3mm 0 3mm 3mm;
 }
 .page:not(.cover-page):not(.first-page):not(.answer-key) .content .divider {
   width: 1px;
@@ -487,30 +522,36 @@
   border: 1px solid var(--primary-color);
   border-radius: 20mm;
 }
-.page:not(.cover-page):not(.first-page):not(.answer-key) .footer {
-  height: 15mm;
-  display: flex;
-  flex-direction: row;
-  align-items: center;
-  justify-content: center;
-  gap: 4mm;
-  border-top: 0.5mm solid #e0e0e0;
-  padding: 0 10mm;
+
+/* Odd page footer layout */
+.page.odd:not(.cover-page):not(.answer-key) .footer .footer-test-name {
+  left: 14mm;
+  top: 0.5mm;
 }
-.page:not(.cover-page):not(.first-page):not(.answer-key) .footer .footer-page-number {
-  width: 10mm;
-  height: 10mm;
-  border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 4.5mm;
-  font-weight: 700;
-  color: white;
+.page.odd:not(.cover-page):not(.answer-key) .footer .footer-page-number {
+  right: 2mm;
 }
-.page:not(.cover-page):not(.first-page):not(.answer-key) .footer .footer-test-name {
-  font-size: 3.5mm;
-  font-weight: 600;
+.page.odd:not(.cover-page):not(.answer-key) .footer .footer-page-number-ribbon {
+  right: -2mm;
+}
+.page.odd:not(.cover-page):not(.answer-key) .footer .footer-page-number-ribbon .light-ribbon {
+  left: -2mm;
+}
+
+/* Even page footer layout */
+.page.even:not(.cover-page):not(.answer-key) .footer .footer-test-name {
+  right: 14mm;
+  top: 0.5mm;
+}
+.page.even:not(.cover-page):not(.answer-key) .footer .footer-page-number {
+  left: 2mm;
+}
+.page.even:not(.cover-page):not(.answer-key) .footer .footer-page-number-ribbon {
+  left: -2mm;
+  transform: skew(24deg);
+}
+.page.even:not(.cover-page):not(.answer-key) .footer .footer-page-number-ribbon .light-ribbon {
+  right: -2mm;
 }
 
 /* Answer key page */

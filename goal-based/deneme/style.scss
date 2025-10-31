@@ -251,10 +251,10 @@ $ydt-color: #e46664;
   box-sizing: border-box;
   position: relative;
   overflow: hidden;
-  background-image: url('images/first.jpg');
+  /* background-image: url('images/normal.jpg');
   background-size: cover;
   background-color: rgba(255, 255, 255, 0.5);
-  background-blend-mode: color;
+  background-blend-mode: color; */
 
   &>* {
     position: relative;
@@ -382,7 +382,7 @@ $ydt-color: #e46664;
   }
 
   .content {
-    padding: 2mm 10mm;
+    padding: 4mm 10mm;
     height: 248mm;
     display: flex;
     flex-direction: row;
@@ -433,7 +433,6 @@ $ydt-color: #e46664;
 
     .divider {
       width: 1px;
-      background-color: var(--primary-color);
       margin: 2mm 0 0 0;
       position: relative;
 
@@ -444,25 +443,67 @@ $ydt-color: #e46664;
         white-space: nowrap;
         background: white;
         padding: 0 6mm;
-        color: var(--primary-color);
-        border: 1px solid var(--primary-color);
         border-radius: 20mm;
       }
     }
   }
 
-  .footer {
-    height: 20mm;
+
+}
+
+.footer {
+  height: 14mm;
+  display: flex;
+  flex-direction: row;
+  align-items: flex-start;
+  justify-content: space-between;
+  border-top: 0.5mm solid #e0e0e0;
+  padding: 0 10mm;
+  position: relative;
+
+  .footer-page-number {
+    width: 10mm;
+    height: 5.5mm;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 3.4mm;
+    font-weight: 700;
+    color: white;
+    position: absolute;
+    z-index: 4;
+  }
+
+  .footer-test-name {
+    font-size: 3.7mm;
+    font-weight: 600;
+    position: absolute;
+  }
+
+  .footer-page-number-ribbon {
+    width: 15mm;
+    height: 5mm;
+    position: absolute;
+    transform: skew(-24deg);
+    background: var(--primary-color);
+
+    .light-ribbon {
+        position: absolute;
+        top: 0;
+        bottom: 0;
+        width: 1.5mm;
+    }
   }
 }
 
 /* Normal pages header */
 .page:not(.cover-page):not(.first-page):not(.answer-key) {
   .header {
-    height: 15mm;
+    height: 24mm;
     display: flex;
     flex-direction: row;
-    align-items: center;
+    align-items: flex-end;
     justify-content: space-between;
     padding: 0 10mm;
     border-bottom: 0.5mm solid #e0e0e0;
@@ -470,19 +511,18 @@ $ydt-color: #e46664;
     .header-left,
     .header-center,
     .header-right {
-      font-size: 3.5mm;
+      font-size: 3.7mm;
       font-weight: 600;
       color: #333;
     }
 
     .header-center {
       text-align: center;
-      flex: 1;
     }
   }
 
   .content {
-    padding: 2mm 10mm;
+    padding: 4mm 10mm;
     height: 248mm;
     display: flex;
     flex-direction: row;
@@ -527,7 +567,7 @@ $ydt-color: #e46664;
 
     .right-column {
       .question {
-        padding: 3mm 0 3mm 2mm;
+        padding: 3mm 0 3mm 3mm;
       }
     }
 
@@ -550,32 +590,49 @@ $ydt-color: #e46664;
       }
     }
   }
+}
 
+/* Odd page footer layout */
+.page.odd:not(.cover-page):not(.answer-key) {
   .footer {
-    height: 15mm;
-    display: flex;
-    flex-direction: row;
-    align-items: center;
-    justify-content: center;
-    gap: 4mm;
-    border-top: 0.5mm solid #e0e0e0;
-    padding: 0 10mm;
-
-    .footer-page-number {
-      width: 10mm;
-      height: 10mm;
-      border-radius: 50%;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 4.5mm;
-      font-weight: 700;
-      color: white;
+    .footer-test-name {
+      left: 14mm;
+      top: 0.5mm;
     }
 
+    .footer-page-number {
+      right: 2mm;
+    }
+
+    .footer-page-number-ribbon {
+      right: -2mm;
+
+      .light-ribbon {
+        left: -2mm;
+      }
+    }
+  }
+}
+
+/* Even page footer layout */
+.page.even:not(.cover-page):not(.answer-key) {
+  .footer {
     .footer-test-name {
-      font-size: 3.5mm;
-      font-weight: 600;
+      right: 14mm;
+      top: 0.5mm;
+    }
+
+    .footer-page-number {
+      left: 2mm;
+    }
+
+    .footer-page-number-ribbon {
+      left: -2mm;
+      transform: skew(24deg);
+
+      .light-ribbon {
+        right: -2mm;
+      }
     }
   }
 }

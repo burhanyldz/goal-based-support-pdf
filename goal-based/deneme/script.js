@@ -57,7 +57,6 @@
 		container: null,
 		initialized: false,
 		currentTestType: null,
-		denemeNumber: 1,
 		
 		init: function(options = {}) {
 			this.config = this._mergeConfig(defaultConfig, options);
@@ -264,7 +263,7 @@
 			const isOdd = ((pagesState.pageCount + 1) % 2) === 1;
 			const pageClass = 'page ' + (isOdd ? 'odd' : 'even') + ' first-page';
 			const page = this._createEl('div', pageClass);
-			page.setAttribute('data-test-color', testColor);
+			page.setAttribute('data-test-color', testColor.primary);
 			
 			const testTypeUpper = this.currentTestType ? this.currentTestType.toUpperCase() : '-';
 			const testName = test.name || '';
@@ -288,13 +287,17 @@
                     </div>
 				<div class="content">
 					<div class="left-column"></div>
-					<div class="divider">
-						<div class="divider-text">MEBİ Hedef Temelli Destek Eğitimi</div>
+					<div class="divider" style="background: ${testColor.secondary};">
+						<div class="divider-text" style="color: ${testColor.secondary}; border: 1px solid ${testColor.secondary};">MEBİ Hedef Temelli Destek Eğitimi</div>
 					</div>
 					<div class="right-column"></div>
 				</div>
 				<div class="footer">
-					
+					<div class="footer-page-number">${pagesState.globalPageNumber}</div>
+					<div class="footer-page-number-ribbon" style="background: ${testColor.primary};">
+						<div class="light-ribbon" style="background: ${testColor.secondary};"></div>
+					</div>
+					<div class="footer-test-name">${testTypeUpper} - ${this._escapeHtml(testName).toUpperCase()} TESTİ</div>
 				</div>
 			`;
 			
@@ -305,7 +308,7 @@
 		_createNormalPage: function(isOdd, pagesState, testColor, test) {
 			const cls = 'page ' + (isOdd ? 'odd' : 'even');
 			const page = this._createEl('div', cls);
-			page.setAttribute('data-test-color', testColor);
+			page.setAttribute('data-test-color', testColor.primary);
 			
 			const testTypeUpper = this.currentTestType ? this.currentTestType.toUpperCase() : 'TYT';
 			const testName = test.name || '';
@@ -314,18 +317,21 @@
 				<div class="header">
 					<div class="header-left">YKS DENEMELERİ</div>
 					<div class="header-center">Ortaöğretim Genel Müdürlüğü</div>
-					<div class="header-right">${this.denemeNumber}. DENEME</div>
+					<div class="header-right">DENEME</div>
 				</div>
 				<div class="content">
 					<div class="left-column"></div>
-					<div class="divider">
-						<div class="divider-text">MEBİ Hedef Temelli Destek Eğitimi</div>
+					<div class="divider" style="background: ${testColor.secondary};">
+						<div class="divider-text" style="color: ${testColor.secondary}; border: 1px solid ${testColor.secondary};">MEBİ Hedef Temelli Destek Eğitimi</div>
 					</div>
 					<div class="right-column"></div>
 				</div>
 				<div class="footer">
-					<div class="footer-page-number" style="background-color: ${testColor};">${pagesState.globalPageNumber}</div>
-					<div class="footer-test-name" style="color: ${testColor};">${testTypeUpper} - ${this._escapeHtml(testName).toUpperCase()} TESTİ</div>
+					<div class="footer-page-number">${pagesState.globalPageNumber}</div>
+					<div class="footer-page-number-ribbon" style="background: ${testColor.primary};">
+						<div class="light-ribbon" style="background: ${testColor.secondary};"></div>
+					</div>
+					<div class="footer-test-name">${testTypeUpper} - ${this._escapeHtml(testName).toUpperCase()} TESTİ</div>
 				</div>
 			`;
 			
