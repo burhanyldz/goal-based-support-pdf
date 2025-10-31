@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PDF Oluştur - Hedef Temelli Destek Eğitimi</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Jost:ital,wght@0,100..900;1,100..900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body class="pdf-export">
+    <div id="pdf-root"></div>
+    <script src="../shared/qrious.min.js"></script>
+    <!-- PDF dışa aktarma kütüphaneleri: html2canvas DOM -> canvas, jsPDF PDF oluşturma için -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    
+    <!-- Deneme PDF Plugin -->
+    <script src="script.js"></script>
+    
+    <script>
+        document.addEventListener('DOMContentLoaded', async function() {
+            try {
+                // Load exam data
+                const dataResponse = await fetch('example-ydt.json'); // or 'example-ayt.json', 'example-tyt.json'
+                const examData = await dataResponse.json();
+                
+                // Initialize Deneme PDF
+                const denemePdf = DenemePDF.init({
+                    container: '#pdf-root',
+                    examData: examData,
+                    toolbar: {
+                        enabled: true,
+                        showBack: true,
+                        showDownload: true,
+                        showHomework: true,
+                        title: 'PDF Oluştur'
+                    },
+                    export: {
+                        filename: 'deneme-sinavi.pdf',
+                        message: 'PDF hazırlanıyor, lütfen bekleyin...'
+                    },
+                    onBack: function() {
+                        console.log('Geri butonu tıklandı');
+                        // window.history.back();
+                    },
+                    onHomework: function(data) {
+                        console.log('Ödev gönder butonu tıklandı', data);
+                        // API call to send homework
+                    },
+                    onDataSaved: function(newData, oldData) {
+                        console.log('Deneme data saved!', newData);
+                        console.log('Old data:', oldData);
+                        
+                        // You can handle specific changes here
+                        if (oldData.denemeName !== newData.denemeName) {
+                            console.log('Deneme name changed:', newData.denemeName);
+                        }
+                    },
+                    onError: function(message, error) {
+                        console.error('Deneme PDF Error:', message, error);
+                    }
+                });
+            } catch (error) {
+                console.error('Failed to initialize Deneme PDF:', error);
+            }
+        });
+    </script>
+</body>
+</html>
