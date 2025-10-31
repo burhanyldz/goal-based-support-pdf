@@ -60,6 +60,8 @@
 		container: null,
 		initialized: false,
 		currentTestType: null,
+		_isRendering: false,
+		_pendingDownload: false,
 		
 		init: function(options = {}) {
 			this.config = this._mergeConfig(defaultConfig, options);
@@ -153,6 +155,9 @@
 				return;
 			}
 			
+			// Mark rendering as in progress
+			this._isRendering = true;
+			
 			// Use testType from examData if provided; otherwise default to tyt
 			const testType = examData.testType || 'tyt';
 			
@@ -206,6 +211,15 @@
 
 				// Apply Turkish-aware casing transforms
 				self._applyLocaleTransforms(rootElement);
+				
+				// Mark rendering as complete
+				self._isRendering = false;
+				
+				// If a download was requested during rendering, execute it now
+				if (self._pendingDownload) {
+					self._pendingDownload = false;
+					self._exportToPDF();
+				}
 
 				// Scale pages to fit viewport on small screens
 				if (self.config.scaling.enabled) {
@@ -1065,6 +1079,49 @@
 
 		_exportToPDF: function() {
 			const self = this;
+			
+			// Set download button to loading state and replace icon with spinner
+			const downloadBtn = document.getElementById('download-pdf-btn');
+			const mobileDownloadBtn = document.getElementById('mobile-download-btn');
+			
+			const spinnerSVG = `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" focusable="false" style="animation: spin 1s linear infinite">
+				<circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="2" opacity="0.25"/>
+				<path d="M 12 2 A 10 10 0 0 1 22 12" stroke="currentColor" stroke-width="2" stroke-linecap="round" fill="none"/>
+			</svg>`;
+			
+			if (downloadBtn) {
+				downloadBtn.disabled = true;
+				downloadBtn.classList.add('loading');
+				// Store original icon
+				if (!downloadBtn.dataset.originalIcon) {
+					downloadBtn.dataset.originalIcon = downloadBtn.querySelector('svg').outerHTML;
+				}
+				// Replace with spinner
+				const svgContainer = downloadBtn.querySelector('svg');
+				if (svgContainer) {
+					svgContainer.outerHTML = spinnerSVG;
+				}
+			}
+			if (mobileDownloadBtn) {
+				mobileDownloadBtn.disabled = true;
+				mobileDownloadBtn.classList.add('loading');
+				// Store original icon
+				if (!mobileDownloadBtn.dataset.originalIcon) {
+					mobileDownloadBtn.dataset.originalIcon = mobileDownloadBtn.querySelector('svg').outerHTML;
+				}
+				// Replace with spinner
+				const svgContainer = mobileDownloadBtn.querySelector('svg');
+				if (svgContainer) {
+					svgContainer.outerHTML = spinnerSVG;
+				}
+			}
+			
+			// If rendering is still in progress, queue the download and wait
+			if (this._isRendering) {
+				this._pendingDownload = true;
+				return;
+			}
+			
 			const overlay = document.getElementById('export-overlay');
 
 			function showOverlay() {
@@ -1141,6 +1198,28 @@
 						pdf.save(self.config.export.filename);
 						hideOverlay();
 						self._showSuccessOverlay();
+						
+						// Reset download button state and restore original icon
+						if (downloadBtn) {
+							downloadBtn.disabled = false;
+							downloadBtn.classList.remove('loading');
+							if (downloadBtn.dataset.originalIcon) {
+								const svgContainer = downloadBtn.querySelector('svg');
+								if (svgContainer) {
+									svgContainer.outerHTML = downloadBtn.dataset.originalIcon;
+								}
+							}
+						}
+						if (mobileDownloadBtn) {
+							mobileDownloadBtn.disabled = false;
+							mobileDownloadBtn.classList.remove('loading');
+							if (mobileDownloadBtn.dataset.originalIcon) {
+								const svgContainer = mobileDownloadBtn.querySelector('svg');
+								if (svgContainer) {
+									svgContainer.outerHTML = mobileDownloadBtn.dataset.originalIcon;
+								}
+							}
+						}
 						return;
 					}
 

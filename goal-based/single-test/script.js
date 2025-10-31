@@ -82,6 +82,8 @@
 		initialized: false,
 		// runtime flag to ensure modal auto-open happens only once per full page load
 		_hasAutoOpenedModalOnce: false,
+		_isRendering: false,
+		_pendingDownload: false,
 		
 		/**
 		 * Initialize the plugin with configuration
@@ -234,6 +236,9 @@
 				return;
 			}
 			
+			// Mark rendering as in progress
+			this._isRendering = true;
+			
 			// Initialize theme based on test type
 			this._initializeTheme(data);
 			
@@ -284,6 +289,15 @@
 				// Scale pages to fit viewport on small screens
 				if (self.config.scaling.enabled) {
 					self._scalePagesToFit();
+				}
+
+				// Mark rendering as complete
+				self._isRendering = false;
+				
+				// If a download was requested during rendering, execute it now
+				if (self._pendingDownload) {
+					self._pendingDownload = false;
+					self._exportToPDF();
 				}
 
 				// Auto-open modal on first load (configurable)
@@ -1524,6 +1538,35 @@
 		// PDF export functionality
 		_exportToPDF: function() {
 			const self = this;
+			
+			// Set download button to loading state and replace icon with spinner
+			const downloadBtn = document.getElementById('download-pdf-btn');
+			
+			const spinnerSVG = `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" focusable="false" style="animation: spin 1s linear infinite">
+				<circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="2" opacity="0.25"/>
+				<path d="M 12 2 A 10 10 0 0 1 22 12" stroke="currentColor" stroke-width="2" stroke-linecap="round" fill="none"/>
+			</svg>`;
+			
+			if (downloadBtn) {
+				downloadBtn.disabled = true;
+				downloadBtn.classList.add('loading');
+				// Store original icon
+				if (!downloadBtn.dataset.originalIcon) {
+					downloadBtn.dataset.originalIcon = downloadBtn.querySelector('svg').outerHTML;
+				}
+				// Replace with spinner
+				const svgContainer = downloadBtn.querySelector('svg');
+				if (svgContainer) {
+					svgContainer.outerHTML = spinnerSVG;
+				}
+			}
+			
+			// If rendering is still in progress, queue the download and wait
+			if (this._isRendering) {
+				this._pendingDownload = true;
+				return;
+			}
+			
 			const overlay = document.getElementById('export-overlay');
 			
 			function showOverlay() {
@@ -1608,16 +1651,26 @@
 				
 				function processNextPage() {
 					if (processIndex >= pages.length) {
-						// All done
-						pdf.save(self.config.export.filename);
-						hideOverlay();
-						
-						// Show success overlay after a short delay
-						setTimeout(function() {
-							self._showSuccessOverlay();
-						}, 300);
-						
-						return;
+					// All done
+					pdf.save(self.config.export.filename);
+					hideOverlay();
+					
+					// Reset download button state and restore original icon
+					if (downloadBtn) {
+						downloadBtn.disabled = false;
+						downloadBtn.classList.remove('loading');
+						if (downloadBtn.dataset.originalIcon) {
+							const svgContainer = downloadBtn.querySelector('svg');
+							if (svgContainer) {
+								svgContainer.outerHTML = downloadBtn.dataset.originalIcon;
+							}
+						}
+					}
+					
+					// Show success overlay after a short delay
+					setTimeout(function() {
+						self._showSuccessOverlay();
+					}, 300);						return;
 					}
 					
 					// Update progress display (after checking if we're done)

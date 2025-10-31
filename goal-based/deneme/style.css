@@ -224,6 +224,25 @@
   transform: translateY(0);
 }
 
+/* Button loading state */
+.btn.loading {
+  opacity: 0.7;
+  cursor: wait;
+  pointer-events: auto;
+}
+.btn.loading:hover {
+  background: rgba(255, 255, 255, 0.1);
+  transform: none;
+}
+.btn.loading:active {
+  transform: none;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
 /* Mobile context menu */
 .mobile-context-menu {
   position: absolute;
