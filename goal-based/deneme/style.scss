@@ -8,6 +8,9 @@ $tur-color: #c37f67; // Türkçe
 $sos-color: #72a15e; // Sosyal Bilgiler
 $mat-color: #608ab1; // Matematik
 $fen-color: #91719b; // Fen Bilimleri
+// Additional lesson colors
+$tde-sos-color: $tur-color; // TDE - Sosyal Bilimler (uses Türkçe palette)
+$sos2-color: $sos-color;   // Sosyal Bilimler 2 (uses Sosyal Bilgiler palette)
 
 // CSS custom properties for dynamic theme colors
 :root {
@@ -46,6 +49,28 @@ $fen-color: #91719b; // Fen Bilimleri
   --lesson-color-light: #{lighten($fen-color, 20%)};
   --lesson-color-lightest: #{lighten($fen-color, 45%)};
   --lesson-color-lightest-alt: #{lighten($fen-color, 42%)};
+}
+
+// Additional lesson-specific CSS variables
+.lesson-ydt {
+  --lesson-color: #{$ydt-color};
+  --lesson-color-light: #{lighten($ydt-color, 20%)};
+  --lesson-color-lightest: #{lighten($ydt-color, 45%)};
+  --lesson-color-lightest-alt: #{lighten($ydt-color, 42%)};
+}
+
+.lesson-tde-sos {
+  --lesson-color: #{$tde-sos-color};
+  --lesson-color-light: #{lighten($tde-sos-color, 20%)};
+  --lesson-color-lightest: #{lighten($tde-sos-color, 43%)};
+  --lesson-color-lightest-alt: #{lighten($tde-sos-color, 40%)};
+}
+
+.lesson-sos2 {
+  --lesson-color: #{$sos2-color};
+  --lesson-color-light: #{lighten($sos2-color, 20%)};
+  --lesson-color-lightest: #{lighten($sos2-color, 50%)};
+  --lesson-color-lightest-alt: #{lighten($sos2-color, 47%)};
 }
 
 // Dynamic theme classes

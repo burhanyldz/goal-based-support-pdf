@@ -35,6 +35,27 @@
   --lesson-color-lightest-alt: rgb(242.3636363636, 238.6876033058, 243.5123966942);
 }
 
+.lesson-ydt {
+  --lesson-color: #e46664;
+  --lesson-color-light: rgb(243.1318681319, 187.7472527473, 186.8681318681);
+  --lesson-color-lightest: white;
+  --lesson-color-lightest-alt: white;
+}
+
+.lesson-tde-sos {
+  --lesson-color: #c37f67;
+  --lesson-color-light: rgb(223.8679245283, 188.5849056604, 176.1320754717);
+  --lesson-color-lightest: white;
+  --lesson-color-lightest-alt: rgb(252.7358490566, 250.1698113208, 249.2641509434);
+}
+
+.lesson-sos2 {
+  --lesson-color: #72a15e;
+  --lesson-color-light: rgb(170.4, 198.6, 158.4);
+  --lesson-color-lightest: white;
+  --lesson-color-lightest-alt: rgb(246.54, 249.36, 245.34);
+}
+
 .theme-tyt {
   --primary-color: #936fb7;
   --primary-color-hover: rgb(121.5, 81, 162);
