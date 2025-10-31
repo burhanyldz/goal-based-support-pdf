@@ -4,7 +4,8 @@
     "testType": null,
     "availableTestTypes": [
         "tyt",
-        "ayt"
+        "ayt",
+        "ydt"
     ],
     "tests": [
         {

@@ -801,13 +801,14 @@
 				const downloadBtn = this._createEl('button', 'btn desktop-btn');
 				downloadBtn.id = 'download-pdf-btn';
 				downloadBtn.type = 'button';
+				downloadBtn.title = 'PDF indir';
 				downloadBtn.innerHTML = `
 					<svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" focusable="false">
 						<path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
 						<polyline points="7 10 12 15 17 10" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
 						<line x1="12" y1="15" x2="12" y2="3" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
 					</svg>
-					<span>PDF İndir</span>`;
+					<span class="sr-only">PDF İndir</span>`;
 				actions.appendChild(downloadBtn);
 			}
 
@@ -829,7 +830,7 @@
 			contextMenu.setAttribute('aria-hidden', 'true');
 
 			if (this.config.toolbar.showHomework) {
-				const mobileHomeworkBtn = this._createEl('button', 'btn');
+				const mobileHomeworkBtn = this._createEl('button', 'context-menu-item');
 				mobileHomeworkBtn.id = 'mobile-homework-btn';
 				mobileHomeworkBtn.type = 'button';
 				mobileHomeworkBtn.innerHTML = `
@@ -842,7 +843,7 @@
 			}
 
 			if (this.config.toolbar.showDownload) {
-				const mobileDownloadBtn = this._createEl('button', 'btn');
+				const mobileDownloadBtn = this._createEl('button', 'context-menu-item');
 				mobileDownloadBtn.id = 'mobile-download-btn';
 				mobileDownloadBtn.type = 'button';
 				mobileDownloadBtn.innerHTML = `
@@ -866,7 +867,7 @@
 
 		_createExportOverlay: function() {
 			if (document.getElementById('export-overlay')) return;
-			
+
 			const overlay = this._createEl('div', 'export-overlay');
 			overlay.id = 'export-overlay';
 			overlay.setAttribute('aria-hidden', 'true');
@@ -876,10 +877,8 @@
 			const spinner = this._createEl('div', 'spinner');
 			const msg = this._createEl('div', 'export-message');
 			msg.textContent = this.config.export.message;
-			
 			const progress = this._createEl('div', 'export-progress');
-			progress.innerHTML = '<div class="export-progress-bar"></div>';
-
+			progress.textContent = '';
 			inner.appendChild(spinner);
 			inner.appendChild(msg);
 			inner.appendChild(progress);
@@ -972,16 +971,16 @@
 			const menuBtn = document.getElementById('mobile-menu-btn');
 			const contextMenu = document.getElementById('mobile-context-menu');
 			if (menuBtn && contextMenu) {
-				menuBtn.addEventListener('click', function(e) {
+                menuBtn.addEventListener('click', function(e) {
 					e.stopPropagation();
 					const isHidden = contextMenu.getAttribute('aria-hidden') === 'true';
 					contextMenu.setAttribute('aria-hidden', isHidden ? 'false' : 'true');
-					contextMenu.classList.toggle('open');
+					contextMenu.classList.toggle('show');
 				});
 
 				document.addEventListener('click', function() {
 					contextMenu.setAttribute('aria-hidden', 'true');
-					contextMenu.classList.remove('open');
+					contextMenu.classList.remove('show');
 				});
 
 				contextMenu.addEventListener('click', function(e) {
@@ -994,7 +993,7 @@
 				mobileHomework.addEventListener('click', function() {
 					if (contextMenu) {
 						contextMenu.setAttribute('aria-hidden', 'true');
-						contextMenu.classList.remove('open');
+						contextMenu.classList.remove('show');
 					}
 					if (self.config.onHomework && typeof self.config.onHomework === 'function') {
 						self.config.onHomework(self.examData);
@@ -1007,7 +1006,7 @@
 				mobileDownload.addEventListener('click', function() {
 					if (contextMenu) {
 						contextMenu.setAttribute('aria-hidden', 'true');
-						contextMenu.classList.remove('open');
+						contextMenu.classList.remove('show');
 					}
 					self._exportToPDF();
 				});
@@ -1016,30 +1015,72 @@
 
 		_exportToPDF: function() {
 			const self = this;
-			
 			const overlay = document.getElementById('export-overlay');
-			const progressBar = overlay ? overlay.querySelector('.export-progress-bar') : null;
-			
-			if (overlay) {
-				overlay.setAttribute('aria-hidden', 'false');
-				overlay.classList.add('visible');
+
+			function showOverlay() {
+				if (overlay) {
+					overlay.setAttribute('aria-hidden', 'false');
+					overlay.classList.add('visible');
+				}
 			}
-			
-			if (progressBar) progressBar.style.width = '0%';
+
+			function hideOverlay() {
+				if (overlay) {
+					overlay.setAttribute('aria-hidden', 'true');
+					overlay.classList.remove('visible');
+				}
+			}
+
+			function updateOverlayProgress(current, total) {
+				if (overlay) {
+					const progressText = overlay.querySelector('.export-progress');
+					if (progressText) {
+						progressText.textContent = 'Sayfa ' + current + ' / ' + total + ' işleniyor...';
+					}
+				}
+			}
+
+			// Check for required libraries
+			if (!window.html2canvas) {
+				alert('PDF kütüphanesi "html2canvas" yüklenmedi. Lütfen script bağlantılarını kontrol edin.');
+				return;
+			}
+
+			let jsPDF = null;
+			if (window.jspdf && typeof window.jspdf.jsPDF === 'function') {
+				jsPDF = window.jspdf.jsPDF;
+			} else if (window.jsPDF && typeof window.jsPDF === 'function') {
+				jsPDF = window.jsPDF;
+			}
+
+			if (!jsPDF) {
+				alert('PDF kütüphanesi "jsPDF" yüklenmedi. Lütfen script bağlantılarını kontrol edin.');
+				return;
+			}
+
+			const pages = Array.from(document.querySelectorAll('.page'));
+			if (!pages.length) {
+				alert('PDF için sayfa bulunamadı.');
+				return;
+			}
+
+			showOverlay();
+
+			// Debugging: Log export start
+			console.log('PDF Export Started: ' + pages.length + ' pages total');
+			console.log('Device Info:', {
+				userAgent: navigator.userAgent,
+				devicePixelRatio: window.devicePixelRatio,
+				memory: navigator.deviceMemory || 'unknown',
+				hardwareConcurrency: navigator.hardwareConcurrency || 'unknown',
+				screenResolution: window.screen.width + 'x' + window.screen.height
+			});
+
+			// Optimal settings
+			const USE_PNG = true;
 
 			setTimeout(function() {
-				const pages = Array.from(document.querySelectorAll('.page'));
-				if (!pages.length) {
-					if (overlay) {
-						overlay.setAttribute('aria-hidden', 'true');
-						overlay.classList.remove('visible');
-					}
-					alert('Sayfa bulunamadı');
-					return;
-				}
-
-				const { jsPDF } = window.jspdf;
-				const pdf = new jsPDF('p', 'mm', 'a4');
+				const pdf = new jsPDF({ unit: 'mm', format: 'a4', compress: true, precision: 16 });
 				const pdfWidth = pdf.internal.pageSize.getWidth();
 				const pdfHeight = pdf.internal.pageSize.getHeight();
 
@@ -1048,16 +1089,13 @@
 				function processPage(index) {
 					if (index >= pages.length) {
 						pdf.save(self.config.export.filename);
-						if (overlay) {
-							overlay.setAttribute('aria-hidden', 'true');
-							overlay.classList.remove('visible');
-						}
+						hideOverlay();
 						self._showSuccessOverlay();
 						return;
 					}
 
 					const page = pages[index];
-					
+
 					html2canvas(page, {
 						scale: 2,
 						useCORS: true,
@@ -1065,17 +1103,12 @@
 						backgroundColor: '#ffffff',
 						logging: false
 					}).then(function(canvas) {
-						const imgData = canvas.toDataURL('image/jpeg', 0.95);
-						
-						if (index > 0) {
-							pdf.addPage();
-						}
-						
-						pdf.addImage(imgData, 'JPEG', 0, 0, pdfWidth, pdfHeight);
-						
+						const imgData = canvas.toDataURL(USE_PNG ? 'image/png' : 'image/jpeg', 1.0);
+						if (index > 0) pdf.addPage();
+						pdf.addImage(imgData, USE_PNG ? 'PNG' : 'JPEG', 0, 0, pdfWidth, pdfHeight);
+
 						processedCount++;
-						const progress = (processedCount / pages.length) * 100;
-						if (progressBar) progressBar.style.width = progress + '%';
+						updateOverlayProgress(processedCount, pages.length);
 
 						setTimeout(function() {
 							processPage(index + 1);
