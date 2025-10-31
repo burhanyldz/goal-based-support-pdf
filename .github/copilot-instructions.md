@@ -1,14 +1,12 @@
-<todos title="Make deneme match single-test mobile behavior" rule="Review steps frequently throughout the conversation and DO NOT stop between steps unless they explicitly require it.">
-- [x] 1-plan-compare-styles: Compare `goal-based/single-test/style.scss` mobile/responsive rules and toolbar/button styles vs `goal-based/deneme/style.scss` to identify differences. 🔴
-  _Read both style.scss files and located the mobile block and page-scaling rules in single-test._
-- [x] 2-apply-mobile-styles: Update `goal-based/deneme/style.scss` to include mobile styles, page scaling related CSS, and ensure `.mobile-btn` displays on small screens. 🔴
-  _Replaced deneme responsive block with single-test mobile block and added #pdf-root and page-wrap rules._
-- [x] 3-add-scaling-js: Add `_scalePagesToFit` implementation to `goal-based/deneme/script.js` so pages scale to fit narrow viewports like single-test. 🔴
-  _Copied scale function from single-test and adapted to use DenemePDF config and container._
-- [x] 4-add-resize-listeners: Add resize and orientationchange listeners in `goal-based/deneme/script.js` to call `_scalePagesToFit` on viewport changes. 🔴
-  _Appended debounced resize and orientationchange handlers to `_setupEventListeners`._
-- [x] 5-verify-quick-check: Quick file-check ensuring mobile icon button exists and CSS shows `.mobile-btn` on small screens; ensure there are no obvious syntax issues introduced. 🟡
-  _Confirmed mobile homework icon button already existed in deneme toolbar; CSS updated to enable it and scale behavior added._
+<todos title="Implement Edit Dialog for Deneme" rule="Review steps frequently throughout the conversation and DO NOT stop between steps unless they explicitly require it.">
+- [x] 1-review-requirements: Review requirements and plan implementation - Fields: denemeName, attentionCandidate, attention, denemeInstructions. Labels: 'Deneme Başlığı', 'Adayın Dikkatine metni', 'Dikkat metni', 'Açıklama Metni'. WYSIWYG for attention & denemeInstructions without font size/family controls. 🔴
+- [x] 2-add-modal-html-structure: Add modal HTML structure to script.js - Create _createModal() function with 4 fields (1 text input for denemeName, 1 textarea for attentionCandidate, 2 WYSIWYG fields for attention & denemeInstructions). Use same modal structure as single-test. 🔴
+- [x] 3-add-wysiwyg-toolbar: Implement WYSIWYG toolbar functionality - Add toolbar with bold, italic, underline, strikethrough, ordered/unordered lists, undo/redo. NO font size or font family. Use contenteditable divs. 🔴
+- [x] 4-add-modal-init-logic: Add modal initialization and event handlers - Create _initModal() with open/close/save logic. Populate from examData, handle WYSIWYG content, save changes, trigger re-render. 🔴
+- [x] 5-add-edit-button-toolbar: Add Edit button to toolbar - Add desktop Edit button and mobile Edit button (in context menu). Hook up to openEdit() method. 🔴
+- [x] 6-copy-modal-styles: Copy and adapt modal styles from single-test - Copy modal styles from single-test/style.scss to deneme/style.scss. Add WYSIWYG-specific styles and textarea styles. 🔴
+- [x] 7-add-public-api: Add public openEdit() method - Add openEdit() public method to DenemePDF object for programmatic modal opening. 🟡
+- [x] 8-test-functionality: Test edit dialog functionality - Test opening modal, editing all fields with WYSIWYG, saving, verifying data updates. Test desktop and mobile views. 🟡
 </todos>
 
 <!-- Auto-generated todo section -->

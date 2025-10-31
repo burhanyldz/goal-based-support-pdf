@@ -50,6 +50,7 @@
 		onLoad: null,
 		onBack: null,
 		onHomework: null,
+		onDataSaved: null,
 		onError: null
 	};
 	
@@ -73,16 +74,18 @@
 					this.render(this.config.examData);
 				}
 				
-				if (this.config.toolbar.enabled) {
-					this._createToolbar();
-				}
-				
-				if (this.config.export.enabled) {
-					this._createExportOverlay();
-					this._createSuccessOverlay();
-				}
-				
-				this._setupEventListeners();
+			if (this.config.toolbar.enabled) {
+				this._createToolbar();
+			}
+			
+			// Create and initialize modal
+			this._createModal();
+			this._initModal();
+			
+			if (this.config.export.enabled) {
+				this._createExportOverlay();
+				this._createSuccessOverlay();
+			}				this._setupEventListeners();
 				this.initialized = true;
 				return this;
 				
@@ -101,6 +104,16 @@
 			if (!this.initialized) return;
 			if (this.config.onHomework && typeof this.config.onHomework === 'function') {
 				this.config.onHomework(this.examData);
+			}
+		},
+
+		openEdit: function() {
+			if (!this.initialized) return;
+			const modal = document.getElementById('edit-modal');
+			if (modal) {
+				// Trigger the modal open function
+				const editBtn = document.getElementById('edit-meta-btn');
+				if (editBtn) editBtn.click();
 			}
 		},
 		
@@ -277,21 +290,33 @@
 				page.innerHTML = `
 					<img src="images/${imageFilename}" alt="${testType.toUpperCase()} Kapak ${pageNumber}" class="cover-image">
 					<div id="school-name" class="school-name"></div>
-					<div class="attention-candidate">
-						${this._escapeHtml(this.examData.attentionCandidate || '').replace(/\n/g, '<br>')}
-					</div>
 				`;
+				if (this.examData && this.examData.attentionCandidate) {
+					page.innerHTML += `
+						<div class="attention-candidate">
+							${this._escapeHtml(this.examData.attentionCandidate || '').replace(/\n/g, '<br>')}
+						</div>
+					`;
+				}
 			} else {
-				page.innerHTML = `
-					<img src="images/${imageFilename}" alt="${testType.toUpperCase()} Kapak ${pageNumber}" class="cover-image">
-					<div class="attention">
-						${this._escapeHtml(this.examData.attention || '').replace(/\n/g, '<br>')}
+				if (this.examData && this.examData.attention) {
+					page.innerHTML = `
+					<div class="attention-box">
+						<div class="attention-label">DİKKAT!</div>
+						<div class="attention">
+							${this._escapeHtml(this.examData.attention || '').replace(/\n/g, '<br>')}
+						</div>
 					</div>
+					`;
+				}
+				if (this.examData && this.examData.denemeInstructions) {
+					page.innerHTML += `
 					<div class="deneme-instructions">
+						<b>AÇIKLAMA</b><br><br>
 						${this._escapeHtml(this.examData.denemeInstructions || '').replace(/\r\n/g, '<p></p>').replace(/\n/g, '<br>')}
 					</div>
-
-				`;
+					`;
+				}
 			}
 			// Fill school name if first cover page
 			if (pageNumber === 1 && this.examData && this.examData.schoolName) {
@@ -824,7 +849,17 @@
 
 			const actions = this._createEl('div', 'toolbar-actions');
 
-			if (this.config.toolbar.showHomework) {
+		// Desktop Edit button
+		const editBtn = this._createEl('button', 'btn btn-primary desktop-btn');
+		editBtn.id = 'edit-meta-btn';
+		editBtn.type = 'button';
+		editBtn.innerHTML = `
+			<svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" focusable="false">
+				<path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+				<path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+			</svg>
+			<span>Düzenle</span>`;
+		actions.appendChild(editBtn);			if (this.config.toolbar.showHomework) {
 				const homeworkBtn = this._createEl('button', 'btn btn-secondary desktop-btn');
 				homeworkBtn.id = 'send-homework-btn';
 				homeworkBtn.type = 'button';
@@ -883,6 +918,18 @@
 			const contextMenu = this._createEl('div', 'mobile-context-menu');
 			contextMenu.id = 'mobile-context-menu';
 			contextMenu.setAttribute('aria-hidden', 'true');
+
+			// Mobile Edit button
+			const mobileEditBtn = this._createEl('button', 'context-menu-item');
+			mobileEditBtn.id = 'mobile-edit-btn';
+			mobileEditBtn.type = 'button';
+			mobileEditBtn.innerHTML = `
+				<svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" focusable="false">
+					<path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+					<path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+				</svg>
+				<span>Düzenle</span>`;
+			contextMenu.appendChild(mobileEditBtn);
 
 			if (this.config.toolbar.showHomework) {
 				const mobileHomeworkBtn = this._createEl('button', 'context-menu-item');
@@ -993,6 +1040,322 @@
 				overlay.setAttribute('aria-hidden', 'false');
 				overlay.classList.add('visible');
 			}
+		},
+
+		_createModal: function() {
+			if (document.getElementById('edit-modal')) return;
+
+			const modalOverlay = this._createEl('div', 'modal-overlay');
+			modalOverlay.id = 'edit-modal';
+			modalOverlay.setAttribute('aria-hidden', 'true');
+
+			const modal = this._createEl('div', 'modal');
+			modal.setAttribute('role', 'dialog');
+			modal.setAttribute('aria-modal', 'true');
+
+			// header
+			const header = this._createEl('header', 'modal-header');
+			const h3 = this._createEl('h3');
+			h3.id = 'edit-modal-title';
+			h3.textContent = 'Deneme Bilgilerini Düzenle';
+			const closeBtn = this._createEl('button', 'modal-close');
+			closeBtn.id = 'edit-modal-close';
+			closeBtn.type = 'button';
+			closeBtn.innerHTML = `
+				<svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+					<path d="M18.3 5.71a1 1 0 0 0-1.41 0L12 10.59 7.11 5.7A1 1 0 0 0 5.7 7.11L10.59 12l-4.89 4.89a1 1 0 1 0 1.41 1.41L12 13.41l4.89 4.89a1 1 0 0 0 1.41-1.41L13.41 12l4.89-4.89a1 1 0 0 0 0-1.4z" fill="currentColor"/>
+				</svg>`;
+			header.appendChild(h3);
+			header.appendChild(closeBtn);
+
+			// body
+			const body = this._createEl('div', 'modal-body');
+			body.innerHTML = `
+				<label>
+					Deneme Başlığı
+					<input id="input-denemeName" type="text" placeholder="Deneme başlığı" maxlength="100">
+				</label>
+				<label>
+					Adayın Dikkatine metni
+					<div class="wysiwyg-toolbar" data-target="attentionCandidate">
+						<button type="button" data-command="bold" title="Kalın"><b>B</b></button>
+						<button type="button" data-command="italic" title="İtalik"><i>I</i></button>
+						<button type="button" data-command="underline" title="Altı çizili"><u>U</u></button>
+						<button type="button" data-command="strikeThrough" title="Üstü çizili"><s>S</s></button>
+						<span class="toolbar-separator"></span>
+						<button type="button" data-command="insertOrderedList" title="Numaralı liste">
+							<svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+								<line x1="10" y1="6" x2="21" y2="6" stroke="currentColor" stroke-width="2"/>
+								<line x1="10" y1="12" x2="21" y2="12" stroke="currentColor" stroke-width="2"/>
+								<line x1="10" y1="18" x2="21" y2="18" stroke="currentColor" stroke-width="2"/>
+								<text x="3" y="8" font-size="8" fill="currentColor">1.</text>
+								<text x="3" y="14" font-size="8" fill="currentColor">2.</text>
+								<text x="3" y="20" font-size="8" fill="currentColor">3.</text>
+							</svg>
+						</button>
+						<button type="button" data-command="insertUnorderedList" title="Madde işaretli liste">
+							<svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+								<line x1="10" y1="6" x2="21" y2="6" stroke="currentColor" stroke-width="2"/>
+								<line x1="10" y1="12" x2="21" y2="12" stroke="currentColor" stroke-width="2"/>
+								<line x1="10" y1="18" x2="21" y2="18" stroke="currentColor" stroke-width="2"/>
+								<circle cx="4" cy="6" r="2" fill="currentColor"/>
+								<circle cx="4" cy="12" r="2" fill="currentColor"/>
+								<circle cx="4" cy="18" r="2" fill="currentColor"/>
+							</svg>
+						</button>
+						<span class="toolbar-separator"></span>
+						<button type="button" data-command="undo" title="Geri al">
+							<svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+								<path d="M9 14L4 9l5-5" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+								<path d="M4 9h10.5a5.5 5.5 0 0 1 0 11H11" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+							</svg>
+						</button>
+						<button type="button" data-command="redo" title="Yinele">
+							<svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+								<path d="M15 14l5-5-5-5" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+								<path d="M20 9H9.5a5.5 5.5 0 0 0 0 11H13" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+							</svg>
+						</button>
+					</div>
+					<div id="wysiwyg-attentionCandidate" class="wysiwyg-editor" contenteditable="true" data-placeholder="Adayın dikkatine metni..."></div>
+				</label>
+				<label>
+					Dikkat metni
+					<div class="wysiwyg-toolbar" data-target="attention">
+						<button type="button" data-command="bold" title="Kalın"><b>B</b></button>
+						<button type="button" data-command="italic" title="İtalik"><i>I</i></button>
+						<button type="button" data-command="underline" title="Altı çizili"><u>U</u></button>
+						<button type="button" data-command="strikeThrough" title="Üstü çizili"><s>S</s></button>
+						<span class="toolbar-separator"></span>
+						<button type="button" data-command="insertOrderedList" title="Numaralı liste">
+							<svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+								<line x1="10" y1="6" x2="21" y2="6" stroke="currentColor" stroke-width="2"/>
+								<line x1="10" y1="12" x2="21" y2="12" stroke="currentColor" stroke-width="2"/>
+								<line x1="10" y1="18" x2="21" y2="18" stroke="currentColor" stroke-width="2"/>
+								<text x="3" y="8" font-size="8" fill="currentColor">1.</text>
+								<text x="3" y="14" font-size="8" fill="currentColor">2.</text>
+								<text x="3" y="20" font-size="8" fill="currentColor">3.</text>
+							</svg>
+						</button>
+						<button type="button" data-command="insertUnorderedList" title="Madde işaretli liste">
+							<svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+								<line x1="10" y1="6" x2="21" y2="6" stroke="currentColor" stroke-width="2"/>
+								<line x1="10" y1="12" x2="21" y2="12" stroke="currentColor" stroke-width="2"/>
+								<line x1="10" y1="18" x2="21" y2="18" stroke="currentColor" stroke-width="2"/>
+								<circle cx="4" cy="6" r="2" fill="currentColor"/>
+								<circle cx="4" cy="12" r="2" fill="currentColor"/>
+								<circle cx="4" cy="18" r="2" fill="currentColor"/>
+							</svg>
+						</button>
+						<span class="toolbar-separator"></span>
+						<button type="button" data-command="undo" title="Geri al">
+							<svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+								<path d="M9 14L4 9l5-5" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+								<path d="M4 9h10.5a5.5 5.5 0 0 1 0 11H11" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+							</svg>
+						</button>
+						<button type="button" data-command="redo" title="Yinele">
+							<svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+								<path d="M15 14l5-5-5-5" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+								<path d="M20 9H9.5a5.5 5.5 0 0 0 0 11H13" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+							</svg>
+						</button>
+					</div>
+					<div id="wysiwyg-attention" class="wysiwyg-editor" contenteditable="true" data-placeholder="Dikkat metni..."></div>
+				</label>
+				<label>
+					Açıklama Metni
+					<div class="wysiwyg-toolbar" data-target="denemeInstructions">
+						<button type="button" data-command="bold" title="Kalın"><b>B</b></button>
+						<button type="button" data-command="italic" title="İtalik"><i>I</i></button>
+						<button type="button" data-command="underline" title="Altı çizili"><u>U</u></button>
+						<button type="button" data-command="strikeThrough" title="Üstü çizili"><s>S</s></button>
+						<span class="toolbar-separator"></span>
+						<button type="button" data-command="insertOrderedList" title="Numaralı liste">
+							<svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+								<line x1="10" y1="6" x2="21" y2="6" stroke="currentColor" stroke-width="2"/>
+								<line x1="10" y1="12" x2="21" y2="12" stroke="currentColor" stroke-width="2"/>
+								<line x1="10" y1="18" x2="21" y2="18" stroke="currentColor" stroke-width="2"/>
+								<text x="3" y="8" font-size="8" fill="currentColor">1.</text>
+								<text x="3" y="14" font-size="8" fill="currentColor">2.</text>
+								<text x="3" y="20" font-size="8" fill="currentColor">3.</text>
+							</svg>
+						</button>
+						<button type="button" data-command="insertUnorderedList" title="Madde işaretli liste">
+							<svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+								<line x1="10" y1="6" x2="21" y2="6" stroke="currentColor" stroke-width="2"/>
+								<line x1="10" y1="12" x2="21" y2="12" stroke="currentColor" stroke-width="2"/>
+								<line x1="10" y1="18" x2="21" y2="18" stroke="currentColor" stroke-width="2"/>
+								<circle cx="4" cy="6" r="2" fill="currentColor"/>
+								<circle cx="4" cy="12" r="2" fill="currentColor"/>
+								<circle cx="4" cy="18" r="2" fill="currentColor"/>
+							</svg>
+						</button>
+						<span class="toolbar-separator"></span>
+						<button type="button" data-command="undo" title="Geri al">
+							<svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+								<path d="M9 14L4 9l5-5" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+								<path d="M4 9h10.5a5.5 5.5 0 0 1 0 11H11" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+							</svg>
+						</button>
+						<button type="button" data-command="redo" title="Yinele">
+							<svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+								<path d="M15 14l5-5-5-5" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+								<path d="M20 9H9.5a5.5 5.5 0 0 0 0 11H13" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+							</svg>
+						</button>
+					</div>
+					<div id="wysiwyg-denemeInstructions" class="wysiwyg-editor" contenteditable="true" data-placeholder="Açıklama metni..."></div>
+				</label>
+			`;
+
+			// footer
+			const footer = this._createEl('footer', 'modal-footer');
+			const cancelBtn = this._createEl('button', 'btn btn-secondary');
+			cancelBtn.id = 'modal-cancel';
+			cancelBtn.type = 'button';
+			cancelBtn.textContent = 'İptal';
+			const saveBtn = this._createEl('button', 'btn btn-primary');
+			saveBtn.id = 'modal-save';
+			saveBtn.type = 'button';
+			saveBtn.textContent = 'Kaydet';
+			footer.appendChild(cancelBtn);
+			footer.appendChild(saveBtn);
+
+			modal.appendChild(header);
+			modal.appendChild(body);
+			modal.appendChild(footer);
+			modalOverlay.appendChild(modal);
+
+			if (this.container && this.container.parentNode) {
+				this.container.parentNode.insertBefore(modalOverlay, this.container);
+			} else {
+				document.body.appendChild(modalOverlay);
+			}
+		},
+
+		_initModal: function() {
+			const self = this;
+			const modal = document.getElementById('edit-modal');
+			if (!modal) return;
+
+			const editBtn = document.getElementById('edit-meta-btn');
+			const mobileEditBtn = document.getElementById('mobile-edit-btn');
+			const closeBtn = document.getElementById('edit-modal-close');
+			const cancelBtn = document.getElementById('modal-cancel');
+			const saveBtn = document.getElementById('modal-save');
+
+			// Setup WYSIWYG toolbars
+			const toolbars = modal.querySelectorAll('.wysiwyg-toolbar');
+			toolbars.forEach(function(toolbar) {
+				const buttons = toolbar.querySelectorAll('button[data-command]');
+				const targetId = toolbar.getAttribute('data-target');
+				const editor = document.getElementById('wysiwyg-' + targetId);
+				
+				buttons.forEach(function(btn) {
+					btn.addEventListener('mousedown', function(e) {
+						e.preventDefault(); // Prevent focus loss from editor
+					});
+					
+					btn.addEventListener('click', function(e) {
+						e.preventDefault();
+						const command = this.getAttribute('data-command');
+						if (editor) {
+							editor.focus();
+							document.execCommand(command, false, null);
+							editor.focus(); // Restore focus after command
+						}
+					});
+				});
+			});
+
+			function openModal() {
+				const data = self.examData || {};
+				
+				const inputDenemeName = document.getElementById('input-denemeName');
+				const wysiwygAttentionCandidate = document.getElementById('wysiwyg-attentionCandidate');
+				const wysiwygAttention = document.getElementById('wysiwyg-attention');
+				const wysiwygDenemeInstructions = document.getElementById('wysiwyg-denemeInstructions');
+
+				if (inputDenemeName) inputDenemeName.value = data.denemeName || '';
+				
+				// Convert newlines to <br> for WYSIWYG display
+				if (wysiwygAttentionCandidate) {
+					wysiwygAttentionCandidate.innerHTML = (data.attentionCandidate || '').replace(/\n/g, '<br>');
+				}
+				if (wysiwygAttention) {
+					wysiwygAttention.innerHTML = (data.attention || '').replace(/\n/g, '<br>');
+				}
+				if (wysiwygDenemeInstructions) {
+					wysiwygDenemeInstructions.innerHTML = (data.denemeInstructions || '').replace(/\n/g, '<br>');
+				}
+
+				modal.setAttribute('aria-hidden', 'false');
+				modal.classList.add('open');
+				document.body.classList.add('modal-open');
+				
+				if (inputDenemeName) inputDenemeName.focus();
+			}
+
+			function closeModal() {
+				modal.setAttribute('aria-hidden', 'true');
+				modal.classList.remove('open');
+				document.body.classList.remove('modal-open');
+			}
+
+		function saveModal() {
+			const inputDenemeName = document.getElementById('input-denemeName');
+			const wysiwygAttentionCandidate = document.getElementById('wysiwyg-attentionCandidate');
+			const wysiwygAttention = document.getElementById('wysiwyg-attention');
+			const wysiwygDenemeInstructions = document.getElementById('wysiwyg-denemeInstructions');
+
+			const oldData = JSON.parse(JSON.stringify(self.examData || {}));
+			
+			if (inputDenemeName) self.examData.denemeName = inputDenemeName.value.trim();
+			
+			// Convert HTML back to text with newlines
+			if (wysiwygAttentionCandidate) {
+				const html = wysiwygAttentionCandidate.innerHTML;
+				self.examData.attentionCandidate = html.replace(/<br\s*\/?>/gi, '\n').replace(/<[^>]+>/g, '');
+			}
+			if (wysiwygAttention) {
+				const html = wysiwygAttention.innerHTML;
+				self.examData.attention = html.replace(/<br\s*\/?>/gi, '\n').replace(/<[^>]+>/g, '');
+			}
+			if (wysiwygDenemeInstructions) {
+				const html = wysiwygDenemeInstructions.innerHTML;
+				self.examData.denemeInstructions = html.replace(/<br\s*\/?>/gi, '\n').replace(/<[^>]+>/g, '');
+			}				// Callback
+				if (self.config.onDataSaved && typeof self.config.onDataSaved === 'function') {
+					self.config.onDataSaved(self.examData, oldData);
+				}
+
+				// Re-render
+				self.render(self.examData);
+				closeModal();
+			}
+
+			if (editBtn) editBtn.addEventListener('click', openModal);
+			if (mobileEditBtn) mobileEditBtn.addEventListener('click', function() {
+				const contextMenu = document.getElementById('mobile-context-menu');
+				if (contextMenu) {
+					contextMenu.setAttribute('aria-hidden', 'true');
+					contextMenu.classList.remove('show');
+				}
+				openModal();
+			});
+			if (closeBtn) closeBtn.addEventListener('click', closeModal);
+			if (cancelBtn) cancelBtn.addEventListener('click', closeModal);
+			if (saveBtn) saveBtn.addEventListener('click', saveModal);
+
+			// close on outside click or ESC
+			modal.addEventListener('click', function(e) {
+				if (e.target === modal) closeModal();
+			});
+			
+			document.addEventListener('keydown', function(e) {
+				if (e.key === 'Escape' && modal.classList.contains('open')) closeModal();
+			});
 		},
 
 		_setupEventListeners: function() {

@@ -50,6 +50,15 @@
                         console.log('Ödev gönder butonu tıklandı', data);
                         // API call to send homework
                     },
+                    onDataSaved: function(newData, oldData) {
+                        console.log('Deneme data saved!', newData);
+                        console.log('Old data:', oldData);
+                        
+                        // You can handle specific changes here
+                        if (oldData.denemeName !== newData.denemeName) {
+                            console.log('Deneme name changed:', newData.denemeName);
+                        }
+                    },
                     onError: function(message, error) {
                         console.error('Deneme PDF Error:', message, error);
                     }
