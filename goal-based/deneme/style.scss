@@ -101,6 +101,19 @@ $sos2-color: $sos-color; // Sosyal Bilimler 2 (uses Sosyal Bilgiler palette)
   --primary-color-lightest-alt: #{lighten($ydt-color, 33%)};
 }
 
+ol {
+  margin: 0;
+  padding-left: 7mm;
+}
+
+li {
+    margin: 4px 0;
+}
+
+::marker {
+    font-weight: bold;
+}
+
 /* Screen reader only content */
 .sr-only {
   position: absolute;
@@ -448,16 +461,19 @@ $sos2-color: $sos-color; // Sosyal Bilimler 2 (uses Sosyal Bilgiler palette)
   overflow-y: auto;
   flex: 1;
 
-  label {
+  .form-group {
     display: flex;
     flex-direction: column;
+    gap: 6px;
+  }
+
+  label {
     font-size: 14px;
     color: #333;
     font-weight: 600;
   }
 
   input[type="text"] {
-    margin-top: 6px;
     padding: 10px 12px;
     border: 1px solid #ddd;
     border-radius: 6px;
@@ -472,7 +488,6 @@ $sos2-color: $sos-color; // Sosyal Bilimler 2 (uses Sosyal Bilgiler palette)
   }
 
   textarea {
-    margin-top: 6px;
     padding: 10px 12px;
     border: 1px solid #ddd;
     border-radius: 6px;
@@ -667,10 +682,11 @@ $sos2-color: $sos-color; // Sosyal Bilimler 2 (uses Sosyal Bilgiler palette)
     width: 190mm;
     left: 9.5mm;
     line-height: 5mm;
-    height: 33mm;
-    padding: 3mm 0;
+    height: 37mm;
+    padding: 1mm 0;
     display: flex;
-    align-items: center;
+    flex-direction: column;
+    align-items: flex-start;
   }
 
   .attention-box {
@@ -692,9 +708,6 @@ $sos2-color: $sos-color; // Sosyal Bilimler 2 (uses Sosyal Bilgiler palette)
 
     .attention {
       padding: 0 8mm;
-      display: flex;
-      align-items: center;
-      justify-content: center;
       font-size: 3.33mm;
       line-height: 4.6mm;
       color: #333;

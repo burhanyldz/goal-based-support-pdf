@@ -113,7 +113,9 @@
 			if (modal) {
 				// Trigger the modal open function
 				const editBtn = document.getElementById('edit-meta-btn');
-				if (editBtn) editBtn.click();
+				if (editBtn) {
+					editBtn.click();
+				}
 			}
 		},
 		
@@ -294,7 +296,8 @@
 				if (this.examData && this.examData.attentionCandidate) {
 					page.innerHTML += `
 						<div class="attention-candidate">
-							${this._escapeHtml(this.examData.attentionCandidate || '').replace(/\n/g, '<br>')}
+							ADAYIN DİKKATİNE!<br>
+							${this.examData.attentionCandidate || ''}
 						</div>
 					`;
 				}
@@ -304,7 +307,7 @@
 					<div class="attention-box">
 						<div class="attention-label">DİKKAT!</div>
 						<div class="attention">
-							${this._escapeHtml(this.examData.attention || '').replace(/\n/g, '<br>')}
+							${this.examData.attention || ''}
 						</div>
 					</div>
 					`;
@@ -312,8 +315,8 @@
 				if (this.examData && this.examData.denemeInstructions) {
 					page.innerHTML += `
 					<div class="deneme-instructions">
-						<b>AÇIKLAMA</b><br><br>
-						${this._escapeHtml(this.examData.denemeInstructions || '').replace(/\r\n/g, '<p></p>').replace(/\n/g, '<br>')}
+						<b>AÇIKLAMA</b><br>
+						${this.examData.denemeInstructions || ''}
 					</div>
 					`;
 				}
@@ -1071,12 +1074,12 @@
 			// body
 			const body = this._createEl('div', 'modal-body');
 			body.innerHTML = `
-				<label>
-					Deneme Başlığı
+				<div class="form-group">
+					<label for="input-denemeName">Deneme Başlığı</label>
 					<input id="input-denemeName" type="text" placeholder="Deneme başlığı" maxlength="100">
-				</label>
-				<label>
-					Adayın Dikkatine metni
+				</div>
+				<div class="form-group">
+					<label for="wysiwyg-attentionCandidate">Adayın Dikkatine metni</label>
 					<div class="wysiwyg-toolbar" data-target="attentionCandidate">
 						<button type="button" data-command="bold" title="Kalın"><b>B</b></button>
 						<button type="button" data-command="italic" title="İtalik"><i>I</i></button>
@@ -1118,9 +1121,9 @@
 						</button>
 					</div>
 					<div id="wysiwyg-attentionCandidate" class="wysiwyg-editor" contenteditable="true" data-placeholder="Adayın dikkatine metni..."></div>
-				</label>
-				<label>
-					Dikkat metni
+				</div>
+				<div class="form-group">
+					<label for="wysiwyg-attention">Dikkat metni</label>
 					<div class="wysiwyg-toolbar" data-target="attention">
 						<button type="button" data-command="bold" title="Kalın"><b>B</b></button>
 						<button type="button" data-command="italic" title="İtalik"><i>I</i></button>
@@ -1162,9 +1165,9 @@
 						</button>
 					</div>
 					<div id="wysiwyg-attention" class="wysiwyg-editor" contenteditable="true" data-placeholder="Dikkat metni..."></div>
-				</label>
-				<label>
-					Açıklama Metni
+				</div>
+				<div class="form-group">
+					<label for="wysiwyg-denemeInstructions">Açıklama Metni</label>
 					<div class="wysiwyg-toolbar" data-target="denemeInstructions">
 						<button type="button" data-command="bold" title="Kalın"><b>B</b></button>
 						<button type="button" data-command="italic" title="İtalik"><i>I</i></button>
@@ -1206,7 +1209,7 @@
 						</button>
 					</div>
 					<div id="wysiwyg-denemeInstructions" class="wysiwyg-editor" contenteditable="true" data-placeholder="Açıklama metni..."></div>
-				</label>
+				</div>
 			`;
 
 			// footer
@@ -1246,27 +1249,122 @@
 			const saveBtn = document.getElementById('modal-save');
 
 			// Setup WYSIWYG toolbars
+			try {
+				document.execCommand('styleWithCSS', false, false);
+			} catch (error) {
+				// Ignore unsupported command errors
+			}
 			const toolbars = modal.querySelectorAll('.wysiwyg-toolbar');
 			toolbars.forEach(function(toolbar) {
 				const buttons = toolbar.querySelectorAll('button[data-command]');
 				const targetId = toolbar.getAttribute('data-target');
 				const editor = document.getElementById('wysiwyg-' + targetId);
+				const inlineCommands = ['bold', 'italic', 'underline', 'strikeThrough'];
 				
 				buttons.forEach(function(btn) {
 					btn.addEventListener('mousedown', function(e) {
-						e.preventDefault(); // Prevent focus loss from editor
+						e.preventDefault(); // Keep focus inside the editor
 					});
 					
 					btn.addEventListener('click', function(e) {
 						e.preventDefault();
+						if (!editor) return;
+
 						const command = this.getAttribute('data-command');
-						if (editor) {
-							editor.focus();
-							document.execCommand(command, false, null);
-							editor.focus(); // Restore focus after command
+						const selection = window.getSelection();
+						const hasSelection = selection && selection.toString().length > 0;
+						
+						// Only allow inline formatting when user selected text
+						if (inlineCommands.includes(command) && !hasSelection) {
+							return;
 						}
+
+						editor.focus();
+						document.execCommand(command, false, null);
+
+						// Collapse selection to end and toggle command off so new typing stays normal
+						if (inlineCommands.includes(command) && selection && selection.rangeCount > 0) {
+							const preservedRange = selection.getRangeAt(0).cloneRange();
+							selection.collapseToEnd();
+							try {
+								document.execCommand(command, false, null);
+							} catch (toggleError) {
+								// Ignore browsers that refuse the command
+							}
+							selection.removeAllRanges();
+							selection.addRange(preservedRange);
+						}
+
+						editor.focus();
 					});
 				});
+
+				if (editor && !editor.__wysiwygInitialized) {
+					editor.__wysiwygInitialized = true;
+
+					const formatAncestors = {
+						bold: ['b', 'strong'],
+						italic: ['i', 'em'],
+						underline: ['u'],
+						strikeThrough: ['s', 'strike']
+					};
+
+					const hasFormattingAncestor = function(node, tags) {
+						while (node && node !== editor) {
+							if (node.nodeType === Node.ELEMENT_NODE && tags.includes(node.nodeName.toLowerCase())) {
+								return true;
+							}
+							node = node.parentNode;
+						}
+						return false;
+					};
+
+					const resetTypingState = function() {
+						const sel = window.getSelection();
+						if (!sel || sel.rangeCount === 0 || !sel.isCollapsed) return;
+
+						const anchorNode = sel.anchorNode;
+						if (!anchorNode || !editor.contains(anchorNode)) return;
+
+						Object.keys(formatAncestors).forEach(function(cmd) {
+							let commandActive = false;
+							try {
+								commandActive = document.queryCommandState(cmd);
+							} catch (stateError) {
+								commandActive = false;
+							}
+
+							if (!commandActive) return;
+							if (hasFormattingAncestor(anchorNode, formatAncestors[cmd])) return;
+
+							const rangeSnapshot = sel.getRangeAt(0).cloneRange();
+							editor.focus();
+							try {
+								document.execCommand(cmd, false, null);
+							} catch (toggleError) {
+								// Ignore browsers that refuse the command
+							}
+							sel.removeAllRanges();
+							sel.addRange(rangeSnapshot);
+						});
+					};
+
+					const scheduleReset = function() {
+						clearTimeout(editor.__resetTimer);
+						editor.__resetTimer = setTimeout(resetTypingState, 0);
+					};
+
+					document.addEventListener('selectionchange', scheduleReset);
+					editor.addEventListener('mouseenter', scheduleReset);
+					editor.addEventListener('focus', scheduleReset);
+					editor.addEventListener('mouseup', scheduleReset);
+					editor.addEventListener('keyup', scheduleReset);
+					editor.addEventListener('keydown', function(e) {
+						if (!e.metaKey && !e.ctrlKey && !e.altKey && e.key.length === 1) {
+							resetTypingState();
+						}
+					});
+				}
 			});
 
 			function openModal() {
@@ -1279,15 +1377,15 @@
 
 				if (inputDenemeName) inputDenemeName.value = data.denemeName || '';
 				
-				// Convert newlines to <br> for WYSIWYG display
+				// Set HTML content directly (already formatted)
 				if (wysiwygAttentionCandidate) {
-					wysiwygAttentionCandidate.innerHTML = (data.attentionCandidate || '').replace(/\n/g, '<br>');
+					wysiwygAttentionCandidate.innerHTML = data.attentionCandidate || '';
 				}
 				if (wysiwygAttention) {
-					wysiwygAttention.innerHTML = (data.attention || '').replace(/\n/g, '<br>');
+					wysiwygAttention.innerHTML = data.attention || '';
 				}
 				if (wysiwygDenemeInstructions) {
-					wysiwygDenemeInstructions.innerHTML = (data.denemeInstructions || '').replace(/\n/g, '<br>');
+					wysiwygDenemeInstructions.innerHTML = data.denemeInstructions || '';
 				}
 
 				modal.setAttribute('aria-hidden', 'false');
@@ -1313,27 +1411,26 @@
 			
 			if (inputDenemeName) self.examData.denemeName = inputDenemeName.value.trim();
 			
-			// Convert HTML back to text with newlines
+			// Save HTML content with formatting preserved
 			if (wysiwygAttentionCandidate) {
-				const html = wysiwygAttentionCandidate.innerHTML;
-				self.examData.attentionCandidate = html.replace(/<br\s*\/?>/gi, '\n').replace(/<[^>]+>/g, '');
+				self.examData.attentionCandidate = wysiwygAttentionCandidate.innerHTML;
 			}
 			if (wysiwygAttention) {
-				const html = wysiwygAttention.innerHTML;
-				self.examData.attention = html.replace(/<br\s*\/?>/gi, '\n').replace(/<[^>]+>/g, '');
+				self.examData.attention = wysiwygAttention.innerHTML;
 			}
 			if (wysiwygDenemeInstructions) {
-				const html = wysiwygDenemeInstructions.innerHTML;
-				self.examData.denemeInstructions = html.replace(/<br\s*\/?>/gi, '\n').replace(/<[^>]+>/g, '');
-			}				// Callback
-				if (self.config.onDataSaved && typeof self.config.onDataSaved === 'function') {
-					self.config.onDataSaved(self.examData, oldData);
-				}
-
-				// Re-render
-				self.render(self.examData);
-				closeModal();
+				self.examData.denemeInstructions = wysiwygDenemeInstructions.innerHTML;
 			}
+			
+			// Callback
+			if (self.config.onDataSaved && typeof self.config.onDataSaved === 'function') {
+				self.config.onDataSaved(self.examData, oldData);
+			}
+
+			// Re-render
+			self.render(self.examData);
+			closeModal();
+		}
 
 			if (editBtn) editBtn.addEventListener('click', openModal);
 			if (mobileEditBtn) mobileEditBtn.addEventListener('click', function() {
