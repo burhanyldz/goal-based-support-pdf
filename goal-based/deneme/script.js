@@ -341,7 +341,7 @@
 			
 			page.innerHTML = `
 				<div class="header">
-					<div class="test-title" style="color: ${testColor.primary};">${this._escapeHtml(testName).toUpperCase()} TESTİ</div>
+					<div class="test-title" style="color: ${testColor.primary};">${this._toUpperCaseTR(this._escapeHtml(testName))} TESTİ</div>
                     <div class="test-info-bar" style="border-top: .7mm solid ${testColor.primary}; border-bottom: .7mm solid ${testColor.primary};">
 						<div class="dark-ribbon" style="background: ${testColor.primary};"></div>
 						<div class="high-ribbon-left" style="background: ${testColor.secondary};"></div>
@@ -363,28 +363,26 @@
 					</div>
 					<div class="right-column"></div>
 				</div>
-				<div class="footer">
-					<div class="footer-page-number">${pagesState.globalPageNumber}</div>
-					<div class="footer-page-number-ribbon" style="background: ${testColor.primary};">
-						<div class="light-ribbon" style="background: ${testColor.secondary};"></div>
-					</div>
-					<div class="footer-test-name">${testTypeUpper} - ${this._escapeHtml(testName).toUpperCase()} TESTİ</div>
+			<div class="footer">
+				<div class="footer-page-number">${pagesState.globalPageNumber}</div>
+				<div class="footer-page-number-ribbon" style="background: ${testColor.primary};">
+					<div class="light-ribbon" style="background: ${testColor.secondary};"></div>
 				</div>
-			`;
-			
-			pagesState.globalPageNumber++;
-			return page;
-		},
+				<div class="footer-test-name">${testTypeUpper} - ${this._toUpperCaseTR(this._escapeHtml(testName))} TESTİ</div>
+			</div>
+		`;
+		
+		pagesState.globalPageNumber++;
+		return page;
+	},
 
-		_createNormalPage: function(isOdd, pagesState, testColor, test) {
-			const cls = 'page ' + (isOdd ? 'odd' : 'even');
-			const page = this._createEl('div', cls);
-			page.setAttribute('data-test-color', testColor.primary);
-			
-			const testTypeUpper = this.currentTestType ? this.currentTestType.toUpperCase() : '';
-			const testName = test.name || '';
-			
-			page.innerHTML = `
+	_createNormalPage: function(isOdd, pagesState, testColor, test) {
+		const cls = 'page ' + (isOdd ? 'odd' : 'even');
+		const page = this._createEl('div', cls);
+		page.setAttribute('data-test-color', testColor.primary);
+		
+		const testTypeUpper = this.currentTestType ? this.currentTestType.toUpperCase() : '';
+		const testName = test.name || '';			page.innerHTML = `
 				<div class="header">
 					<div class="header-left">YKS DENEMELERİ</div>
 					<div class="header-center">Ortaöğretim Genel Müdürlüğü</div>
@@ -402,7 +400,7 @@
 					<div class="footer-page-number-ribbon" style="background: ${testColor.primary};">
 						<div class="light-ribbon" style="background: ${testColor.secondary};"></div>
 					</div>
-					<div class="footer-test-name">${testTypeUpper} - ${this._escapeHtml(testName).toUpperCase()} TESTİ</div>
+					<div class="footer-test-name">${testTypeUpper} - ${this._toUpperCaseTR(this._escapeHtml(testName))} TESTİ</div>
 				</div>
 			`;
 			
@@ -698,12 +696,10 @@
 				// Create section for this test with lesson-specific class
 				const section = self._createEl('div', 'answer-section lesson-' + lessonCode);
 				
-				// Add title (CSS variables will handle the color)
-				const title = self._createEl('div', 'answer-key-title');
-				title.textContent = self._escapeHtml(test.name || '').toUpperCase() + ' TESTİ CEVAP ANAHTARI';
-				section.appendChild(title);
-				
-				// Add answers grid
+			// Add title (CSS variables will handle the color)
+			const title = self._createEl('div', 'answer-key-title');
+			title.textContent = self._toUpperCaseTR(self._escapeHtml(test.name || '')) + ' TESTİ CEVAP ANAHTARI';
+			section.appendChild(title);				// Add answers grid
 				const answersContainer = self._createEl('div', 'answers');
 				const answers = Array.isArray(test.answers) ? test.answers.slice() : [];
 				const questions = Array.isArray(test.questions) ? test.questions.slice() : [];
