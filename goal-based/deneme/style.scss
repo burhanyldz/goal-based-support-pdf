@@ -10,7 +10,7 @@ $mat-color: #608ab1; // Matematik
 $fen-color: #91719b; // Fen Bilimleri
 // Additional lesson colors
 $tde-sos-color: $tur-color; // TDE - Sosyal Bilimler (uses Türkçe palette)
-$sos2-color: $sos-color;   // Sosyal Bilimler 2 (uses Sosyal Bilgiler palette)
+$sos2-color: $sos-color; // Sosyal Bilimler 2 (uses Sosyal Bilgiler palette)
 
 // CSS custom properties for dynamic theme colors
 :root {
@@ -402,6 +402,52 @@ $sos2-color: $sos-color;   // Sosyal Bilimler 2 (uses Sosyal Bilgiler palette)
     height: 100%;
     object-fit: cover;
   }
+
+  .school-name {
+    position: absolute;
+    top: 198.5mm;
+    left: 64mm;
+    font-size: 4.5mm;
+    max-width: 150mm;
+    height: 10mm;
+    line-height: 5mm;
+    display: flex;
+    align-items: center;
+    font-family: 'Arial', Gadget, sans-serif;
+  }
+
+  .attention-candidate {
+    position: absolute;
+    bottom: 36mm;
+    font-family: Arial;
+    font-size: 3.75mm;
+    width: 190mm;
+    left: 9.5mm;
+    line-height: 5mm;
+    height: 25mm;
+  }
+
+  .attention {
+    position: absolute;
+    left: 22.6mm;
+    top: 161mm;
+    width: 73mm;
+    font-size: 3.33mm;
+    font-family: 'Arial';
+    line-height: 4.6mm;
+    color: #333;
+  }
+
+  .deneme-instructions {
+    position: absolute;
+    top: 155mm;
+    right: 22mm;
+    width: 78mm;
+    font-size: 3.3mm;
+    font-family: "Arial", Gadget, sans-serif;
+    line-height: 4mm;
+    color: #333;
+  }
 }
 
 /* First page header styling */
@@ -620,10 +666,10 @@ $sos2-color: $sos-color;   // Sosyal Bilimler 2 (uses Sosyal Bilgiler palette)
     background: var(--primary-color);
 
     .light-ribbon {
-        position: absolute;
-        top: 0;
-        bottom: 0;
-        width: 1.5mm;
+      position: absolute;
+      top: 0;
+      bottom: 0;
+      width: 1.5mm;
     }
   }
 }
@@ -645,10 +691,14 @@ $sos2-color: $sos-color;   // Sosyal Bilimler 2 (uses Sosyal Bilgiler palette)
       font-size: 3.7mm;
       font-weight: 600;
       color: #333;
+      width: 33%;
     }
 
     .header-center {
       text-align: center;
+    }
+    .header-right {
+      text-align: right;
     }
   }
 
@@ -935,9 +985,19 @@ $sos2-color: $sos-color;   // Sosyal Bilimler 2 (uses Sosyal Bilgiler palette)
 }
 
 @keyframes successPop {
-  0% { transform: scale(0.85); opacity: 0; }
-  60% { transform: scale(1.05); opacity: 1; }
-  100% { transform: scale(1); }
+  0% {
+    transform: scale(0.85);
+    opacity: 0;
+  }
+
+  60% {
+    transform: scale(1.05);
+    opacity: 1;
+  }
+
+  100% {
+    transform: scale(1);
+  }
 }
 
 /* Responsive styles (mobile-first adjustments copied from single-test) */

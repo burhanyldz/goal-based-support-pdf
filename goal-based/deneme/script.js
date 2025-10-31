@@ -273,11 +273,31 @@
 		_createCoverPage: function(testType, pageNumber) {
 			const page = this._createEl('div', 'page cover-page');
 			const imageFilename = `${testType.toLowerCase()}-kapak${pageNumber === 2 ? '2' : ''}.jpg`;
-			
-			page.innerHTML = `
-				<img src="images/${imageFilename}" alt="${testType.toUpperCase()} Kapak ${pageNumber}" class="cover-image">
-			`;
-			
+			if (pageNumber === 1) {
+				page.innerHTML = `
+					<img src="images/${imageFilename}" alt="${testType.toUpperCase()} Kapak ${pageNumber}" class="cover-image">
+					<div id="school-name" class="school-name"></div>
+					<div class="attention-candidate">
+						${this._escapeHtml(this.examData.attentionCandidate || '').replace(/\n/g, '<br>')}
+					</div>
+				`;
+			} else {
+				page.innerHTML = `
+					<img src="images/${imageFilename}" alt="${testType.toUpperCase()} Kapak ${pageNumber}" class="cover-image">
+					<div class="attention">
+						${this._escapeHtml(this.examData.attention || '').replace(/\n/g, '<br>')}
+					</div>
+					<div class="deneme-instructions">
+						${this._escapeHtml(this.examData.denemeInstructions || '').replace(/\r\n/g, '<p></p>').replace(/\n/g, '<br>')}
+					</div>
+
+				`;
+			}
+			// Fill school name if first cover page
+			if (pageNumber === 1 && this.examData && this.examData.schoolName) {
+				const schoolDiv = page.querySelector('#school-name');
+				if (schoolDiv) schoolDiv.textContent = this.examData.schoolName;
+			}
 			return page;
 		},
 
@@ -333,14 +353,14 @@
 			const page = this._createEl('div', cls);
 			page.setAttribute('data-test-color', testColor.primary);
 			
-			const testTypeUpper = this.currentTestType ? this.currentTestType.toUpperCase() : 'TYT';
+			const testTypeUpper = this.currentTestType ? this.currentTestType.toUpperCase() : '';
 			const testName = test.name || '';
 			
 			page.innerHTML = `
 				<div class="header">
 					<div class="header-left">YKS DENEMELERİ</div>
 					<div class="header-center">Ortaöğretim Genel Müdürlüğü</div>
-					<div class="header-right">DENEME</div>
+					<div class="header-right">${this._escapeHtml(this.examData.denemeName || '')}</div>
 				</div>
 				<div class="content">
 					<div class="left-column"></div>

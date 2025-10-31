@@ -363,6 +363,48 @@
   -o-object-fit: cover;
      object-fit: cover;
 }
+.cover-page .school-name {
+  position: absolute;
+  top: 198.5mm;
+  left: 64mm;
+  font-size: 4.5mm;
+  max-width: 150mm;
+  height: 10mm;
+  line-height: 5mm;
+  display: flex;
+  align-items: center;
+  font-family: "Arial", Gadget, sans-serif;
+}
+.cover-page .attention-candidate {
+  position: absolute;
+  bottom: 36mm;
+  font-family: Arial;
+  font-size: 3.75mm;
+  width: 190mm;
+  left: 9.5mm;
+  line-height: 5mm;
+  height: 25mm;
+}
+.cover-page .attention {
+  position: absolute;
+  left: 22.6mm;
+  top: 161mm;
+  width: 73mm;
+  font-size: 3.33mm;
+  font-family: "Arial";
+  line-height: 4.6mm;
+  color: #333;
+}
+.cover-page .deneme-instructions {
+  position: absolute;
+  top: 155mm;
+  right: 22mm;
+  width: 78mm;
+  font-size: 3.3mm;
+  font-family: "Arial", Gadget, sans-serif;
+  line-height: 4mm;
+  color: #333;
+}
 
 /* First page header styling */
 .page.first-page .header {
@@ -576,9 +618,13 @@
   font-size: 3.7mm;
   font-weight: 600;
   color: #333;
+  width: 33%;
 }
 .page:not(.cover-page):not(.first-page):not(.answer-key) .header .header-center {
   text-align: center;
+}
+.page:not(.cover-page):not(.first-page):not(.answer-key) .header .header-right {
+  text-align: right;
 }
 .page:not(.cover-page):not(.first-page):not(.answer-key) .content {
   padding: 4mm 10mm;
