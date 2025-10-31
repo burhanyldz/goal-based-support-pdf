@@ -153,30 +153,36 @@
 				return;
 			}
 			
-			// Determine test type from available test types
-			const testType = examData.availableTestTypes && examData.availableTestTypes.length > 0 
-				? examData.availableTestTypes[0] 
-				: 'tyt';
+			// Use testType from examData if provided; otherwise default to tyt
+			const testType = examData.testType || 'tyt';
+			
+			// Check if testType is valid (exists in availableTestTypes)
+			const availableTypes = examData.availableTestTypes || [];
+			const isValidTestType = availableTypes.includes(testType);
 			
 			this.currentTestType = testType;
 			this._initializeTheme(testType);
 			
 			rootElement.innerHTML = '';
 			
-			// Create cover pages
-			const coverPage1 = this._createCoverPage(testType, 1);
-			const coverPage2 = this._createCoverPage(testType, 2);
-			rootElement.appendChild(coverPage1);
-			rootElement.appendChild(coverPage2);
+			// Create cover pages only if testType is valid
+			let pageCount = 0;
+			if (isValidTestType) {
+				const coverPage1 = this._createCoverPage(testType, 1);
+				const coverPage2 = this._createCoverPage(testType, 2);
+				rootElement.appendChild(coverPage1);
+				rootElement.appendChild(coverPage2);
+				pageCount = 2;
+			}
 			
 			const pagesState = {
 				examData,
 				pages: [/* coverPage1, coverPage2 */],
-				pageCount: 2,
+				pageCount: pageCount,
 				currentPage: null,
 				currentColumn: 'left',
 				currentTest: null,
-				globalPageNumber: 1 // Start page numbering from 1 for test pages
+				globalPageNumber: pageCount + 1 // Start page numbering after cover pages (or 1 if no covers)
 			};
 
 			// Process each test
@@ -804,23 +810,38 @@
 				downloadBtn.title = 'PDF indir';
 				downloadBtn.innerHTML = `
 					<svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" focusable="false">
-						<path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
-						<polyline points="7 10 12 15 17 10" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
-						<line x1="12" y1="15" x2="12" y2="3" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+						<path d="M12 3v10" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+						<path d="M8 11l4 4 4-4" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+						<path d="M21 21H3" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
 					</svg>
 					<span class="sr-only">PDF İndir</span>`;
 				actions.appendChild(downloadBtn);
 			}
 
-			const menuBtn = this._createEl('button', 'btn btn-icon mobile-menu-btn');
+			// Mobile icon-only buttons (match single-test; no Edit in deneme)
+			if (this.config.toolbar.showHomework) {
+				const mobileHomeworkBtn = this._createEl('button', 'btn btn-icon mobile-btn');
+				mobileHomeworkBtn.id = 'mobile-homework-icon-btn';
+				mobileHomeworkBtn.type = 'button';
+				mobileHomeworkBtn.title = 'Ödev olarak Gönder';
+				mobileHomeworkBtn.innerHTML = `
+					<svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" focusable="false">
+						<path d="M22 2L11 13" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+						<path d="M22 2L15 22L11 13L2 9L22 2z" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+					</svg>
+					<span class="sr-only">Ödev olarak Gönder</span>`;
+				actions.appendChild(mobileHomeworkBtn);
+			}
+
+			const menuBtn = this._createEl('button', 'btn btn-icon mobile-btn');
 			menuBtn.id = 'mobile-menu-btn';
 			menuBtn.type = 'button';
 			menuBtn.title = 'Menü';
 			menuBtn.innerHTML = `
 				<svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" focusable="false">
-					<line x1="3" y1="12" x2="21" y2="12" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
-					<line x1="3" y1="6" x2="21" y2="6" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
-					<line x1="3" y1="18" x2="21" y2="18" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
+					<circle cx="12" cy="12" r="1" fill="currentColor"/>
+					<circle cx="12" cy="5" r="1" fill="currentColor"/>
+					<circle cx="12" cy="19" r="1" fill="currentColor"/>
 				</svg>
 				<span class="sr-only">Menü</span>`;
 			actions.appendChild(menuBtn);
@@ -848,9 +869,9 @@
 				mobileDownloadBtn.type = 'button';
 				mobileDownloadBtn.innerHTML = `
 					<svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" focusable="false">
-						<path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
-						<polyline points="7 10 12 15 17 10" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
-						<line x1="12" y1="15" x2="12" y2="3" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+						<path d="M12 3v10" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+						<path d="M8 11l4 4 4-4" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+						<path d="M21 21H3" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
 					</svg>
 					<span>PDF İndir</span>`;
 				contextMenu.appendChild(mobileDownloadBtn);
@@ -1001,6 +1022,16 @@
 				});
 			}
 
+			// Mobile icon-only homework button
+			const mobileHomeworkIconBtn = document.getElementById('mobile-homework-icon-btn');
+			if (mobileHomeworkIconBtn) {
+				mobileHomeworkIconBtn.addEventListener('click', function() {
+					if (self.config.onHomework && typeof self.config.onHomework === 'function') {
+						self.config.onHomework(self.examData);
+					}
+				});
+			}
+
 			const mobileDownload = document.getElementById('mobile-download-btn');
 			if (mobileDownload) {
 				mobileDownload.addEventListener('click', function() {
@@ -1011,6 +1042,25 @@
 					self._exportToPDF();
 				});
 			}
+
+			// Re-scale on resize
+			let scaleTimer = null;
+			window.addEventListener('resize', function() {
+				if (scaleTimer) clearTimeout(scaleTimer);
+				scaleTimer = setTimeout(function() {
+					if (self.config.scaling.enabled) {
+						self._scalePagesToFit();
+					}
+				}, 120);
+			});
+
+			window.addEventListener('orientationchange', function() {
+				setTimeout(function() {
+					if (self.config.scaling.enabled) {
+						self._scalePagesToFit();
+					}
+				}, 140);
+			});
 		},
 
 		_exportToPDF: function() {
@@ -1135,6 +1185,75 @@
 		_toUpperCaseTR: function(str) {
 			const map = { 'i': 'İ', 'ş': 'Ş', 'ğ': 'Ğ', 'ü': 'Ü', 'ö': 'Ö', 'ç': 'Ç', 'ı': 'I' };
 			return str.replace(/[işğüöçı]/g, function(c) { return map[c] || c; }).toUpperCase();
+		},
+
+		// Scale pages so their A4 proportions remain intact but fit into narrow viewports
+		_scalePagesToFit: function() {
+			try {
+				const pages = Array.from(document.querySelectorAll('.page'));
+				if (!pages.length) return;
+				
+				const root = this.container || document.body;
+				const rootStyles = window.getComputedStyle(root);
+				const rootPaddingLeft = parseFloat(rootStyles.paddingLeft || 0);
+				const rootPaddingRight = parseFloat(rootStyles.paddingRight || 0);
+				const rootWidth = root.clientWidth - rootPaddingLeft - rootPaddingRight;
+
+				// Only apply scaling on small screens
+				if (rootWidth > 900) {
+					pages.forEach(function(p) {
+						const parent = p.parentElement;
+						if (parent && parent.classList.contains('page-wrap')) {
+							parent.parentNode.insertBefore(p, parent);
+							parent.remove();
+						}
+						p.style.transform = '';
+						p.style.margin = '';
+					});
+					return;
+				}
+
+				const available = Math.max(1, rootWidth - 8);
+				const minScale = this.config.scaling.minScale;
+
+				pages.forEach(function(p) {
+					let wrapper = p.parentElement;
+					if (!wrapper || !wrapper.classList.contains('page-wrap')) {
+						wrapper = document.createElement('div');
+						wrapper.className = 'page-wrap';
+						p.parentNode.insertBefore(wrapper, p);
+						wrapper.appendChild(p);
+					}
+
+					const cs = window.getComputedStyle(p);
+					const marginTop = parseFloat(cs.marginTop || 0);
+					const marginBottom = parseFloat(cs.marginBottom || 0);
+					
+					p.style.transform = 'none';
+					p.style.margin = '0';
+					const naturalW = Math.max(1, p.getBoundingClientRect().width);
+					const naturalH = Math.max(1, p.getBoundingClientRect().height);
+
+					let scale = 1;
+					if (naturalW > available) {
+						scale = available / naturalW;
+					}
+					scale = Math.max(scale, minScale);
+
+					p.style.transformOrigin = 'top left';
+					p.style.transform = `scale(${scale}) translateZ(0)`;
+
+					wrapper.style.width = (naturalW * scale) + 'px';
+					wrapper.style.height = (naturalH * scale) + 'px';
+					wrapper.style.overflow = 'visible';
+					wrapper.style.boxSizing = 'content-box';
+					wrapper.style.marginTop = (marginTop * scale) + 'px';
+					wrapper.style.marginBottom = (marginBottom * scale) + 'px';
+					p.style.margin = '0';
+				});
+			} catch (e) {
+				console.error('scalePagesToFit error', e);
+			}
 		},
 
 		_qs: function(sel, root) { 
