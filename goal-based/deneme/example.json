@@ -886,7 +886,7 @@
             "name": "Fen Bilimleri",
             "lessonCode": "fen",
             "rank": 1,
-            "maxQuestion": 40,
+            "maxQuestion": 20,
             "id": "18c7055c-acdc-47fa-0d63-08dc1ab3018c",
             "questions": [
                 {

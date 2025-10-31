@@ -7,6 +7,34 @@
   --primary-color-lightest-alt: rgb(243.9, 240.2, 247.6);
 }
 
+.lesson-tur {
+  --lesson-color: #c37f67;
+  --lesson-color-light: rgb(223.8679245283, 188.5849056604, 176.1320754717);
+  --lesson-color-lightest: white;
+  --lesson-color-lightest-alt: rgb(252.7358490566, 250.1698113208, 249.2641509434);
+}
+
+.lesson-sos {
+  --lesson-color: #72a15e;
+  --lesson-color-light: rgb(170.4, 198.6, 158.4);
+  --lesson-color-lightest: white;
+  --lesson-color-lightest-alt: rgb(246.54, 249.36, 245.34);
+}
+
+.lesson-mat {
+  --lesson-color: #608ab1;
+  --lesson-color-light: rgb(164.4303797468, 188.3544303797, 210.5696202532);
+  --lesson-color-lightest: white;
+  --lesson-color-lightest-alt: rgb(249.9683544304, 251.2974683544, 252.5316455696);
+}
+
+.lesson-fen {
+  --lesson-color: #91719b;
+  --lesson-color-light: rgb(191.3636363636, 172.8512396694, 197.1487603306);
+  --lesson-color-lightest: rgb(249.3181818182, 247.6652892562, 249.8347107438);
+  --lesson-color-lightest-alt: rgb(242.3636363636, 238.6876033058, 243.5123966942);
+}
+
 .theme-tyt {
   --primary-color: #936fb7;
   --primary-color-hover: rgb(121.5, 81, 162);
@@ -555,43 +583,76 @@
 }
 
 /* Answer key page */
-.answer-key {
-  padding: 20mm;
-}
 .answer-key .content {
   display: flex;
   flex-direction: column;
-  gap: 10mm;
+  justify-content: flex-start;
+  padding: 2mm 10mm;
+  height: 248mm;
 }
-.answer-key .content .answer-key-title {
-  font-size: 7mm;
-  font-weight: 700;
-  text-align: center;
-  color: white;
-  padding: 5mm;
-  border-radius: 2mm;
-}
-.answer-key .content .answers {
-  display: grid;
-  grid-template-columns: repeat(10, 1fr);
-  gap: 3mm;
-}
-.answer-key .content .answers .answer-question {
+.answer-key .content .answer-section {
   display: flex;
   flex-direction: column;
-  align-items: center;
-  gap: 1mm;
 }
-.answer-key .content .answers .answer-question span:first-child {
+.answer-key .content .answer-section:first-child .answer-key-title {
+  margin-top: 11.5mm;
+}
+.answer-key .content .answer-section .answer-key-title {
   font-size: 3.5mm;
-  font-weight: 600;
-  color: #333;
-}
-.answer-key .content .answers .answer-question span:last-child {
-  font-size: 5mm;
   font-weight: 700;
-  color: #333;
-  min-height: 5mm;
+  margin: 8mm 3mm 0 3mm;
+  color: #ffffff;
+  background: var(--lesson-color-light);
+  height: 7mm;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+.answer-key .content .answer-section .answers {
+  display: grid;
+  grid-template-columns: repeat(10, 1fr);
+  margin: 0 3mm 0 3mm;
+  /* alternating backgrounds in blocks of 10 */
+}
+.answer-key .content .answer-section .answers .answer-question {
+  font-size: 3.7mm;
+  font-weight: 500;
+  color: #333333;
+  margin: 0;
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  height: 6.6mm;
+  background: transparent;
+  padding: 0 6.3mm 0 0;
+  border-bottom: 1px solid var(--lesson-color-light);
+}
+.answer-key .content .answer-section .answers .answer-question span:nth-child(2) {
+  margin-left: 1mm;
+}
+.answer-key .content .answer-section .answers .answer-question:nth-child(20n+1),
+.answer-key .content .answer-section .answers .answer-question:nth-child(20n+2),
+.answer-key .content .answer-section .answers .answer-question:nth-child(20n+3),
+.answer-key .content .answer-section .answers .answer-question:nth-child(20n+4),
+.answer-key .content .answer-section .answers .answer-question:nth-child(20n+5),
+.answer-key .content .answer-section .answers .answer-question:nth-child(20n+6),
+.answer-key .content .answer-section .answers .answer-question:nth-child(20n+7),
+.answer-key .content .answer-section .answers .answer-question:nth-child(20n+8),
+.answer-key .content .answer-section .answers .answer-question:nth-child(20n+9),
+.answer-key .content .answer-section .answers .answer-question:nth-child(20n+10) {
+  background: var(--lesson-color-lightest);
+}
+.answer-key .content .answer-section .answers .answer-question:nth-child(20n+11),
+.answer-key .content .answer-section .answers .answer-question:nth-child(20n+12),
+.answer-key .content .answer-section .answers .answer-question:nth-child(20n+13),
+.answer-key .content .answer-section .answers .answer-question:nth-child(20n+14),
+.answer-key .content .answer-section .answers .answer-question:nth-child(20n+15),
+.answer-key .content .answer-section .answers .answer-question:nth-child(20n+16),
+.answer-key .content .answer-section .answers .answer-question:nth-child(20n+17),
+.answer-key .content .answer-section .answers .answer-question:nth-child(20n+18),
+.answer-key .content .answer-section .answers .answer-question:nth-child(20n+19),
+.answer-key .content .answer-section .answers .answer-question:nth-child(20n+20) {
+  background: var(--lesson-color-lightest-alt);
 }
 
 /* Export overlay */

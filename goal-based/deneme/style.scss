@@ -3,6 +3,12 @@ $tyt-color: #936fb7;
 $ayt-color: #258264;
 $ydt-color: #e46664;
 
+// Lesson color variables
+$tur-color: #c37f67; // Türkçe
+$sos-color: #72a15e; // Sosyal Bilgiler
+$mat-color: #608ab1; // Matematik
+$fen-color: #91719b; // Fen Bilimleri
+
 // CSS custom properties for dynamic theme colors
 :root {
   --primary-color: #{$tyt-color}; // default to TYT color
@@ -11,6 +17,35 @@ $ydt-color: #e46664;
   --primary-color-transparent: #{$tyt-color}99;
   --primary-color-lightest: #{lighten($tyt-color, 41%)};
   --primary-color-lightest-alt: #{lighten($tyt-color, 38%)};
+}
+
+// Lesson-specific CSS variables for answer keys
+.lesson-tur {
+  --lesson-color: #{$tur-color};
+  --lesson-color-light: #{lighten($tur-color, 20%)};
+  --lesson-color-lightest: #{lighten($tur-color, 43%)};
+  --lesson-color-lightest-alt: #{lighten($tur-color, 40%)};
+}
+
+.lesson-sos {
+  --lesson-color: #{$sos-color};
+  --lesson-color-light: #{lighten($sos-color, 20%)};
+  --lesson-color-lightest: #{lighten($sos-color, 50%)};
+  --lesson-color-lightest-alt: #{lighten($sos-color, 47%)};
+}
+
+.lesson-mat {
+  --lesson-color: #{$mat-color};
+  --lesson-color-light: #{lighten($mat-color, 20%)};
+  --lesson-color-lightest: #{lighten($mat-color, 48%)};
+  --lesson-color-lightest-alt: #{lighten($mat-color, 45%)};
+}
+
+.lesson-fen {
+  --lesson-color: #{$fen-color};
+  --lesson-color-light: #{lighten($fen-color, 20%)};
+  --lesson-color-lightest: #{lighten($fen-color, 45%)};
+  --lesson-color-lightest-alt: #{lighten($fen-color, 42%)};
 }
 
 // Dynamic theme classes
@@ -639,44 +674,81 @@ $ydt-color: #e46664;
 
 /* Answer key page */
 .answer-key {
-  padding: 20mm;
-
   .content {
     display: flex;
     flex-direction: column;
-    gap: 10mm;
+    justify-content: flex-start;
+    padding: 2mm 10mm;
+    height: 248mm;
 
-    .answer-key-title {
-      font-size: 7mm;
-      font-weight: 700;
-      text-align: center;
-      color: white;
-      padding: 5mm;
-      border-radius: 2mm;
-    }
+    .answer-section {
+      display: flex;
+      flex-direction: column;
 
-    .answers {
-      display: grid;
-      grid-template-columns: repeat(10, 1fr);
-      gap: 3mm;
+      &:first-child .answer-key-title {
+        margin-top: 11.5mm;
+      }
 
-      .answer-question {
+      .answer-key-title {
+        font-size: 3.5mm;
+        font-weight: 700;
+        margin: 8mm 3mm 0 3mm;
+        color: #ffffff;
+        background: var(--lesson-color-light);
+        height: 7mm;
         display: flex;
-        flex-direction: column;
+        justify-content: center;
         align-items: center;
-        gap: 1mm;
+      }
 
-        span:first-child {
-          font-size: 3.5mm;
-          font-weight: 600;
-          color: #333;
+      .answers {
+        display: grid;
+        grid-template-columns: repeat(10, 1fr);
+        margin: 0 3mm 0 3mm;
+
+        .answer-question {
+          font-size: 3.7mm;
+          font-weight: 500;
+          color: #333333;
+          margin: 0;
+          display: flex;
+          align-items: center;
+          justify-content: flex-end;
+          height: 6.6mm;
+          background: transparent;
+          padding: 0 6.3mm 0 0;
+          border-bottom: 1px solid var(--lesson-color-light);
+
+          span:nth-child(2) {
+            margin-left: 1mm;
+          }
         }
 
-        span:last-child {
-          font-size: 5mm;
-          font-weight: 700;
-          color: #333;
-          min-height: 5mm;
+        /* alternating backgrounds in blocks of 10 */
+        .answer-question:nth-child(20n + 1),
+        .answer-question:nth-child(20n + 2),
+        .answer-question:nth-child(20n + 3),
+        .answer-question:nth-child(20n + 4),
+        .answer-question:nth-child(20n + 5),
+        .answer-question:nth-child(20n + 6),
+        .answer-question:nth-child(20n + 7),
+        .answer-question:nth-child(20n + 8),
+        .answer-question:nth-child(20n + 9),
+        .answer-question:nth-child(20n + 10) {
+          background: var(--lesson-color-lightest);
+        }
+
+        .answer-question:nth-child(20n + 11),
+        .answer-question:nth-child(20n + 12),
+        .answer-question:nth-child(20n + 13),
+        .answer-question:nth-child(20n + 14),
+        .answer-question:nth-child(20n + 15),
+        .answer-question:nth-child(20n + 16),
+        .answer-question:nth-child(20n + 17),
+        .answer-question:nth-child(20n + 18),
+        .answer-question:nth-child(20n + 19),
+        .answer-question:nth-child(20n + 20) {
+          background: var(--lesson-color-lightest-alt);
         }
       }
     }

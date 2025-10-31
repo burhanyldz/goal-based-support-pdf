@@ -16,6 +16,9 @@
 		'sos': { primary: '#72a15e', secondary: '#92cc77' },     // Sosyal Bilgiler
 		'mat': { primary: '#608ab1', secondary: '#79addd' },    // Matematik
 		'fen': { primary: '#91719b', secondary: '#b78bbf' },     // Fen Bilimleri
+		'ydt': { primary: '#bd484a', secondary: '#f06061' },     // Yabancı Dil
+		'tde-sos': { primary: '#c37f67', secondary: '#f7a180' }, // TDE-Sosyal Bilimler
+		'sos2': { primary: '#72a15e', secondary: '#92cc77' },	 // Sosyal Bilimler 2
 	};
 	
 	// Default configuration
@@ -611,21 +614,29 @@
 			const tests = Array.isArray(examData.tests) ? examData.tests : [];
 			const answerPages = [];
 			
+			if (tests.length === 0) {
+				return answerPages;
+			}
+			
+			// Create a single page for all answer keys
+			const page = self._createEl('div', 'page answer-key');
+			const content = self._createEl('div', 'content');
+			page.appendChild(content);
+			
+			// Add each test's answer key as a section within the same page
 			tests.forEach(function(test) {
-				const testColor = LESSON_COLORS[test.lessonCode] || '#e46664';
-				const page = self._createEl('div', 'page answer-key');
-				page.setAttribute('data-test-color', testColor);
+				const lessonCode = test.lessonCode || 'tur';
 				
-				page.innerHTML = `
-					<div class="answer-key-header" style="background-color: ${testColor};">
-						<h2>${self._escapeHtml(test.name || '').toUpperCase()} TESTİ CEVAP ANAHTARI</h2>
-					</div>
-					<div class="answer-key-content">
-						<div class="answers"></div>
-					</div>
-				`;
+				// Create section for this test with lesson-specific class
+				const section = self._createEl('div', 'answer-section lesson-' + lessonCode);
 				
-				const answersContainer = self._qs('.answers', page);
+				// Add title (CSS variables will handle the color)
+				const title = self._createEl('div', 'answer-key-title');
+				title.textContent = self._escapeHtml(test.name || '').toUpperCase() + ' TESTİ CEVAP ANAHTARI';
+				section.appendChild(title);
+				
+				// Add answers grid
+				const answersContainer = self._createEl('div', 'answers');
 				const answers = Array.isArray(test.answers) ? test.answers.slice() : [];
 				const questions = Array.isArray(test.questions) ? test.questions.slice() : [];
 				const maxQuestion = test.maxQuestion || answers.length || 10;
@@ -634,10 +645,10 @@
 				
 				for (let i = 0; i < total; i++) {
 					const slot = self._createEl('div', 'answer-question');
-					const spanNum = self._createEl('span', 'answer-number');
+					const spanNum = self._createEl('span');
 					const questionExists = questions.some(q => q.questionNumber === (i + 1));
 					spanNum.textContent = questionExists ? (i + 1) + '.' : '';
-					const spanChoice = self._createEl('span', 'answer-choice');
+					const spanChoice = self._createEl('span');
 					const ans = answers.find(a => a.questionNumber === (i + 1));
 					if (ans && typeof ans.correctChoiceIndex === 'number') {
 						const idx = ans.correctChoiceIndex;
@@ -650,8 +661,11 @@
 					answersContainer.appendChild(slot);
 				}
 				
-				answerPages.push(page);
+				section.appendChild(answersContainer);
+				content.appendChild(section);
 			});
+			
+			answerPages.push(page);
 			
 			return answerPages;
 		},
