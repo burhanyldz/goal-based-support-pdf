@@ -1,0 +1,1392 @@
+{
+    "qrCodeUrl": "https://mebi.eba.gov.tr/student/goal-based-assignments/qr-details/fa98fd23-3a6e-4b98-b4c0-08de0afa1260",
+    "schoolName": "Yozgat Nida Tüfekçi Güzel Sanatlar Lisesi",
+    "testType": "ayt",
+    "availableTestTypes": [
+        "tyt",
+        "ayt",
+        "ydt"
+    ],
+    "attentionCandidate": "<ol><li>Bu sınavda YKS soru dağılımları dikkate alınmıştır. </li><li>Deneme tam kapsam oluş YKS konularının tamamını kapsamaktadır.</li><li>Bu sınav Türk Dili ve Edebiyatı ve Sosyal Bilimler-1 Testi (Türk Dili ve Edebiyatı 24, Tarih 10, Coğrafya 6) 40 soru, Sosyal Bilimler-2 Testi (Tarih 11, Coğrafya 11, Felsefe 18, Din Kültürü ve Ahlak Bilgisi 6) 46 soru, Matematik Testi 40 soru, Fen Bilimleri Testi (Fizik 14, Kimya 13, Biyoloji 13) 40 soru olmak üzere toplamda 166 soru içermektedir.</li></ol>",
+    "attention": "Din Kültürü ve Ahlak Bilgisi dersini yasal olarak almak zorunda olan adaylar ve İmam Hatip Okulları öğrencileri/mezunları, Sosyal Bilimler-2 Testi'nin ilk 40 sorusunu cevaplamakla yükümlüdür. Bu adaylar, bu testin 41-46. sorularını cevaplamayacaklardır. Bu adaylar, bu testin 41-46. sorularında işaretleme yapmış olsalar bile bu cevapları değerlendirmeye alınmayacaktır.<div><br></div><div>Din Kültürü ve Ahlak Bilgisi dersini yasal olarak almak zorunda olmayan veya farklı müfredat ile alan adaylar, Sosyal Bilimler Testi'nin 16-20. sorularını cevaplamadan 21-25. sorularını cevaplayacaklardır. Bu adaylar, bu testin 16-20. sorularında işaretleme yapmış olsalar bile bu cevapları değerlendirmeye alınmayacaktır.</div>",
+    "denemeInstructions": "<ol><li>Bu kitapçıkta <b>166 soru</b> bulunmaktadır.<br>Türk Dili ve Edebiyatı-Sosyal Bilimler-1 Testi: 40 soru<br>Sosyal Bilimler-2 Testi: 46 soru<br>Matematik Testi: 40 soru<br>Fen Bilimleri Testi: 40 soru</li><li>Bu sınav için verilen cevaplama süresi <b>180 dakikadır (3 saat)</b>.</li><li><b>Bu sınavda her testteki doğru cevaplarınızın sayısından yanlış cevaplarınızın sayısının dörtte biri çıkarılacak ve kalan sayı o bölümle ilgili ham puanınız olacaktır.</b></li><li>Kitapçığın sayfalarındaki boş yerleri müsvedde için kullanabilirsiniz.</li><li>Cevaplamaya istediğiniz sorudan başlayabilirsiniz. Bir soru ile ilgili cevabınızı, cevap kâğıdında o soru için ayrılmış olan yere işaretlemeyi unutmayınız.</li><li>Bu kitapçıkta yer alan her sorunun sadece bir doğru cevabı vardır. Cevap kâğıdında bir soru için birden çok cevap yeri işaretlenmişse o soru yanlış cevaplanmış sayılacaktır. İşaretlediğiniz bir cevabı değiştirmek istediğinizde silme işlemini çok iyi yapmanız gerektiğini unutmayınız.</li></ol>",
+    "denemeName": "Deneme - 1",
+    "tests": [
+        {
+            "name": "TÜRK DİLİ VE EDEBİYATI-SOSYAL BİLİMLER-1",
+            "lessonCode": "tde-sos1",
+            "testInstructions": "1. Bu testte sırasıyla, Türk Dili ve Edebiyatı (1-24), Tarih-1 (25-34), Coğrafya-1 (35-40) alanlarına ait toplam 40 soru vardır.<br>2. Cevaplarınızı, cevap kâğıdının Türk Dili ve Edebiyatı-Sosyal Bilimler-1 Testi için ayrılan kısmına işaretleyiniz.",
+            "rank": 1,
+            "maxQuestion": 40,
+            "id": "18c7055c-acdc-47fa-0d63-08dc1ab3018c",
+            "questions": [
+                {
+                    "imageUrl": "https://ogm-large-cdn.eba.gov.tr/mebi/question/image/70e8ed45d6.png",
+                    "questionNumber": 1
+                },
+                {
+                    "imageUrl": "https://ogm-large-cdn.eba.gov.tr/mebi/question/image/fe40b17486.png",
+                    "questionNumber": 2
+                },
+                {
+                    "imageUrl": "https://ogm-large-cdn.eba.gov.tr/mebi/question/image/afe8de2858.png",
+                    "questionNumber": 3
+                },
+                {
+                    "imageUrl": "https://ogm-large-cdn.eba.gov.tr/mebi/question/image/5a6c8c0305.png",
+                    "questionNumber": 4
+                },
+                {
+                    "imageUrl": "https://ogm-large-cdn.eba.gov.tr/mebi/question/image/1efd8f4685.png",
+                    "questionNumber": 5
+                },
+                {
+                    "imageUrl": "https://ogm-large-cdn.eba.gov.tr/mebi/question/image/b59e8803dc.png",
+                    "questionNumber": 6
+                },
+                {
+                    "imageUrl": "https://ogm-large-cdn.eba.gov.tr/mebi/question/image/a38109a62f.png",
+                    "questionNumber": 7
+                },
+                {
+                    "imageUrl": "https://ogm-large-cdn.eba.gov.tr/mebi/question/image/9800b63c71.png",
+                    "questionNumber": 8
+                },
+                {
+                    "imageUrl": "https://ogm-large-cdn.eba.gov.tr/mebi/question/image/9fe59a8d96.jpg",
+                    "questionNumber": 9
+                },
+                {
+                    "imageUrl": "https://ogm-large-cdn.eba.gov.tr/mebi/question/image/74f179ebc0.jpg",
+                    "questionNumber": 10
+                },
+                {
+                    "imageUrl": "https://ogm-large-cdn.eba.gov.tr/mebi/question/image/6b57fbde66.png",
+                    "questionNumber": 11
+                },
+                {
+                    "imageUrl": "https://ogm-large-cdn.eba.gov.tr/mebi/question/image/f5120f54df.png",
+                    "questionNumber": 12
+                },
+                {
+                    "imageUrl": "https://ogm-large-cdn.eba.gov.tr/mebi/question/image/6cb03ff79b.jpg",
+                    "questionNumber": 13
+                },
+                {
+                    "imageUrl": "https://ogm-large-cdn.eba.gov.tr/mebi/question/image/a6c429c879.png",
+                    "questionNumber": 14
+                },
+                {
+                    "imageUrl": "https://ogm-large-cdn.eba.gov.tr/mebi/question/image/bfd800292d.jpg",
+                    "questionNumber": 15
+                },
+                {
+                    "imageUrl": "https://ogm-large-cdn.eba.gov.tr/mebi/question/image/d80b2e175e.png",
+                    "questionNumber": 16
+                },
+                {
+                    "imageUrl": "https://ogm-large-cdn.eba.gov.tr/mebi/question/image/d44a0437fa.png",
+                    "questionNumber": 17
+                },
+                {
+                    "imageUrl": "https://ogm-large-cdn.eba.gov.tr/mebi/question/image/2aa575d518.jpg",
+                    "questionNumber": 18
+                },
+                {
+                    "imageUrl": "https://ogm-large-cdn.eba.gov.tr/mebi/question/image/635c69f8c3.png",
+                    "questionNumber": 19
+                },
+                {
+                    "imageUrl": "https://ogm-large-cdn.eba.gov.tr/mebi/question/image/70e8ed45d6.png",
+                    "questionNumber": 20
+                },
+                {
+                    "imageUrl": "https://ogm-large-cdn.eba.gov.tr/mebi/question/image/fe40b17486.png",
+                    "questionNumber": 21
+                },
+                {
+                    "imageUrl": "https://ogm-large-cdn.eba.gov.tr/mebi/question/image/afe8de2858.png",
+                    "questionNumber": 22
+                },
+                {
+                    "imageUrl": "https://ogm-large-cdn.eba.gov.tr/mebi/question/image/5a6c8c0305.png",
+                    "questionNumber": 23
+                },
+                {
+                    "imageUrl": "https://ogm-large-cdn.eba.gov.tr/mebi/question/image/1efd8f4685.png",
+                    "questionNumber": 24
+                },
+                {
+                    "imageUrl": "https://ogm-large-cdn.eba.gov.tr/mebi/question/image/b59e8803dc.png",
+                    "questionNumber": 25
+                },
+                {
+                    "imageUrl": "https://ogm-large-cdn.eba.gov.tr/mebi/question/image/a38109a62f.png",
+                    "questionNumber": 26
+                },
+                {
+                    "imageUrl": "https://ogm-large-cdn.eba.gov.tr/mebi/question/image/9800b63c71.png",
+                    "questionNumber": 27
+                },
+                {
+                    "imageUrl": "https://ogm-large-cdn.eba.gov.tr/mebi/question/image/9fe59a8d96.jpg",
+                    "questionNumber": 28
+                },
+                {
+                    "imageUrl": "https://ogm-large-cdn.eba.gov.tr/mebi/question/image/74f179ebc0.jpg",
+                    "questionNumber": 29
+                },
+                {
+                    "imageUrl": "https://ogm-large-cdn.eba.gov.tr/mebi/question/image/6b57fbde66.png",
+                    "questionNumber": 30
+                },
+                {
+                    "imageUrl": "https://ogm-large-cdn.eba.gov.tr/mebi/question/image/f5120f54df.png",
+                    "questionNumber": 31
+                },
+                {
+                    "imageUrl": "https://ogm-large-cdn.eba.gov.tr/mebi/question/image/6cb03ff79b.jpg",
+                    "questionNumber": 32
+                },
+                {
+                    "imageUrl": "https://ogm-large-cdn.eba.gov.tr/mebi/question/image/a6c429c879.png",
+                    "questionNumber": 33
+                },
+                {
+                    "imageUrl": "https://ogm-large-cdn.eba.gov.tr/mebi/question/image/bfd800292d.jpg",
+                    "questionNumber": 34
+                },
+                {
+                    "imageUrl": "https://ogm-large-cdn.eba.gov.tr/mebi/question/image/d80b2e175e.png",
+                    "questionNumber": 35
+                },
+                {
+                    "imageUrl": "https://ogm-large-cdn.eba.gov.tr/mebi/question/image/d44a0437fa.png",
+                    "questionNumber": 36
+                },
+                {
+                    "imageUrl": "https://ogm-large-cdn.eba.gov.tr/mebi/question/image/2aa575d518.jpg",
+                    "questionNumber": 37
+                },
+                {
+                    "imageUrl": "https://ogm-large-cdn.eba.gov.tr/mebi/question/image/635c69f8c3.png",
+                    "questionNumber": 38
+                },
+                {
+                    "imageUrl": "https://ogm-large-cdn.eba.gov.tr/mebi/question/image/70e8ed45d6.png",
+                    "questionNumber": 39
+                },
+                {
+                    "imageUrl": "https://ogm-large-cdn.eba.gov.tr/mebi/question/image/fe40b17486.png",
+                    "questionNumber": 40
+                }
+            ],
+            "answers": [
+                {
+                    "correctChoiceIndex": 1,
+                    "questionNumber": 1
+                },
+                {
+                    "correctChoiceIndex": 2,
+                    "questionNumber": 2
+                },
+                {
+                    "correctChoiceIndex": 3,
+                    "questionNumber": 3
+                },
+                {
+                    "correctChoiceIndex": 4,
+                    "questionNumber": 4
+                },
+                {
+                    "correctChoiceIndex": 1,
+                    "questionNumber": 5
+                },
+                {
+                    "correctChoiceIndex": 2,
+                    "questionNumber": 6
+                },
+                {
+                    "correctChoiceIndex": 3,
+                    "questionNumber": 7
+                },
+                {
+                    "correctChoiceIndex": 4,
+                    "questionNumber": 8
+                },
+                {
+                    "correctChoiceIndex": 1,
+                    "questionNumber": 9
+                },
+                {
+                    "correctChoiceIndex": 2,
+                    "questionNumber": 10
+                },
+                {
+                    "correctChoiceIndex": 3,
+                    "questionNumber": 11
+                },
+                {
+                    "correctChoiceIndex": 4,
+                    "questionNumber": 12
+                },
+                {
+                    "correctChoiceIndex": 1,
+                    "questionNumber": 13
+                },
+                {
+                    "correctChoiceIndex": 2,
+                    "questionNumber": 14
+                },
+                {
+                    "correctChoiceIndex": 3,
+                    "questionNumber": 15
+                },
+                {
+                    "correctChoiceIndex": 4,
+                    "questionNumber": 16
+                },
+                {
+                    "correctChoiceIndex": 1,
+                    "questionNumber": 17
+                },
+                {
+                    "correctChoiceIndex": 2,
+                    "questionNumber": 18
+                },
+                {
+                    "correctChoiceIndex": 3,
+                    "questionNumber": 19
+                },
+                {
+                    "correctChoiceIndex": 4,
+                    "questionNumber": 20
+                },
+                {
+                    "correctChoiceIndex": 1,
+                    "questionNumber": 21
+                },
+                {
+                    "correctChoiceIndex": 2,
+                    "questionNumber": 22
+                },
+                {
+                    "correctChoiceIndex": 3,
+                    "questionNumber": 23
+                },
+                {
+                    "correctChoiceIndex": 4,
+                    "questionNumber": 24
+                },
+                {
+                    "correctChoiceIndex": 1,
+                    "questionNumber": 25
+                },
+                {
+                    "correctChoiceIndex": 2,
+                    "questionNumber": 26
+                },
+                {
+                    "correctChoiceIndex": 3,
+                    "questionNumber": 27
+                },
+                {
+                    "correctChoiceIndex": 4,
+                    "questionNumber": 28
+                },
+                {
+                    "correctChoiceIndex": 1,
+                    "questionNumber": 29
+                },
+                {
+                    "correctChoiceIndex": 2,
+                    "questionNumber": 30
+                },
+                {
+                    "correctChoiceIndex": 3,
+                    "questionNumber": 31
+                },
+                {
+                    "correctChoiceIndex": 4,
+                    "questionNumber": 32
+                },
+                {
+                    "correctChoiceIndex": 1,
+                    "questionNumber": 33
+                },
+                {
+                    "correctChoiceIndex": 2,
+                    "questionNumber": 34
+                },
+                {
+                    "correctChoiceIndex": 3,
+                    "questionNumber": 35
+                },
+                {
+                    "correctChoiceIndex": 4,
+                    "questionNumber": 36
+                },
+                {
+                    "correctChoiceIndex": 1,
+                    "questionNumber": 37
+                },
+                {
+                    "correctChoiceIndex": 2,
+                    "questionNumber": 38
+                },
+                {
+                    "correctChoiceIndex": 3,
+                    "questionNumber": 39
+                },
+                {
+                    "correctChoiceIndex": 4,
+                    "questionNumber": 40
+                }
+            ]
+        },
+        {
+            "name": "Sosyal Bilimler-2",
+            "lessonCode": "sos2",
+            "testInstructions" : "1. Bu testte sırasıyla, Tarih-2 (1-11), Coğrafya-2 (12-22), Felsefe Grubu (23-34), Din Kültürü ve Ahlak Bilgisi (35-40), Din Kültürü ve Ahlak Bilgisi dersini yasal olarak almak zorunda olmayan veya farklı müfredat ile alanlar için Felsefe Grubu (41-46) alanlarına ait toplam 46 soru vardır. <br>2. Cevaplarınızı, cevap kâğıdının Sosyal Bilimler-2 Testi için ayrılan kısmına işaretleyiniz.",
+            "rank": 2,
+            "maxQuestion": 46,
+            "id": "18c7055c-acdc-47fa-0d63-08dc1ab3018c",
+            "questions": [
+                {
+                    "imageUrl": "https://ogm-large-cdn.eba.gov.tr/mebi/question/image/70e8ed45d6.png",
+                    "questionNumber": 1
+                },
+                {
+                    "imageUrl": "https://ogm-large-cdn.eba.gov.tr/mebi/question/image/fe40b17486.png",
+                    "questionNumber": 2
+                },
+                {
+                    "imageUrl": "https://ogm-large-cdn.eba.gov.tr/mebi/question/image/afe8de2858.png",
+                    "questionNumber": 3
+                },
+                {
+                    "imageUrl": "https://ogm-large-cdn.eba.gov.tr/mebi/question/image/5a6c8c0305.png",
+                    "questionNumber": 4
+                },
+                {
+                    "imageUrl": "https://ogm-large-cdn.eba.gov.tr/mebi/question/image/1efd8f4685.png",
+                    "questionNumber": 5
+                },
+                {
+                    "imageUrl": "https://ogm-large-cdn.eba.gov.tr/mebi/question/image/b59e8803dc.png",
+                    "questionNumber": 6
+                },
+                {
+                    "imageUrl": "https://ogm-large-cdn.eba.gov.tr/mebi/question/image/a38109a62f.png",
+                    "questionNumber": 7
+                },
+                {
+                    "imageUrl": "https://ogm-large-cdn.eba.gov.tr/mebi/question/image/9800b63c71.png",
+                    "questionNumber": 8
+                },
+                {
+                    "imageUrl": "https://ogm-large-cdn.eba.gov.tr/mebi/question/image/9fe59a8d96.jpg",
+                    "questionNumber": 9
+                },
+                {
+                    "imageUrl": "https://ogm-large-cdn.eba.gov.tr/mebi/question/image/74f179ebc0.jpg",
+                    "questionNumber": 10
+                },
+                {
+                    "imageUrl": "https://ogm-large-cdn.eba.gov.tr/mebi/question/image/6b57fbde66.png",
+                    "questionNumber": 11
+                },
+                {
+                    "imageUrl": "https://ogm-large-cdn.eba.gov.tr/mebi/question/image/f5120f54df.png",
+                    "questionNumber": 12
+                },
+                {
+                    "imageUrl": "https://ogm-large-cdn.eba.gov.tr/mebi/question/image/6cb03ff79b.jpg",
+                    "questionNumber": 13
+                },
+                {
+                    "imageUrl": "https://ogm-large-cdn.eba.gov.tr/mebi/question/image/a6c429c879.png",
+                    "questionNumber": 14
+                },
+                {
+                    "imageUrl": "https://ogm-large-cdn.eba.gov.tr/mebi/question/image/bfd800292d.jpg",
+                    "questionNumber": 15
+                },
+                {
+                    "imageUrl": "https://ogm-large-cdn.eba.gov.tr/mebi/question/image/d80b2e175e.png",
+                    "questionNumber": 16
+                },
+                {
+                    "imageUrl": "https://ogm-large-cdn.eba.gov.tr/mebi/question/image/d44a0437fa.png",
+                    "questionNumber": 17
+                },
+                {
+                    "imageUrl": "https://ogm-large-cdn.eba.gov.tr/mebi/question/image/2aa575d518.jpg",
+                    "questionNumber": 18
+                },
+                {
+                    "imageUrl": "https://ogm-large-cdn.eba.gov.tr/mebi/question/image/635c69f8c3.png",
+                    "questionNumber": 19
+                },
+                {
+                    "imageUrl": "https://ogm-large-cdn.eba.gov.tr/mebi/question/image/70e8ed45d6.png",
+                    "questionNumber": 20
+                },
+                {
+                    "imageUrl": "https://ogm-large-cdn.eba.gov.tr/mebi/question/image/fe40b17486.png",
+                    "questionNumber": 21
+                },
+                {
+                    "imageUrl": "https://ogm-large-cdn.eba.gov.tr/mebi/question/image/afe8de2858.png",
+                    "questionNumber": 22
+                },
+                {
+                    "imageUrl": "https://ogm-large-cdn.eba.gov.tr/mebi/question/image/5a6c8c0305.png",
+                    "questionNumber": 23
+                },
+                {
+                    "imageUrl": "https://ogm-large-cdn.eba.gov.tr/mebi/question/image/1efd8f4685.png",
+                    "questionNumber": 24
+                },
+                {
+                    "imageUrl": "https://ogm-large-cdn.eba.gov.tr/mebi/question/image/b59e8803dc.png",
+                    "questionNumber": 25
+                },
+                {
+                    "imageUrl": "https://ogm-large-cdn.eba.gov.tr/mebi/question/image/a38109a62f.png",
+                    "questionNumber": 26
+                },
+                {
+                    "imageUrl": "https://ogm-large-cdn.eba.gov.tr/mebi/question/image/9800b63c71.png",
+                    "questionNumber": 27
+                },
+                {
+                    "imageUrl": "https://ogm-large-cdn.eba.gov.tr/mebi/question/image/9fe59a8d96.jpg",
+                    "questionNumber": 28
+                },
+                {
+                    "imageUrl": "https://ogm-large-cdn.eba.gov.tr/mebi/question/image/74f179ebc0.jpg",
+                    "questionNumber": 29
+                },
+                {
+                    "imageUrl": "https://ogm-large-cdn.eba.gov.tr/mebi/question/image/6b57fbde66.png",
+                    "questionNumber": 30
+                },
+                {
+                    "imageUrl": "https://ogm-large-cdn.eba.gov.tr/mebi/question/image/f5120f54df.png",
+                    "questionNumber": 31
+                },
+                {
+                    "imageUrl": "https://ogm-large-cdn.eba.gov.tr/mebi/question/image/6cb03ff79b.jpg",
+                    "questionNumber": 32
+                },
+                {
+                    "imageUrl": "https://ogm-large-cdn.eba.gov.tr/mebi/question/image/a6c429c879.png",
+                    "questionNumber": 33
+                },
+                {
+                    "imageUrl": "https://ogm-large-cdn.eba.gov.tr/mebi/question/image/bfd800292d.jpg",
+                    "questionNumber": 34
+                },
+                {
+                    "imageUrl": "https://ogm-large-cdn.eba.gov.tr/mebi/question/image/d80b2e175e.png",
+                    "questionNumber": 35
+                },
+                {
+                    "imageUrl": "https://ogm-large-cdn.eba.gov.tr/mebi/question/image/d44a0437fa.png",
+                    "questionNumber": 36
+                },
+                {
+                    "imageUrl": "https://ogm-large-cdn.eba.gov.tr/mebi/question/image/2aa575d518.jpg",
+                    "questionNumber": 37
+                },
+                {
+                    "imageUrl": "https://ogm-large-cdn.eba.gov.tr/mebi/question/image/635c69f8c3.png",
+                    "questionNumber": 38
+                },
+                {
+                    "imageUrl": "https://ogm-large-cdn.eba.gov.tr/mebi/question/image/70e8ed45d6.png",
+                    "questionNumber": 39
+                },
+                {
+                    "imageUrl": "https://ogm-large-cdn.eba.gov.tr/mebi/question/image/fe40b17486.png",
+                    "questionNumber": 40
+                },
+                {
+                    "imageUrl": "https://ogm-large-cdn.eba.gov.tr/mebi/question/image/afe8de2858.png",
+                    "questionNumber": 41
+                },
+                {
+                    "imageUrl": "https://ogm-large-cdn.eba.gov.tr/mebi/question/image/5a6c8c0305.png",
+                    "questionNumber": 42
+                },
+                {
+                    "imageUrl": "https://ogm-large-cdn.eba.gov.tr/mebi/question/image/1efd8f4685.png",
+                    "questionNumber": 43
+                },
+                {
+                    "imageUrl": "https://ogm-large-cdn.eba.gov.tr/mebi/question/image/b59e8803dc.png",
+                    "questionNumber": 44
+                },
+                {
+                    "imageUrl": "https://ogm-large-cdn.eba.gov.tr/mebi/question/image/a38109a62f.png",
+                    "questionNumber": 45
+                },
+                {
+                    "imageUrl": "https://ogm-large-cdn.eba.gov.tr/mebi/question/image/9800b63c71.png",
+                    "questionNumber": 46
+                }
+            ],
+            "answers": [
+                {
+                    "correctChoiceIndex": 1,
+                    "questionNumber": 1
+                },
+                {
+                    "correctChoiceIndex": 2,
+                    "questionNumber": 2
+                },
+                {
+                    "correctChoiceIndex": 3,
+                    "questionNumber": 3
+                },
+                {
+                    "correctChoiceIndex": 4,
+                    "questionNumber": 4
+                },
+                {
+                    "correctChoiceIndex": 1,
+                    "questionNumber": 5
+                },
+                {
+                    "correctChoiceIndex": 2,
+                    "questionNumber": 6
+                },
+                {
+                    "correctChoiceIndex": 3,
+                    "questionNumber": 7
+                },
+                {
+                    "correctChoiceIndex": 4,
+                    "questionNumber": 8
+                },
+                {
+                    "correctChoiceIndex": 1,
+                    "questionNumber": 9
+                },
+                {
+                    "correctChoiceIndex": 2,
+                    "questionNumber": 10
+                },
+                {
+                    "correctChoiceIndex": 3,
+                    "questionNumber": 11
+                },
+                {
+                    "correctChoiceIndex": 4,
+                    "questionNumber": 12
+                },
+                {
+                    "correctChoiceIndex": 1,
+                    "questionNumber": 13
+                },
+                {
+                    "correctChoiceIndex": 2,
+                    "questionNumber": 14
+                },
+                {
+                    "correctChoiceIndex": 3,
+                    "questionNumber": 15
+                },
+                {
+                    "correctChoiceIndex": 4,
+                    "questionNumber": 16
+                },
+                {
+                    "correctChoiceIndex": 1,
+                    "questionNumber": 17
+                },
+                {
+                    "correctChoiceIndex": 2,
+                    "questionNumber": 18
+                },
+                {
+                    "correctChoiceIndex": 3,
+                    "questionNumber": 19
+                },
+                {
+                    "correctChoiceIndex": 4,
+                    "questionNumber": 20
+                },
+                {
+                    "correctChoiceIndex": 1,
+                    "questionNumber": 21
+                },
+                {
+                    "correctChoiceIndex": 2,
+                    "questionNumber": 22
+                },
+                {
+                    "correctChoiceIndex": 3,
+                    "questionNumber": 23
+                },
+                {
+                    "correctChoiceIndex": 4,
+                    "questionNumber": 24
+                },
+                {
+                    "correctChoiceIndex": 1,
+                    "questionNumber": 25
+                },
+                {
+                    "correctChoiceIndex": 2,
+                    "questionNumber": 26
+                },
+                {
+                    "correctChoiceIndex": 3,
+                    "questionNumber": 27
+                },
+                {
+                    "correctChoiceIndex": 4,
+                    "questionNumber": 28
+                },
+                {
+                    "correctChoiceIndex": 1,
+                    "questionNumber": 29
+                },
+                {
+                    "correctChoiceIndex": 2,
+                    "questionNumber": 30
+                },
+                {
+                    "correctChoiceIndex": 3,
+                    "questionNumber": 31
+                },
+                {
+                    "correctChoiceIndex": 4,
+                    "questionNumber": 32
+                },
+                {
+                    "correctChoiceIndex": 1,
+                    "questionNumber": 33
+                },
+                {
+                    "correctChoiceIndex": 2,
+                    "questionNumber": 34
+                },
+                {
+                    "correctChoiceIndex": 3,
+                    "questionNumber": 35
+                },
+                {
+                    "correctChoiceIndex": 4,
+                    "questionNumber": 36
+                },
+                {
+                    "correctChoiceIndex": 1,
+                    "questionNumber": 37
+                },
+                {
+                    "correctChoiceIndex": 2,
+                    "questionNumber": 38
+                },
+                {
+                    "correctChoiceIndex": 3,
+                    "questionNumber": 39
+                },
+                {
+                    "correctChoiceIndex": 4,
+                    "questionNumber": 40
+                },
+                {
+                    "correctChoiceIndex": 1,
+                    "questionNumber": 41
+                },
+                {
+                    "correctChoiceIndex": 2,
+                    "questionNumber": 42
+                },
+                {
+                    "correctChoiceIndex": 3,
+                    "questionNumber": 43
+                },
+                {
+                    "correctChoiceIndex": 4,
+                    "questionNumber": 44
+                },
+                {
+                    "correctChoiceIndex": 1,
+                    "questionNumber": 45
+                },
+                {
+                    "correctChoiceIndex": 2,
+                    "questionNumber": 46
+                }
+            ]
+        },
+        {
+            "name": "Matematik",
+            "lessonCode": "mat",
+            "testInstructions": "1. Bu testte Matematik alanına ait toplam 40 soru vardır.<br>2. Cevaplarınızı, cevap kâğıdının Matematik Testi için ayrılan kısmına işaretleyiniz.",
+            "rank": 3,
+            "maxQuestion": 40,
+            "id": "18c7055c-acdc-47fa-0d63-08dc1ab3018c",
+            "questions": [
+                {
+                    "imageUrl": "https://ogm-large-cdn.eba.gov.tr/mebi/question/image/70e8ed45d6.png",
+                    "questionNumber": 1
+                },
+                {
+                    "imageUrl": "https://ogm-large-cdn.eba.gov.tr/mebi/question/image/fe40b17486.png",
+                    "questionNumber": 2
+                },
+                {
+                    "imageUrl": "https://ogm-large-cdn.eba.gov.tr/mebi/question/image/afe8de2858.png",
+                    "questionNumber": 3
+                },
+                {
+                    "imageUrl": "https://ogm-large-cdn.eba.gov.tr/mebi/question/image/5a6c8c0305.png",
+                    "questionNumber": 4
+                },
+                {
+                    "imageUrl": "https://ogm-large-cdn.eba.gov.tr/mebi/question/image/1efd8f4685.png",
+                    "questionNumber": 5
+                },
+                {
+                    "imageUrl": "https://ogm-large-cdn.eba.gov.tr/mebi/question/image/b59e8803dc.png",
+                    "questionNumber": 6
+                },
+                {
+                    "imageUrl": "https://ogm-large-cdn.eba.gov.tr/mebi/question/image/a38109a62f.png",
+                    "questionNumber": 7
+                },
+                {
+                    "imageUrl": "https://ogm-large-cdn.eba.gov.tr/mebi/question/image/9800b63c71.png",
+                    "questionNumber": 8
+                },
+                {
+                    "imageUrl": "https://ogm-large-cdn.eba.gov.tr/mebi/question/image/9fe59a8d96.jpg",
+                    "questionNumber": 9
+                },
+                {
+                    "imageUrl": "https://ogm-large-cdn.eba.gov.tr/mebi/question/image/74f179ebc0.jpg",
+                    "questionNumber": 10
+                },
+                {
+                    "imageUrl": "https://ogm-large-cdn.eba.gov.tr/mebi/question/image/6b57fbde66.png",
+                    "questionNumber": 11
+                },
+                {
+                    "imageUrl": "https://ogm-large-cdn.eba.gov.tr/mebi/question/image/f5120f54df.png",
+                    "questionNumber": 12
+                },
+                {
+                    "imageUrl": "https://ogm-large-cdn.eba.gov.tr/mebi/question/image/6cb03ff79b.jpg",
+                    "questionNumber": 13
+                },
+                {
+                    "imageUrl": "https://ogm-large-cdn.eba.gov.tr/mebi/question/image/a6c429c879.png",
+                    "questionNumber": 14
+                },
+                {
+                    "imageUrl": "https://ogm-large-cdn.eba.gov.tr/mebi/question/image/bfd800292d.jpg",
+                    "questionNumber": 15
+                },
+                {
+                    "imageUrl": "https://ogm-large-cdn.eba.gov.tr/mebi/question/image/d80b2e175e.png",
+                    "questionNumber": 16
+                },
+                {
+                    "imageUrl": "https://ogm-large-cdn.eba.gov.tr/mebi/question/image/d44a0437fa.png",
+                    "questionNumber": 17
+                },
+                {
+                    "imageUrl": "https://ogm-large-cdn.eba.gov.tr/mebi/question/image/2aa575d518.jpg",
+                    "questionNumber": 18
+                },
+                {
+                    "imageUrl": "https://ogm-large-cdn.eba.gov.tr/mebi/question/image/635c69f8c3.png",
+                    "questionNumber": 19
+                },
+                {
+                    "imageUrl": "https://ogm-large-cdn.eba.gov.tr/mebi/question/image/70e8ed45d6.png",
+                    "questionNumber": 20
+                },
+                {
+                    "imageUrl": "https://ogm-large-cdn.eba.gov.tr/mebi/question/image/fe40b17486.png",
+                    "questionNumber": 21
+                },
+                {
+                    "imageUrl": "https://ogm-large-cdn.eba.gov.tr/mebi/question/image/afe8de2858.png",
+                    "questionNumber": 22
+                },
+                {
+                    "imageUrl": "https://ogm-large-cdn.eba.gov.tr/mebi/question/image/5a6c8c0305.png",
+                    "questionNumber": 23
+                },
+                {
+                    "imageUrl": "https://ogm-large-cdn.eba.gov.tr/mebi/question/image/1efd8f4685.png",
+                    "questionNumber": 24
+                },
+                {
+                    "imageUrl": "https://ogm-large-cdn.eba.gov.tr/mebi/question/image/b59e8803dc.png",
+                    "questionNumber": 25
+                },
+                {
+                    "imageUrl": "https://ogm-large-cdn.eba.gov.tr/mebi/question/image/a38109a62f.png",
+                    "questionNumber": 26
+                },
+                {
+                    "imageUrl": "https://ogm-large-cdn.eba.gov.tr/mebi/question/image/9800b63c71.png",
+                    "questionNumber": 27
+                },
+                {
+                    "imageUrl": "https://ogm-large-cdn.eba.gov.tr/mebi/question/image/9fe59a8d96.jpg",
+                    "questionNumber": 28
+                },
+                {
+                    "imageUrl": "https://ogm-large-cdn.eba.gov.tr/mebi/question/image/74f179ebc0.jpg",
+                    "questionNumber": 29
+                },
+                {
+                    "imageUrl": "https://ogm-large-cdn.eba.gov.tr/mebi/question/image/6b57fbde66.png",
+                    "questionNumber": 30
+                },
+                {
+                    "imageUrl": "https://ogm-large-cdn.eba.gov.tr/mebi/question/image/f5120f54df.png",
+                    "questionNumber": 31
+                },
+                {
+                    "imageUrl": "https://ogm-large-cdn.eba.gov.tr/mebi/question/image/6cb03ff79b.jpg",
+                    "questionNumber": 32
+                },
+                {
+                    "imageUrl": "https://ogm-large-cdn.eba.gov.tr/mebi/question/image/a6c429c879.png",
+                    "questionNumber": 33
+                },
+                {
+                    "imageUrl": "https://ogm-large-cdn.eba.gov.tr/mebi/question/image/bfd800292d.jpg",
+                    "questionNumber": 34
+                },
+                {
+                    "imageUrl": "https://ogm-large-cdn.eba.gov.tr/mebi/question/image/d80b2e175e.png",
+                    "questionNumber": 35
+                },
+                {
+                    "imageUrl": "https://ogm-large-cdn.eba.gov.tr/mebi/question/image/d44a0437fa.png",
+                    "questionNumber": 36
+                },
+                {
+                    "imageUrl": "https://ogm-large-cdn.eba.gov.tr/mebi/question/image/2aa575d518.jpg",
+                    "questionNumber": 37
+                },
+                {
+                    "imageUrl": "https://ogm-large-cdn.eba.gov.tr/mebi/question/image/635c69f8c3.png",
+                    "questionNumber": 38
+                },
+                {
+                    "imageUrl": "https://ogm-large-cdn.eba.gov.tr/mebi/question/image/70e8ed45d6.png",
+                    "questionNumber": 39
+                },
+                {
+                    "imageUrl": "https://ogm-large-cdn.eba.gov.tr/mebi/question/image/fe40b17486.png",
+                    "questionNumber": 40
+                }
+            ],
+            "answers": [
+                {
+                    "correctChoiceIndex": 1,
+                    "questionNumber": 1
+                },
+                {
+                    "correctChoiceIndex": 2,
+                    "questionNumber": 2
+                },
+                {
+                    "correctChoiceIndex": 3,
+                    "questionNumber": 3
+                },
+                {
+                    "correctChoiceIndex": 4,
+                    "questionNumber": 4
+                },
+                {
+                    "correctChoiceIndex": 1,
+                    "questionNumber": 5
+                },
+                {
+                    "correctChoiceIndex": 2,
+                    "questionNumber": 6
+                },
+                {
+                    "correctChoiceIndex": 3,
+                    "questionNumber": 7
+                },
+                {
+                    "correctChoiceIndex": 4,
+                    "questionNumber": 8
+                },
+                {
+                    "correctChoiceIndex": 1,
+                    "questionNumber": 9
+                },
+                {
+                    "correctChoiceIndex": 2,
+                    "questionNumber": 10
+                },
+                {
+                    "correctChoiceIndex": 3,
+                    "questionNumber": 11
+                },
+                {
+                    "correctChoiceIndex": 4,
+                    "questionNumber": 12
+                },
+                {
+                    "correctChoiceIndex": 1,
+                    "questionNumber": 13
+                },
+                {
+                    "correctChoiceIndex": 2,
+                    "questionNumber": 14
+                },
+                {
+                    "correctChoiceIndex": 3,
+                    "questionNumber": 15
+                },
+                {
+                    "correctChoiceIndex": 4,
+                    "questionNumber": 16
+                },
+                {
+                    "correctChoiceIndex": 1,
+                    "questionNumber": 17
+                },
+                {
+                    "correctChoiceIndex": 2,
+                    "questionNumber": 18
+                },
+                {
+                    "correctChoiceIndex": 3,
+                    "questionNumber": 19
+                },
+                {
+                    "correctChoiceIndex": 4,
+                    "questionNumber": 20
+                },
+                {
+                    "correctChoiceIndex": 1,
+                    "questionNumber": 21
+                },
+                {
+                    "correctChoiceIndex": 2,
+                    "questionNumber": 22
+                },
+                {
+                    "correctChoiceIndex": 3,
+                    "questionNumber": 23
+                },
+                {
+                    "correctChoiceIndex": 4,
+                    "questionNumber": 24
+                },
+                {
+                    "correctChoiceIndex": 1,
+                    "questionNumber": 25
+                },
+                {
+                    "correctChoiceIndex": 2,
+                    "questionNumber": 26
+                },
+                {
+                    "correctChoiceIndex": 3,
+                    "questionNumber": 27
+                },
+                {
+                    "correctChoiceIndex": 4,
+                    "questionNumber": 28
+                },
+                {
+                    "correctChoiceIndex": 1,
+                    "questionNumber": 29
+                },
+                {
+                    "correctChoiceIndex": 2,
+                    "questionNumber": 30
+                },
+                {
+                    "correctChoiceIndex": 3,
+                    "questionNumber": 31
+                },
+                {
+                    "correctChoiceIndex": 4,
+                    "questionNumber": 32
+                },
+                {
+                    "correctChoiceIndex": 1,
+                    "questionNumber": 33
+                },
+                {
+                    "correctChoiceIndex": 2,
+                    "questionNumber": 34
+                },
+                {
+                    "correctChoiceIndex": 3,
+                    "questionNumber": 35
+                },
+                {
+                    "correctChoiceIndex": 4,
+                    "questionNumber": 36
+                },
+                {
+                    "correctChoiceIndex": 1,
+                    "questionNumber": 37
+                },
+                {
+                    "correctChoiceIndex": 2,
+                    "questionNumber": 38
+                },
+                {
+                    "correctChoiceIndex": 3,
+                    "questionNumber": 39
+                },
+                {
+                    "correctChoiceIndex": 4,
+                    "questionNumber": 40
+                }
+            ]
+        },
+        {
+            "name": "Fen Bilimleri",
+            "lessonCode": "fen",
+            "testInstructions": "1. Bu testte sırasıyla Fizik (1-14), Kimya (15-27), Biyoloji (28-40) alanlarına ait toplam 40 soru vardır.<br>2. Cevaplarınızı, cevap kâğıdının Fen Bilimleri Testi için ayrılan kısmına işaretleyiniz.",
+            "rank": 1,
+            "maxQuestion": 40,
+            "id": "18c7055c-acdc-47fa-0d63-08dc1ab3018c",
+            "questions": [
+                {
+                    "imageUrl": "https://ogm-large-cdn.eba.gov.tr/mebi/question/image/70e8ed45d6.png",
+                    "questionNumber": 1
+                },
+                {
+                    "imageUrl": "https://ogm-large-cdn.eba.gov.tr/mebi/question/image/fe40b17486.png",
+                    "questionNumber": 2
+                },
+                {
+                    "imageUrl": "https://ogm-large-cdn.eba.gov.tr/mebi/question/image/afe8de2858.png",
+                    "questionNumber": 3
+                },
+                {
+                    "imageUrl": "https://ogm-large-cdn.eba.gov.tr/mebi/question/image/5a6c8c0305.png",
+                    "questionNumber": 4
+                },
+                {
+                    "imageUrl": "https://ogm-large-cdn.eba.gov.tr/mebi/question/image/1efd8f4685.png",
+                    "questionNumber": 5
+                },
+                {
+                    "imageUrl": "https://ogm-large-cdn.eba.gov.tr/mebi/question/image/b59e8803dc.png",
+                    "questionNumber": 6
+                },
+                {
+                    "imageUrl": "https://ogm-large-cdn.eba.gov.tr/mebi/question/image/a38109a62f.png",
+                    "questionNumber": 7
+                },
+                {
+                    "imageUrl": "https://ogm-large-cdn.eba.gov.tr/mebi/question/image/9800b63c71.png",
+                    "questionNumber": 8
+                },
+                {
+                    "imageUrl": "https://ogm-large-cdn.eba.gov.tr/mebi/question/image/9fe59a8d96.jpg",
+                    "questionNumber": 9
+                },
+                {
+                    "imageUrl": "https://ogm-large-cdn.eba.gov.tr/mebi/question/image/74f179ebc0.jpg",
+                    "questionNumber": 10
+                },
+                {
+                    "imageUrl": "https://ogm-large-cdn.eba.gov.tr/mebi/question/image/6b57fbde66.png",
+                    "questionNumber": 11
+                },
+                {
+                    "imageUrl": "https://ogm-large-cdn.eba.gov.tr/mebi/question/image/f5120f54df.png",
+                    "questionNumber": 12
+                },
+                {
+                    "imageUrl": "https://ogm-large-cdn.eba.gov.tr/mebi/question/image/6cb03ff79b.jpg",
+                    "questionNumber": 13
+                },
+                {
+                    "imageUrl": "https://ogm-large-cdn.eba.gov.tr/mebi/question/image/a6c429c879.png",
+                    "questionNumber": 14
+                },
+                {
+                    "imageUrl": "https://ogm-large-cdn.eba.gov.tr/mebi/question/image/bfd800292d.jpg",
+                    "questionNumber": 15
+                },
+                {
+                    "imageUrl": "https://ogm-large-cdn.eba.gov.tr/mebi/question/image/d80b2e175e.png",
+                    "questionNumber": 16
+                },
+                {
+                    "imageUrl": "https://ogm-large-cdn.eba.gov.tr/mebi/question/image/d44a0437fa.png",
+                    "questionNumber": 17
+                },
+                {
+                    "imageUrl": "https://ogm-large-cdn.eba.gov.tr/mebi/question/image/2aa575d518.jpg",
+                    "questionNumber": 18
+                },
+                {
+                    "imageUrl": "https://ogm-large-cdn.eba.gov.tr/mebi/question/image/635c69f8c3.png",
+                    "questionNumber": 19
+                },
+                {
+                    "imageUrl": "https://ogm-large-cdn.eba.gov.tr/mebi/question/image/70e8ed45d6.png",
+                    "questionNumber": 20
+                },
+                {
+                    "imageUrl": "https://ogm-large-cdn.eba.gov.tr/mebi/question/image/1efd8f4685.png",
+                    "questionNumber": 21
+                },
+                {
+                    "imageUrl": "https://ogm-large-cdn.eba.gov.tr/mebi/question/image/b59e8803dc.png",
+                    "questionNumber": 22
+                },
+                {
+                    "imageUrl": "https://ogm-large-cdn.eba.gov.tr/mebi/question/image/a38109a62f.png",
+                    "questionNumber": 23
+                },
+                {
+                    "imageUrl": "https://ogm-large-cdn.eba.gov.tr/mebi/question/image/9800b63c71.png",
+                    "questionNumber": 24
+                },
+                {
+                    "imageUrl": "https://ogm-large-cdn.eba.gov.tr/mebi/question/image/9fe59a8d96.jpg",
+                    "questionNumber": 25
+                },
+                {
+                    "imageUrl": "https://ogm-large-cdn.eba.gov.tr/mebi/question/image/74f179ebc0.jpg",
+                    "questionNumber": 26
+                },
+                {
+                    "imageUrl": "https://ogm-large-cdn.eba.gov.tr/mebi/question/image/6b57fbde66.png",
+                    "questionNumber": 27
+                },
+                {
+                    "imageUrl": "https://ogm-large-cdn.eba.gov.tr/mebi/question/image/f5120f54df.png",
+                    "questionNumber": 28
+                },
+                {
+                    "imageUrl": "https://ogm-large-cdn.eba.gov.tr/mebi/question/image/6cb03ff79b.jpg",
+                    "questionNumber": 29
+                },
+                {
+                    "imageUrl": "https://ogm-large-cdn.eba.gov.tr/mebi/question/image/a6c429c879.png",
+                    "questionNumber": 30
+                },
+                {
+                    "imageUrl": "https://ogm-large-cdn.eba.gov.tr/mebi/question/image/bfd800292d.jpg",
+                    "questionNumber": 31
+                },
+                {
+                    "imageUrl": "https://ogm-large-cdn.eba.gov.tr/mebi/question/image/d80b2e175e.png",
+                    "questionNumber": 32
+                },
+                {
+                    "imageUrl": "https://ogm-large-cdn.eba.gov.tr/mebi/question/image/d44a0437fa.png",
+                    "questionNumber": 33
+                },
+                {
+                    "imageUrl": "https://ogm-large-cdn.eba.gov.tr/mebi/question/image/2aa575d518.jpg",
+                    "questionNumber": 34
+                },
+                {
+                    "imageUrl": "https://ogm-large-cdn.eba.gov.tr/mebi/question/image/635c69f8c3.png",
+                    "questionNumber": 35
+                },
+                {
+                    "imageUrl": "https://ogm-large-cdn.eba.gov.tr/mebi/question/image/70e8ed45d6.png",
+                    "questionNumber": 36
+                },
+                {
+                    "imageUrl": "https://ogm-large-cdn.eba.gov.tr/mebi/question/image/1efd8f4685.png",
+                    "questionNumber": 37
+                },
+                {
+                    "imageUrl": "https://ogm-large-cdn.eba.gov.tr/mebi/question/image/b59e8803dc.png",
+                    "questionNumber": 38
+                },
+                {
+                    "imageUrl": "https://ogm-large-cdn.eba.gov.tr/mebi/question/image/a38109a62f.png",
+                    "questionNumber": 39
+                },
+                {
+                    "imageUrl": "https://ogm-large-cdn.eba.gov.tr/mebi/question/image/9800b63c71.png",
+                    "questionNumber": 40
+                }
+            ],
+            "answers": [
+                {
+                    "correctChoiceIndex": 1,
+                    "questionNumber": 1
+                },
+                {
+                    "correctChoiceIndex": 2,
+                    "questionNumber": 2
+                },
+                {
+                    "correctChoiceIndex": 3,
+                    "questionNumber": 3
+                },
+                {
+                    "correctChoiceIndex": 4,
+                    "questionNumber": 4
+                },
+                {
+                    "correctChoiceIndex": 1,
+                    "questionNumber": 5
+                },
+                {
+                    "correctChoiceIndex": 2,
+                    "questionNumber": 6
+                },
+                {
+                    "correctChoiceIndex": 3,
+                    "questionNumber": 7
+                },
+                {
+                    "correctChoiceIndex": 4,
+                    "questionNumber": 8
+                },
+                {
+                    "correctChoiceIndex": 1,
+                    "questionNumber": 9
+                },
+                {
+                    "correctChoiceIndex": 2,
+                    "questionNumber": 10
+                },
+                {
+                    "correctChoiceIndex": 3,
+                    "questionNumber": 11
+                },
+                {
+                    "correctChoiceIndex": 4,
+                    "questionNumber": 12
+                },
+                {
+                    "correctChoiceIndex": 1,
+                    "questionNumber": 13
+                },
+                {
+                    "correctChoiceIndex": 2,
+                    "questionNumber": 14
+                },
+                {
+                    "correctChoiceIndex": 3,
+                    "questionNumber": 15
+                },
+                {
+                    "correctChoiceIndex": 4,
+                    "questionNumber": 16
+                },
+                {
+                    "correctChoiceIndex": 1,
+                    "questionNumber": 17
+                },
+                {
+                    "correctChoiceIndex": 2,
+                    "questionNumber": 18
+                },
+                {
+                    "correctChoiceIndex": 3,
+                    "questionNumber": 19
+                },
+                {
+                    "correctChoiceIndex": 4,
+                    "questionNumber": 20
+                },
+                {
+                    "correctChoiceIndex": 1,
+                    "questionNumber": 21
+                },
+                {
+                    "correctChoiceIndex": 2,
+                    "questionNumber": 22
+                },
+                {
+                    "correctChoiceIndex": 3,
+                    "questionNumber": 23
+                },
+                {
+                    "correctChoiceIndex": 4,
+                    "questionNumber": 24
+                },
+                {
+                    "correctChoiceIndex": 1,
+                    "questionNumber": 25
+                },
+                {
+                    "correctChoiceIndex": 2,
+                    "questionNumber": 26
+                },
+                {
+                    "correctChoiceIndex": 3,
+                    "questionNumber": 27
+                },
+                {
+                    "correctChoiceIndex": 4,
+                    "questionNumber": 28
+                },
+                {
+                    "correctChoiceIndex": 1,
+                    "questionNumber": 29
+                },
+                {
+                    "correctChoiceIndex": 2,
+                    "questionNumber": 30
+                },
+                {
+                    "correctChoiceIndex": 3,
+                    "questionNumber": 31
+                },
+                {
+                    "correctChoiceIndex": 4,
+                    "questionNumber": 32
+                },
+                {
+                    "correctChoiceIndex": 1,
+                    "questionNumber": 33
+                },
+                {
+                    "correctChoiceIndex": 2,
+                    "questionNumber": 34
+                },
+                {
+                    "correctChoiceIndex": 3,
+                    "questionNumber": 35
+                },
+                {
+                    "correctChoiceIndex": 4,
+                    "questionNumber": 36
+                },
+                {
+                    "correctChoiceIndex": 1,
+                    "questionNumber": 37
+                },
+                {
+                    "correctChoiceIndex": 2,
+                    "questionNumber": 38
+                },
+                {
+                    "correctChoiceIndex": 3,
+                    "questionNumber": 39
+                },
+                {
+                    "correctChoiceIndex": 4,
+                    "questionNumber": 40
+                }
+            ]
+        }
+    ]
+}

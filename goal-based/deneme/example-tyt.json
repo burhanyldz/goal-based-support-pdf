@@ -8,14 +8,14 @@
         "ydt"
     ],
     "attentionCandidate": "<ol><li>Bu sınavda YKS soru dağılımları dikkate alınmıştır. </li><li>Deneme tam kapsam oluş YKS konularının tamamını kapsamaktadır.</li><li>Bu sınav Türkçe Testi 40 soru, Sosyal Bilimler Testi (Tarih 5, Coğrafya 5, Felsefe Grubu 10, Din Kültürü ve Ahlak Bilgisi 5) 25 soru, Temel Matematik Testi 40 soru, Fen Bilimleri Testi (Fizik 7, Kimya 7, Biyoloji 6) 20 soru olmak üzere toplamda 125 soru içermektedir.</li></ol>",
-    "attention": "Din Kültürü ve Ahlak Bilgisi dersini yasal olarak almak zorunda olan adaylar ve İmam Hatip Okulları öğrencileri/mezunları, Sosyal Bilimler Testi'nin ilk 20 sorusunu cevaplamakla yükümlüdür. Bu adaylar, bu testin 21-25. sorularını cevaplamayacaklardır. Bu adaylar, bu testin 21-25. sorularında işaretleme yapmış olsalar bile bu cevapları değerlendirmeye alınmayacaktır.<div><br></div><div>Din Kültürü ve Ahlak Bilgisi dersini yasal olarak almak zorunda olmayan veya farklı müfredat ile alan adaylar, Sosyal Bilimler Testi'nin 16-20. sorularını cevaplamadan 21-25. sorularını cevaplayacaklardır. Bu adaylar, bu testin 16-20. sorularında işaretleme yapmış olsalar bile bu cevapları değerlendirmeye alınmayacaktır.</div>",
+    "attention": "Din Kültürü ve Ahlak Bilgisi dersini yasal olarak almak zorunda olan adaylar ve İmam Hatip Okulları öğrencileri/mezunları, Sosyal Bilimler Testi'nin ilk 20 sorusunu cevaplamakla yükümlüdür. Bu adaylar, bu testin 21-25. sorularını cevaplamayacaklardır. Bu adaylar, bu testin 21-25. sorularında işaretleme yapmış olsalar bile bu cevapları değerlendirmeye alınmayacaktır.<div><br></div><div>Din Kültürü ve Ahlak Bilgisi dersini yasal olarak almak zorunda olmayan veya farklı müfredat ile alan adaylar, Sosyal Bilimler-2 Testi'nin 35-40. sorularını cevaplamadan 41-46. sorularını cevaplayacaklardır. Bu adaylar, bu testin 35-40. sorularında işaretleme yapmış olsalar bile bu cevapları değerlendirmeye alınmayacaktır.</div>",
     "denemeInstructions": "<ol><li>Bu kitapçıkta <b>125 soru</b> bulunmaktadır.<br>Türkçe Testi: 40 soru<br>Sosyal Bilimler Testi: 25 soru<br>Temel Matematik Testi: 40 soru<br>Fen Bilimleri Testi: 20 soru</li><li>Bu sınav için verilen cevaplama süresi <b>165 dakikadır (2 saat 45 dakika)</b>.</li><li><b>Bu sınavda her testteki doğru cevaplarınızın sayısından yanlış cevaplarınızın sayısının dörtte biri çıkarılacak ve kalan sayı o bölümle ilgili ham puanınız olacaktır.</b></li><li>Kitapçığın sayfalarındaki boş yerleri müsvedde için kullanabilirsiniz.</li><li>Cevaplamaya istediğiniz sorudan başlayabilirsiniz. Bir soru ile ilgili cevabınızı, cevap kâğıdında o soru için ayrılmış olan yere işaretlemeyi unutmayınız.</li><li>Bu kitapçıkta yer alan her sorunun sadece bir doğru cevabı vardır. Cevap kâğıdında bir soru için birden çok cevap yeri işaretlenmişse o soru yanlış cevaplanmış sayılacaktır. İşaretlediğiniz bir cevabı değiştirmek istediğinizde silme işlemini çok iyi yapmanız gerektiğini unutmayınız.</li></ol>",
     "denemeName": "Deneme - 1",
     "tests": [
         {
             "name": "Türkçe",
             "lessonCode": "tur",
-            "testInstructions": "Bu testte 40 soru vardır. Bu soruların tamamı görsel tabanlıdır. Aşağıdaki görsellerde yer alan soruları cevaplayınız. Her sorunun 5 şıkkı vardır. Cevaplarınızı cevap kağıdına işaretleyiniz.",
+            "testInstructions": "1. Bu testte 40 soru vardır.<br>2. Cevaplarınızı, cevap kâğıdının Türkçe Testi için ayrılan kısmına işaretleyiniz.",
             "rank": 1,
             "maxQuestion": 40,
             "id": "18c7055c-acdc-47fa-0d63-08dc1ab3018c",
@@ -347,7 +347,7 @@
         {
             "name": "Sosyal Bilimler",
             "lessonCode": "sos",
-            "testInstructions" : "Bu testte 25 soru vardır. Bu soruların tamamı görsel tabanlıdır. Aşağıdaki görsellerde yer alan soruları cevaplayınız. Her sorunun 5 şıkkı vardır. Cevaplarınızı cevap kağıdına işaretleyiniz.",
+            "testInstructions" : "1. Bu testte sırasıyla Tarih (1-5), Coğrafya (6-10), Felsefe (11-15), Din Kültürü ve Ahlak Bilgisi (16-20), Din Kültürü ve Ahlak Bilgisi dersini yasal olarak almak zorunda olmayan veya farklı müfredat ile alanlar için Felsefe (21-25) alanlarına ait toplam 25 soru vardır.<br>2. Cevaplarınızı, cevap kâğıdının Sosyal Bilimler Testi için ayrılan kısmına işaretleyiniz.",
             "rank": 2,
             "maxQuestion": 25,
             "id": "18c7055c-acdc-47fa-0d63-08dc1ab3018c",
@@ -559,6 +559,7 @@
         {
             "name": "Matematik",
             "lessonCode": "mat",
+            "testInstructions": "1. Bu testte 40 soru vardır.<br>2. Cevaplarınızı, cevap kâğıdının Temel Matematik Testi için ayrılan kısmına işaretleyiniz.",
             "rank": 3,
             "maxQuestion": 40,
             "id": "18c7055c-acdc-47fa-0d63-08dc1ab3018c",
@@ -890,6 +891,7 @@
         {
             "name": "Fen Bilimleri",
             "lessonCode": "fen",
+            "testInstructions": "1. Bu testte sırasıyla Fizik (1-7), Kimya (8-14), Biyoloji (15-20) alanlarına ait toplam 20 soru vardır.<br>2. Cevaplarınızı, cevap kâğıdının Fen Bilimleri Testi için ayrılan kısmına işaretleyiniz.",
             "rank": 1,
             "maxQuestion": 20,
             "id": "18c7055c-acdc-47fa-0d63-08dc1ab3018c",

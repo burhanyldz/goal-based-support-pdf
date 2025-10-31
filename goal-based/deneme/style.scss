@@ -9,8 +9,9 @@ $sos-color: #72a15e; // Sosyal Bilgiler
 $mat-color: #608ab1; // Matematik
 $fen-color: #91719b; // Fen Bilimleri
 // Additional lesson colors
-$tde-sos-color: $tur-color; // TDE - Sosyal Bilimler (uses Türkçe palette)
+$tde-sos1-color: $tur-color; // TDE - Sosyal Bilimler (uses Türkçe palette)
 $sos2-color: $sos-color; // Sosyal Bilimler 2 (uses Sosyal Bilgiler palette)
+$ing-color: #e46664; // Yabancı Dil
 
 // CSS custom properties for dynamic theme colors
 :root {
@@ -27,50 +28,50 @@ $sos2-color: $sos-color; // Sosyal Bilimler 2 (uses Sosyal Bilgiler palette)
   --lesson-color: #{$tur-color};
   --lesson-color-light: #{lighten($tur-color, 20%)};
   --lesson-color-lightest: #{lighten($tur-color, 43%)};
-  --lesson-color-lightest-alt: #{lighten($tur-color, 40%)};
+  --lesson-color-lightest-alt: #{lighten($tur-color, 30%)};
 }
 
 .lesson-sos {
   --lesson-color: #{$sos-color};
   --lesson-color-light: #{lighten($sos-color, 20%)};
   --lesson-color-lightest: #{lighten($sos-color, 50%)};
-  --lesson-color-lightest-alt: #{lighten($sos-color, 47%)};
+  --lesson-color-lightest-alt: #{lighten($sos-color, 35%)};
 }
 
 .lesson-mat {
   --lesson-color: #{$mat-color};
   --lesson-color-light: #{lighten($mat-color, 20%)};
   --lesson-color-lightest: #{lighten($mat-color, 48%)};
-  --lesson-color-lightest-alt: #{lighten($mat-color, 45%)};
+  --lesson-color-lightest-alt: #{lighten($mat-color, 40%)};
 }
 
 .lesson-fen {
   --lesson-color: #{$fen-color};
   --lesson-color-light: #{lighten($fen-color, 20%)};
   --lesson-color-lightest: #{lighten($fen-color, 45%)};
-  --lesson-color-lightest-alt: #{lighten($fen-color, 42%)};
+  --lesson-color-lightest-alt: #{lighten($fen-color, 35%)};
 }
 
 // Additional lesson-specific CSS variables
-.lesson-ydt {
-  --lesson-color: #{$ydt-color};
-  --lesson-color-light: #{lighten($ydt-color, 20%)};
-  --lesson-color-lightest: #{lighten($ydt-color, 45%)};
-  --lesson-color-lightest-alt: #{lighten($ydt-color, 42%)};
+.lesson-ing {
+  --lesson-color: #{$ing-color};
+  --lesson-color-light: #{lighten($ing-color, 20%)};
+  --lesson-color-lightest: #{lighten($ing-color, 45%)};
+  --lesson-color-lightest-alt: #{lighten($ing-color, 32%)};
 }
 
-.lesson-tde-sos {
-  --lesson-color: #{$tde-sos-color};
-  --lesson-color-light: #{lighten($tde-sos-color, 20%)};
-  --lesson-color-lightest: #{lighten($tde-sos-color, 43%)};
-  --lesson-color-lightest-alt: #{lighten($tde-sos-color, 40%)};
+.lesson-tde-sos1 {
+  --lesson-color: #{$tde-sos1-color};
+  --lesson-color-light: #{lighten($tde-sos1-color, 20%)};
+  --lesson-color-lightest: #{lighten($tde-sos1-color, 43%)};
+  --lesson-color-lightest-alt: #{lighten($tde-sos1-color, 35%)};
 }
 
 .lesson-sos2 {
   --lesson-color: #{$sos2-color};
   --lesson-color-light: #{lighten($sos2-color, 20%)};
   --lesson-color-lightest: #{lighten($sos2-color, 50%)};
-  --lesson-color-lightest-alt: #{lighten($sos2-color, 47%)};
+  --lesson-color-lightest-alt: #{lighten($sos2-color, 35%)};
 }
 
 // Dynamic theme classes
@@ -678,7 +679,7 @@ li {
     position: absolute;
     top: 227mm;
     font-family: Arial;
-    font-size: 3.75mm;
+    font-size: 3.45mm;
     width: 190mm;
     left: 9.5mm;
     line-height: 5mm;
@@ -718,8 +719,8 @@ li {
   .deneme-instructions {
     position: absolute;
     top: 149.5mm;
-    right: 22mm;
-    width: 78mm;
+    left: 110mm;
+    width: 85mm;
     font-size: 3.3mm;
     font-family: "Arial", Gadget, sans-serif;
     line-height: 4mm;
@@ -752,6 +753,8 @@ li {
       width: 100%;
       height: 12.8mm;
       position: relative;
+      display: flex;
+      align-items: center;
 
       .dark-ribbon {
         position: absolute;
@@ -830,7 +833,6 @@ li {
         left: 67mm;
         font-size: 2.3mm;
         font-family: "Arial Black", Gadget, sans-serif;
-        padding-top: 1.2mm;
       }
     }
   }

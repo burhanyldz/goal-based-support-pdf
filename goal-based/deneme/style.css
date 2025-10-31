@@ -11,49 +11,49 @@
   --lesson-color: #c37f67;
   --lesson-color-light: rgb(223.8679245283, 188.5849056604, 176.1320754717);
   --lesson-color-lightest: white;
-  --lesson-color-lightest-alt: rgb(252.7358490566, 250.1698113208, 249.2641509434);
+  --lesson-color-lightest-alt: rgb(238.3018867925, 219.3773584906, 212.6981132075);
 }
 
 .lesson-sos {
   --lesson-color: #72a15e;
   --lesson-color-light: rgb(170.4, 198.6, 158.4);
   --lesson-color-lightest: white;
-  --lesson-color-lightest-alt: rgb(246.54, 249.36, 245.34);
+  --lesson-color-lightest-alt: rgb(212.7, 226.8, 206.7);
 }
 
 .lesson-mat {
   --lesson-color: #608ab1;
   --lesson-color-light: rgb(164.4303797468, 188.3544303797, 210.5696202532);
   --lesson-color-lightest: white;
-  --lesson-color-lightest-alt: rgb(249.9683544304, 251.2974683544, 252.5316455696);
+  --lesson-color-lightest-alt: rgb(232.8607594937, 238.7088607595, 244.1392405063);
 }
 
 .lesson-fen {
   --lesson-color: #91719b;
   --lesson-color-light: rgb(191.3636363636, 172.8512396694, 197.1487603306);
   --lesson-color-lightest: rgb(249.3181818182, 247.6652892562, 249.8347107438);
-  --lesson-color-lightest-alt: rgb(242.3636363636, 238.6876033058, 243.5123966942);
+  --lesson-color-lightest-alt: rgb(226.1363636364, 217.7396694215, 228.7603305785);
 }
 
-.lesson-ydt {
+.lesson-ing {
   --lesson-color: #e46664;
   --lesson-color-light: rgb(243.1318681319, 187.7472527473, 186.8681318681);
   --lesson-color-lightest: white;
-  --lesson-color-lightest-alt: white;
+  --lesson-color-lightest-alt: rgb(252.210989011, 239.1956043956, 238.989010989);
 }
 
-.lesson-tde-sos {
+.lesson-tde-sos1 {
   --lesson-color: #c37f67;
   --lesson-color-light: rgb(223.8679245283, 188.5849056604, 176.1320754717);
   --lesson-color-lightest: white;
-  --lesson-color-lightest-alt: rgb(252.7358490566, 250.1698113208, 249.2641509434);
+  --lesson-color-lightest-alt: rgb(245.5188679245, 234.7735849057, 230.9811320755);
 }
 
 .lesson-sos2 {
   --lesson-color: #72a15e;
   --lesson-color-light: rgb(170.4, 198.6, 158.4);
   --lesson-color-lightest: white;
-  --lesson-color-lightest-alt: rgb(246.54, 249.36, 245.34);
+  --lesson-color-lightest-alt: rgb(212.7, 226.8, 206.7);
 }
 
 .theme-tyt {
@@ -614,7 +614,7 @@ li {
   position: absolute;
   top: 227mm;
   font-family: Arial;
-  font-size: 3.75mm;
+  font-size: 3.45mm;
   width: 190mm;
   left: 9.5mm;
   line-height: 5mm;
@@ -650,8 +650,8 @@ li {
 .cover-page .deneme-instructions {
   position: absolute;
   top: 149.5mm;
-  right: 22mm;
-  width: 78mm;
+  left: 110mm;
+  width: 85mm;
   font-size: 3.3mm;
   font-family: "Arial", Gadget, sans-serif;
   line-height: 4mm;
@@ -681,6 +681,8 @@ li {
   width: 100%;
   height: 12.8mm;
   position: relative;
+  display: flex;
+  align-items: center;
 }
 .page.first-page .header .test-info-bar .dark-ribbon {
   position: absolute;
@@ -752,7 +754,6 @@ li {
   left: 67mm;
   font-size: 2.3mm;
   font-family: "Arial Black", Gadget, sans-serif;
-  padding-top: 1.2mm;
 }
 .page.first-page .content {
   padding: 4mm 10mm;

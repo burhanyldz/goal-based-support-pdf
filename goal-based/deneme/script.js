@@ -16,8 +16,8 @@
 		'sos': { primary: '#72a15e', secondary: '#92cc77' },     // Sosyal Bilgiler
 		'mat': { primary: '#608ab1', secondary: '#79addd' },    // Matematik
 		'fen': { primary: '#91719b', secondary: '#b78bbf' },     // Fen Bilimleri
-		'ydt': { primary: '#bd484a', secondary: '#f06061' },     // Yabancı Dil
-		'tde-sos': { primary: '#c37f67', secondary: '#f7a180' }, // TDE-Sosyal Bilimler
+		'ing': { primary: '#bd484a', secondary: '#f06061' },     // Yabancı Dil
+		'tde-sos1': { primary: '#c37f67', secondary: '#f7a180' }, // TDE-Sosyal Bilimler 1
 		'sos2': { primary: '#72a15e', secondary: '#92cc77' },	 // Sosyal Bilimler 2
 	};
 	
@@ -352,7 +352,7 @@
 							<div>${testTypeUpper}</div>
 						</div>
 						<div class="test-instructions">
-							${this._escapeHtml(test.testInstructions)}
+							${test.testInstructions}
 						</div>
                     </div>
                     </div>
