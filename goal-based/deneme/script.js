@@ -164,8 +164,8 @@
 			// Create cover pages
 			const coverPage1 = this._createCoverPage(testType, 1);
 			const coverPage2 = this._createCoverPage(testType, 2);
-			/* rootElement.appendChild(coverPage1);
-			rootElement.appendChild(coverPage2); */
+			rootElement.appendChild(coverPage1);
+			rootElement.appendChild(coverPage2);
 			
 			const pagesState = {
 				examData,
@@ -260,14 +260,17 @@
 		},
 
 		_createTestFirstPage: function(test, pagesState, testColor) {
-			const page = this._createEl('div', 'page odd test-first-page');
+			// Compute odd/even based on current page count
+			const isOdd = ((pagesState.pageCount + 1) % 2) === 1;
+			const pageClass = 'page ' + (isOdd ? 'odd' : 'even') + ' first-page';
+			const page = this._createEl('div', pageClass);
 			page.setAttribute('data-test-color', testColor);
 			
 			const testTypeUpper = this.currentTestType ? this.currentTestType.toUpperCase() : '-';
 			const testName = test.name || '';
 			
 			page.innerHTML = `
-				<div class="first-page-header">
+				<div class="header">
 					<div class="test-title" style="color: ${testColor.primary};">${this._escapeHtml(testName).toUpperCase()} TESTİ</div>
                     <div class="test-info-bar" style="border-top: .7mm solid ${testColor.primary}; border-bottom: .7mm solid ${testColor.primary};">
 						<div class="dark-ribbon" style="background: ${testColor.primary};"></div>
@@ -285,10 +288,12 @@
                     </div>
 				<div class="content">
 					<div class="left-column"></div>
-					<div class="divider"></div>
+					<div class="divider">
+						<div class="divider-text">MEBİ Hedef Temelli Destek Eğitimi</div>
+					</div>
 					<div class="right-column"></div>
 				</div>
-				<div class="page-footer">
+				<div class="footer">
 					
 				</div>
 			`;
@@ -297,25 +302,28 @@
 			return page;
 		},
 
-		_createNormalPage: function(pagesState, testColor, test) {
-			const page = this._createEl('div', 'page');
+		_createNormalPage: function(isOdd, pagesState, testColor, test) {
+			const cls = 'page ' + (isOdd ? 'odd' : 'even');
+			const page = this._createEl('div', cls);
 			page.setAttribute('data-test-color', testColor);
 			
 			const testTypeUpper = this.currentTestType ? this.currentTestType.toUpperCase() : 'TYT';
 			const testName = test.name || '';
 			
 			page.innerHTML = `
-				<div class="normal-page-header">
+				<div class="header">
 					<div class="header-left">YKS DENEMELERİ</div>
 					<div class="header-center">Ortaöğretim Genel Müdürlüğü</div>
 					<div class="header-right">${this.denemeNumber}. DENEME</div>
 				</div>
 				<div class="content">
 					<div class="left-column"></div>
-					<div class="divider"></div>
+					<div class="divider">
+						<div class="divider-text">MEBİ Hedef Temelli Destek Eğitimi</div>
+					</div>
 					<div class="right-column"></div>
 				</div>
-				<div class="page-footer">
+				<div class="footer">
 					<div class="footer-page-number" style="background-color: ${testColor};">${pagesState.globalPageNumber}</div>
 					<div class="footer-test-name" style="color: ${testColor};">${testTypeUpper} - ${this._escapeHtml(testName).toUpperCase()} TESTİ</div>
 				</div>
@@ -331,196 +339,264 @@
 			return;
 		},
 
-		_placeQuestion: function(root, pagesState, question, testColor, test) {
+		// Align helpers with single-test for identical layout behavior
+		_isOverflowing: function(container) {
+			return container.scrollHeight > container.clientHeight + 1;
+		},
+
+		_createQuestionElement: function(q) {
+			const wrapper = this._createEl('div', 'question');
+			const num = this._createEl('div', 'question-number');
+			num.textContent = q.questionNumber != null ? q.questionNumber + '.' : '';
+			const img = this._createEl('img', 'question-image');
+			// match single-test aspect handling
+			img.style.width = '100%';
+			img.style.height = 'auto';
+			wrapper.appendChild(num);
+			wrapper.appendChild(img);
+			return { wrapper, img, originalSrc: q.imageUrl || '' };
+		},
+
+		_placeQuestion: function(root, pagesState, q, testColor, test) {
 			const self = this;
+			
+			const placeInColumn = function(pageEl, colSelector, questionEl) {
+				const col = self._qs(colSelector, pageEl);
+				col.appendChild(questionEl.wrapper);
+			};
+
+			const ensureImageLoaded = function(img) {
+				return new Promise(function(resolve) {
+					if (img.complete && img.naturalHeight !== 0) return resolve();
+					img.addEventListener('load', function() { resolve(); }, { once: true });
+					img.addEventListener('error', function() { resolve(); }, { once: true });
+					setTimeout(resolve, 1500);
+				});
+			};
+
 			return new Promise(function(resolve) {
-				const qNum = question.questionNumber || 1;
-				const qImg = question.imageUrl || '';
-
-				const qBox = self._createEl('div', 'question-box');
-				const qNumSpan = self._createEl('div', 'question-number');
-				qNumSpan.textContent = qNum + '.';
-
-				const imgWrap = self._createEl('div', 'question-image-wrap');
-				const img = self._createEl('img', 'question-image');
-				img.src = qImg;
-				img.alt = 'Soru ' + qNum;
-
-				imgWrap.appendChild(img);
-				qBox.appendChild(qNumSpan);
-				qBox.appendChild(imgWrap);
-
-				const choicesWrap = self._createEl('div', 'question-choices');
-				for (let i = 0; i < 5; i++) {
-					const ch = self._createEl('div', 'question-choice');
-					ch.innerHTML = `<span class="choice-letter">${LETTERS[i]})</span><span class="choice-box"></span>`;
-					choicesWrap.appendChild(ch);
-				}
-				qBox.appendChild(choicesWrap);
+				let placed = false;
+				let attemptColumn = pagesState.currentColumn;
 
 				const tryPlacement = function() {
-					// If no current page, create first normal page
-					if (!pagesState.currentPage) {
-						const newPage = self._createNormalPage(pagesState, testColor, test);
-						root.appendChild(newPage);
-						pagesState.pages.push(newPage);
-						pagesState.pageCount += 1;
-						pagesState.currentPage = newPage;
-						pagesState.currentColumn = 'left';
-					}
+					if (placed) return resolve();
+					
+					const pageEl = pagesState.currentPage;
+					const colSelector = attemptColumn === 'left' ? '.left-column' : '.right-column';
+					
+					// create element, crop the source and set src before appending
+					const questionEl = self._createQuestionElement(q);
+					
+					self._cropImageWhitespace(questionEl.originalSrc).then(function(croppedSrc) {
+						const finalSrc = croppedSrc || questionEl.originalSrc;
+						questionEl.img.src = finalSrc;
 
-					const column = pagesState.currentColumn === 'left' 
-						? self._qs('.left-column', pagesState.currentPage)
-						: self._qs('.right-column', pagesState.currentPage);
+						// debugging markers
+						try {
+							if (questionEl.wrapper && typeof questionEl.wrapper.setAttribute === 'function') {
+								if (croppedSrc && (String(croppedSrc).startsWith('data:') || String(croppedSrc).startsWith('blob:'))) {
+									questionEl.wrapper.setAttribute('data-cropped', 'yes');
+									questionEl.wrapper.setAttribute('data-cropped-src', croppedSrc.startsWith('blob:') ? 'blob' : 'data');
+								} else {
+									questionEl.wrapper.setAttribute('data-cropped', 'no');
+									questionEl.wrapper.setAttribute('data-cropped-src', 'remote');
+								}
+							}
+						} catch (e) {
+							console.warn('Error setting debug attributes:', e);
+						}
+						
+						placeInColumn(pageEl, colSelector, questionEl);
 
-					if (!column) {
-						resolve();
-						return;
-					}
+						// wait for image to load
+						ensureImageLoaded(questionEl.img).then(function() {
+							const colNode = self._qs(colSelector, pageEl);
+							if (!self._isOverflowing(colNode)) {
+								// fits in this column
+								placed = true;
+								pagesState.currentColumn = attemptColumn;
+								return resolve();
+							}
 
-					const clone = qBox.cloneNode(true);
-					clone.style.visibility = 'hidden';
-					column.appendChild(clone);
-
-					requestAnimationFrame(function() {
-						const colHeight = column.scrollHeight;
-						const colMax = column.clientHeight;
-
-						if (colHeight > colMax) {
-							column.removeChild(clone);
-
-							if (pagesState.currentColumn === 'left') {
-								pagesState.currentColumn = 'right';
+							// doesn't fit; remove and try next
+							questionEl.wrapper.remove();
+							if (attemptColumn === 'left') {
+								attemptColumn = 'right';
 								tryPlacement();
 							} else {
-								const newPage = self._createNormalPage(pagesState, testColor, test);
+								// both columns full -> create new page
+								const newIsOdd = ((pagesState.pageCount + 1) % 2) === 1;
+								const newPage = self._createNormalPage(newIsOdd, pagesState, testColor, test);
 								root.appendChild(newPage);
 								pagesState.pages.push(newPage);
 								pagesState.pageCount += 1;
 								pagesState.currentPage = newPage;
 								pagesState.currentColumn = 'left';
+								attemptColumn = 'left';
 								tryPlacement();
 							}
-						} else {
-							clone.style.visibility = '';
-							resolve();
-						}
+						});
 					});
 				};
 
-				if (qImg) {
-					img.onload = function() {
-						if (self.config.imageCropping.enabled) {
-							self._cropImage(img).then(function() {
-								tryPlacement();
-							}).catch(function() {
-								tryPlacement();
-							});
-						} else {
-							tryPlacement();
-						}
-					};
-					img.onerror = function() {
-						tryPlacement();
-					};
-				} else {
-					tryPlacement();
-				}
+				tryPlacement();
 			});
 		},
 
-		_cropImage: function(img) {
+		_cropImageWhitespace: function(src, options) {
 			const self = this;
-			return new Promise(function(resolve, reject) {
-				if (!img.complete || img.naturalWidth === 0) {
-					reject('Image not loaded');
-					return;
-				}
+			options = options || {};
+			const padding = typeof options.padding === 'number' ? options.padding : this.config.imageCropping.padding;
+			const bgThreshold = typeof options.bgThreshold === 'number' ? options.bgThreshold : this.config.imageCropping.bgThreshold;
+			const alphaThreshold = typeof options.alphaThreshold === 'number' ? options.alphaThreshold : this.config.imageCropping.alphaThreshold;
 
-				try {
-					const canvas = document.createElement('canvas');
-					const ctx = canvas.getContext('2d');
-					canvas.width = img.naturalWidth;
-					canvas.height = img.naturalHeight;
-					ctx.drawImage(img, 0, 0);
+			return new Promise(function(resolve) {
+				if (!src || !self.config.imageCropping.enabled) return resolve(src);
+				const img = new Image();
+				img.crossOrigin = 'Anonymous';
+				let cleaned = false;
+				let timer = null;
 
-					const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
-					const data = imageData.data;
-					const w = canvas.width;
-					const h = canvas.height;
-
-					const bgThreshold = self.config.imageCropping.bgThreshold;
-					const alphaThreshold = self.config.imageCropping.alphaThreshold;
-					const padding = self.config.imageCropping.padding;
-
-					function isWhite(r, g, b, a) {
-						if (a < alphaThreshold) return true;
-						return r >= bgThreshold && g >= bgThreshold && b >= bgThreshold;
+				const finish = function(resultSrc) {
+					if (!cleaned) {
+						cleaned = true;
+						try { if (timer) clearTimeout(timer); } catch (e) { }
+						resolve(resultSrc);
 					}
+				};
 
-					let top = 0, bottom = h - 1, left = 0, right = w - 1;
+				img.onload = function() {
+					try {
+						const w = img.naturalWidth || img.width;
+						const h = img.naturalHeight || img.height;
+						if (!w || !h) return finish(src);
 
-					outer1: for (let y = 0; y < h; y++) {
-						for (let x = 0; x < w; x++) {
-							const i = (y * w + x) * 4;
-							if (!isWhite(data[i], data[i + 1], data[i + 2], data[i + 3])) {
-								top = y;
-								break outer1;
+						const canvas = document.createElement('canvas');
+						canvas.width = w;
+						canvas.height = h;
+						const ctx = canvas.getContext('2d');
+						if (ctx) {
+							ctx.imageSmoothingEnabled = false;
+						}
+						ctx.drawImage(img, 0, 0, w, h);
+						let data;
+						try { 
+							data = ctx.getImageData(0, 0, w, h).data; 
+						} catch (e) { 
+							return finish(src); 
+						}
+
+						// Helper function to check if a pixel is "white" (background)
+						const isWhitePixel = function(r, g, b, a) {
+							return a <= alphaThreshold || (r >= bgThreshold && g >= bgThreshold && b >= bgThreshold);
+						};
+
+						// Progressive trimming: keep removing edges until we hit non-white pixels
+						let minX = 0, minY = 0, maxX = w - 1, maxY = h - 1;
+
+						// Trim from left
+						let foundContent = false;
+						for (let x = 0; x < w && !foundContent; x++) {
+							for (let y = 0; y < h; y++) {
+								const i = (y * w + x) * 4;
+								const r = data[i], g = data[i + 1], b = data[i + 2], a = data[i + 3];
+								if (!isWhitePixel(r, g, b, a)) {
+									minX = x;
+									foundContent = true;
+									break;
+								}
 							}
 						}
-					}
 
-					outer2: for (let y = h - 1; y >= top; y--) {
-						for (let x = 0; x < w; x++) {
-							const i = (y * w + x) * 4;
-							if (!isWhite(data[i], data[i + 1], data[i + 2], data[i + 3])) {
-								bottom = y;
-								break outer2;
+						// Trim from right
+						foundContent = false;
+						for (let x = w - 1; x >= minX && !foundContent; x--) {
+							for (let y = 0; y < h; y++) {
+								const i = (y * w + x) * 4;
+								const r = data[i], g = data[i + 1], b = data[i + 2], a = data[i + 3];
+								if (!isWhitePixel(r, g, b, a)) {
+									maxX = x;
+									foundContent = true;
+									break;
+								}
 							}
 						}
-					}
 
-					outer3: for (let x = 0; x < w; x++) {
-						for (let y = top; y <= bottom; y++) {
-							const i = (y * w + x) * 4;
-							if (!isWhite(data[i], data[i + 1], data[i + 2], data[i + 3])) {
-								left = x;
-								break outer3;
+						// Trim from top
+						foundContent = false;
+						for (let y = 0; y < h && !foundContent; y++) {
+							for (let x = minX; x <= maxX; x++) {
+								const i = (y * w + x) * 4;
+								const r = data[i], g = data[i + 1], b = data[i + 2], a = data[i + 3];
+								if (!isWhitePixel(r, g, b, a)) {
+									minY = y;
+									foundContent = true;
+									break;
+								}
 							}
 						}
-					}
 
-					outer4: for (let x = w - 1; x >= left; x--) {
-						for (let y = top; y <= bottom; y++) {
-							const i = (y * w + x) * 4;
-							if (!isWhite(data[i], data[i + 1], data[i + 2], data[i + 3])) {
-								right = x;
-								break outer4;
+						// Trim from bottom
+						foundContent = false;
+						for (let y = h - 1; y >= minY && !foundContent; y--) {
+							for (let x = minX; x <= maxX; x++) {
+								const i = (y * w + x) * 4;
+								const r = data[i], g = data[i + 1], b = data[i + 2], a = data[i + 3];
+								if (!isWhitePixel(r, g, b, a)) {
+									maxY = y;
+									foundContent = true;
+									break;
+								}
 							}
 						}
+
+						// Validate bounds
+						if (minX > maxX || minY > maxY || minX >= w || minY >= h) {
+							return finish(src);
+						}
+
+						const cw = maxX - minX + 1;
+						const ch = maxY - minY + 1;
+
+						const out = document.createElement('canvas');
+						out.width = cw;
+						out.height = ch;
+						const outCtx = out.getContext('2d');
+						if (outCtx) {
+							outCtx.imageSmoothingEnabled = false;
+						}
+						outCtx.drawImage(canvas, minX, minY, cw, ch, 0, 0, cw, ch);
+
+						// Export as blob
+						try {
+							out.toBlob(function(blob) {
+								if (!blob) return finish(src);
+								const url = URL.createObjectURL(blob);
+								return finish(url);
+							}, 'image/png');
+							return;
+						} catch (e) {
+							// fallback to dataURL
+							try {
+								const dataUrl = out.toDataURL('image/png');
+								return finish(dataUrl);
+							} catch (er) {
+								return finish(src);
+							}
+						}
+					} catch (e) {
+						return finish(src);
 					}
+				};
 
-					top = Math.max(0, top - padding);
-					bottom = Math.min(h - 1, bottom + padding);
-					left = Math.max(0, left - padding);
-					right = Math.min(w - 1, right + padding);
+				img.onerror = function() {
+					finish(src);
+				};
 
-					const cropW = right - left + 1;
-					const cropH = bottom - top + 1;
-
-					if (cropW > 0 && cropH > 0 && (cropW < w || cropH < h)) {
-						const cropCanvas = document.createElement('canvas');
-						cropCanvas.width = cropW;
-						cropCanvas.height = cropH;
-						const cropCtx = cropCanvas.getContext('2d');
-						cropCtx.drawImage(canvas, left, top, cropW, cropH, 0, 0, cropW, cropH);
-						img.src = cropCanvas.toDataURL('image/png');
-					}
-
-					resolve();
-				} catch (e) {
-					reject(e);
-				}
+				// safety timeout
+				timer = setTimeout(function() { finish(src); }, 3000);
+				img.decoding = 'async';
+				img.src = src;
 			});
 		},
 
