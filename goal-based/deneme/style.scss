@@ -662,6 +662,27 @@ li {
     object-fit: cover;
   }
 
+  .qr-code-container {
+    position: absolute;
+    top: 56%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 34mm;
+    height: 34mm;
+    background: rgba(255, 255, 255, 0.95);
+    z-index: 10;
+
+    .qr-code {
+
+      canvas,
+      img {
+        width: 100%;
+        height: 100%;
+        object-fit: contain;
+      }
+    }
+  }
+
   .school-name {
     position: absolute;
     top: 198.5mm;

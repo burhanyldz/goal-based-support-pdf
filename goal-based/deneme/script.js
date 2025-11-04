@@ -189,12 +189,20 @@
 			
 			// Create cover pages only if testType is valid
 			let pageCount = 0;
+			let coverPage1 = null;
 			if (isValidTestType) {
-				const coverPage1 = this._createCoverPage(testType, 1);
+				coverPage1 = this._createCoverPage(testType, 1);
 				const coverPage2 = this._createCoverPage(testType, 2);
 				rootElement.appendChild(coverPage1);
 				rootElement.appendChild(coverPage2);
 				pageCount = 2;
+				
+				// Initialize QR code on first cover page
+				try {
+					this._initQRCodeOnPage(coverPage1, examData);
+				} catch (e) {
+					console.warn('QR code initialization on cover page failed', e);
+				}
 			}
 			
 			const pagesState = {
@@ -300,6 +308,9 @@
 				page.innerHTML = `
 					<img src="images/${imageFilename}" alt="${testType.toUpperCase()} Kapak ${pageNumber}" class="cover-image">
 					<div id="school-name" class="school-name"></div>
+					<div class="qr-code-container">
+						<div class="qr-code"></div>
+					</div>
 				`;
 				if (this.examData && this.examData.attentionCandidate) {
 					page.innerHTML += `
@@ -417,9 +428,36 @@
 		},
 
 		_initQRCodeOnPage: function(page, examData) {
-			// QR code is not shown on deneme pages based on the design
-			// Keeping this method for future use if needed
-			return;
+			// Initialize QR code on cover page if qrCodeUrl is present
+			try {
+				// Find QR code container on cover page
+				const qrContainer = page.querySelector('.qr-code-container .qr-code');
+				if (!qrContainer) return;
+				qrContainer.innerHTML = '';
+
+				if (!examData || !examData.qrCodeUrl) return;
+
+				// Create canvas to render QR
+				const canvas = document.createElement('canvas');
+				canvas.style.width = '100%';
+				canvas.style.height = '100%';
+				qrContainer.appendChild(canvas);
+
+				if (window.QRious) {
+					// Use QRious if available (local script included in index.html)
+					new QRious({ element: canvas, value: String(examData.qrCodeUrl), size: 256 });
+				} else {
+					// Fallback: external QR image (reliable) — only used if QRious not present
+					const img = document.createElement('img');
+					img.src = `https://api.qrserver.com/v1/create-qr-code/?size=256x256&data=${encodeURIComponent(String(examData.qrCodeUrl))}`;
+					img.style.width = '100%';
+					img.style.height = '100%';
+					qrContainer.innerHTML = '';
+					qrContainer.appendChild(img);
+				}
+			} catch (e) {
+				console.error('initQRCodeOnPage error', e);
+			}
 		},
 
 		// Align helpers with single-test for identical layout behavior
