@@ -177,7 +177,9 @@
 			const testType = examData.testType || 'tyt';
 			
 			// Check if testType is valid (exists in availableTestTypes)
-			const availableTypes = examData.availableTestTypes || [];
+			const availableTypes = examData.availableTestTypes || [
+				'tyt', 'ayt', 'ydt'
+			];
 			const isValidTestType = availableTypes.includes(testType);
 			
 			this.currentTestType = testType;
@@ -201,6 +203,7 @@
 				pageCount: pageCount,
 				currentPage: null,
 				currentColumn: 'left',
+				forceNewPageNext: false,
 				currentTest: null,
 				globalPageNumber: pageCount + 1 // Start page numbering after cover pages (or 1 if no covers)
 			};
@@ -282,7 +285,12 @@
 				});
 			});
 			
-			return placementPromise;
+			// After finishing this test's questions, clear any carry-over new-page-forcing flag
+			return placementPromise.then(function() {
+				if (pagesState.forceNewPageNext) {
+					pagesState.forceNewPageNext = false;
+				}
+			});
 		},
 
 		_createCoverPage: function(testType, pageNumber) {
@@ -449,13 +457,59 @@
 				});
 			};
 
+			const scaleQuestionToFit = function(questionEl, colNode) {
+				// Get the available height in the column
+				const colHeight = colNode.clientHeight;
+				const questionHeight = questionEl.wrapper.scrollHeight;
+								
+				if (questionHeight > colHeight) {
+					// Calculate required scale to fit within the column
+					const scale = colHeight / questionHeight;
+					const minScale = 0.5; // Minimum scale to maintain readability
+					const finalScale = Math.max(scale, minScale);
+										
+					// Apply transform AND adjust the wrapper dimensions
+					// Transform alone doesn't reduce scrollHeight, so we must also adjust dimensions
+					questionEl.img.style.transformOrigin = 'top left';
+					questionEl.img.style.transform = `scale(${finalScale})`;
+					questionEl.img.style.width = `${100 / finalScale}%`;
+					
+					// Reduce wrapper height to match scaled content
+					const newHeight = questionHeight * finalScale;
+					questionEl.wrapper.style.height = newHeight + 'px';
+					questionEl.wrapper.style.overflow = 'hidden';
+					
+					questionEl.wrapper.setAttribute('data-scaled', finalScale.toFixed(3));
+					
+					
+					// Force reflow to recalculate scrollHeight
+					void questionEl.wrapper.offsetHeight;
+					
+					return true;
+				}
+				return false;
+			};
+
 			return new Promise(function(resolve) {
 				let placed = false;
 				let attemptColumn = pagesState.currentColumn;
+				let hasTriedScaling = false;
 
 				const tryPlacement = function() {
 					if (placed) return resolve();
-					
+					// If previous question was scaled in the right column, we must start on a new page's left column
+					if (pagesState.forceNewPageNext) {
+						const newIsOdd = ((pagesState.pageCount + 1) % 2) === 1;
+						const newPage = self._createNormalPage(newIsOdd, pagesState, testColor, test);
+						root.appendChild(newPage);
+						pagesState.pages.push(newPage);
+						pagesState.pageCount += 1;
+						pagesState.currentPage = newPage;
+						pagesState.currentColumn = 'left';
+						attemptColumn = 'left';
+						pagesState.forceNewPageNext = false;
+					}
+										
 					const pageEl = pagesState.currentPage;
 					const colSelector = attemptColumn === 'left' ? '.left-column' : '.right-column';
 					
@@ -489,14 +543,53 @@
 							if (!self._isOverflowing(colNode)) {
 								// fits in this column
 								placed = true;
-								pagesState.currentColumn = attemptColumn;
+								// After placing, determine next column following left-to-right flow
+								if (hasTriedScaling) {
+									// This was a scaled question - column is likely full
+									// Move to next column in natural flow
+									if (attemptColumn === 'left') {
+										pagesState.currentColumn = 'right';
+									} else {
+										// Was in right column, need new page next; prepare for left column of new page
+										pagesState.forceNewPageNext = true;
+										pagesState.currentColumn = 'left';
+									}
+								} else {
+									// Normal placement - stay in same column for next question
+									pagesState.currentColumn = attemptColumn;
+								}
 								return resolve();
+							}
+
+							// doesn't fit; check if we should try scaling
+							const isColumnEmpty = colNode.children.length === 1;
+							
+							if (isColumnEmpty && !hasTriedScaling) {
+								// This is an empty column and question still doesn't fit
+								// Try scaling the question down
+								hasTriedScaling = true;
+								const scaled = scaleQuestionToFit(questionEl, colNode);
+																
+								if (scaled && !self._isOverflowing(colNode)) {
+									// Successfully scaled and fits now
+									placed = true;
+									// After scaling, move to next column in natural flow
+									if (attemptColumn === 'left') {
+										pagesState.currentColumn = 'right';
+									} else {
+										// Was in right column, will need new page
+										pagesState.forceNewPageNext = true;
+										pagesState.currentColumn = 'left';
+									}
+									return resolve();
+								}
 							}
 
 							// doesn't fit; remove and try next
 							questionEl.wrapper.remove();
 							if (attemptColumn === 'left') {
 								attemptColumn = 'right';
+								hasTriedScaling = false; // Reset scaling flag for new column
 								tryPlacement();
 							} else {
 								// both columns full -> create new page
@@ -508,6 +601,7 @@
 								pagesState.currentPage = newPage;
 								pagesState.currentColumn = 'left';
 								attemptColumn = 'left';
+								hasTriedScaling = false; // Reset scaling flag for new page
 								tryPlacement();
 							}
 						});
