@@ -1141,6 +1141,11 @@ $ydt-color: #e46664;
   pointer-events: auto;
 }
 
+/* Hide pages while loading overlay is visible to prevent overflow */
+body:has(#page-loading-overlay.visible) #pdf-root {
+  visibility: hidden;
+}
+
 .export-overlay-inner {
   background: rgba(255, 255, 255, 0.98);
   padding: 18px 22px;

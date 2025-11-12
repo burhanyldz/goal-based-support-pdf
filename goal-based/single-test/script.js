@@ -96,12 +96,6 @@
 			try {
 				this._setupContainer();
 				
-				if (this.config.data) {
-					this.render(this.config.data);
-				} else if (this.config.autoLoad) {
-					this._loadData(this.config.autoLoad);
-				}
-				
 				if (this.config.toolbar.enabled) {
 					this._createToolbar();
 				}
@@ -120,7 +114,18 @@
 					this._createSuccessOverlay();
 				}
 				
+				// Create page loading overlay (must be created before render)
+				this._createPageLoadingOverlay();
+				
 				this._setupEventListeners();
+				
+				// Render data if provided (must be after overlay creation)
+				if (this.config.data) {
+					this.render(this.config.data);
+				} else if (this.config.autoLoad) {
+					this._loadData(this.config.autoLoad);
+				}
+				
 				this.initialized = true;
 				// Return the instance to allow API calls like: const preview = PDFPreview.init(...)
 				return this;
@@ -168,6 +173,10 @@
 			
 			this.data = data;
 			window._pdfData = data; // Keep for compatibility
+			
+			// Show loading overlay before rendering
+			this._showPageLoadingOverlay();
+			
 			return this._renderPDF(data, this.container);
 		},
 		
@@ -304,10 +313,31 @@
 				// Apply Turkish-aware casing transforms
 				self._applyLocaleTransforms(rootElement);
 
-				// Scale pages to fit viewport on small screens
-				if (self.config.scaling.enabled) {
-					self._scalePagesToFit();
-				}
+				// Wait for all images to load before finalizing
+				const allImages = rootElement.querySelectorAll('img');
+				const imagePromises = Array.from(allImages).map(function(img) {
+					return new Promise(function(resolve) {
+						if (img.complete && img.naturalHeight !== 0) {
+							resolve();
+						} else {
+							img.addEventListener('load', resolve, { once: true });
+							img.addEventListener('error', resolve, { once: true });
+							setTimeout(resolve, 2000);
+						}
+					});
+				});
+				
+				Promise.all(imagePromises).then(function() {
+					// Scale pages to fit viewport on small screens
+					if (self.config.scaling.enabled) {
+						self._scalePagesToFit();
+					}
+					
+					// Hide page loading overlay after pages are rendered and scaled
+					setTimeout(function() {
+						self._hidePageLoadingOverlay();
+					}, 100);
+				});
 
 				// Mark rendering as complete
 				self._isRendering = false;
@@ -1379,6 +1409,43 @@
 			});
 		},
 		
+		_createPageLoadingOverlay: function() {
+			if (document.getElementById('page-loading-overlay')) return;
+			
+			const overlay = this._createEl('div', 'export-overlay');
+			overlay.id = 'page-loading-overlay';
+			overlay.setAttribute('aria-hidden', 'true');
+			
+			const inner = this._createEl('div', 'export-overlay-inner');
+			
+			const spinner = this._createEl('div', 'spinner');
+			
+			const msg = this._createEl('div', 'export-message');
+			msg.textContent = 'Sayfalar hazırlanıyor...';
+			
+			inner.appendChild(spinner);
+			inner.appendChild(msg);
+			overlay.appendChild(inner);
+			
+			document.body.appendChild(overlay);
+		},
+		
+		_showPageLoadingOverlay: function() {
+			const overlay = document.getElementById('page-loading-overlay');
+			if (overlay) {
+				overlay.setAttribute('aria-hidden', 'false');
+				overlay.classList.add('visible');
+			}
+		},
+		
+		_hidePageLoadingOverlay: function() {
+			const overlay = document.getElementById('page-loading-overlay');
+			if (overlay) {
+				overlay.setAttribute('aria-hidden', 'true');
+				overlay.classList.remove('visible');
+			}
+		},
+		
 		_showSuccessOverlay: function() {
 			const overlay = document.getElementById('success-overlay');
 			if (overlay) {
@@ -1825,7 +1892,7 @@
 				}
 			}
 			
-			function updateOverlayProgress(current, total) {
+			function updateOverlayProgress(current, total, scale) {
 				if (overlay) {
 					const progressText = overlay.querySelector('.export-progress');
 					if (progressText) {
@@ -1878,8 +1945,44 @@
 				screenResolution: window.screen.width + 'x' + window.screen.height
 			});
 
+			// Calculate adaptive scale based on actual page width
+			// Reference: 794px width with scale 2 produces good quality
+			const REFERENCE_WIDTH = 794; // px
+			const BASE_SCALE = 2;
+			const MAX_SCALE = 5; // Maximum scale to prevent memory issues
+			
+			// Get actual rendered width of first page (after scaling/transform)
+			const firstPage = filteredPages[0];
+			let actualPageWidth = REFERENCE_WIDTH;
+			
+			if (firstPage) {
+				// Get the bounding box which reflects actual rendered size after transform
+				const rect = firstPage.getBoundingClientRect();
+				actualPageWidth = rect.width;
+				
+				// If page is wrapped in a container with transform, use that width
+				const pageWrap = firstPage.closest('.page-wrap');
+				if (pageWrap) {
+					const wrapRect = pageWrap.getBoundingClientRect();
+					actualPageWidth = wrapRect.width;
+				}
+			}
+			
+			// Calculate adaptive scale: scale up proportionally if page is smaller
+			let OPTIMAL_SCALE = BASE_SCALE * (REFERENCE_WIDTH / actualPageWidth);
+			
+			// Clamp scale to reasonable bounds
+			OPTIMAL_SCALE = Math.min(Math.max(OPTIMAL_SCALE, BASE_SCALE), MAX_SCALE);
+			
+			console.log('Scale Calculation:', {
+				actualPageWidth: actualPageWidth.toFixed(2) + 'px',
+				referenceWidth: REFERENCE_WIDTH + 'px',
+				baseScale: BASE_SCALE,
+				calculatedScale: (BASE_SCALE * (REFERENCE_WIDTH / actualPageWidth)).toFixed(2),
+				finalScale: OPTIMAL_SCALE.toFixed(2)
+			});
+
 			// Optimal settings for consistent quality across all devices
-			const OPTIMAL_SCALE = 3; // High quality baseline
 			const USE_PNG = true; // Lossless format
 			const CANVAS_TIMEOUT = 10000; // Even more time for slow devices
 			const PROCESS_DELAY = 200; // Longer delay between pages for better reliability
@@ -1924,180 +2027,75 @@
 					}
 					
 					// Update progress display (after checking if we're done)
-					updateOverlayProgress(processIndex + 1, filteredPages.length);
-					
-					const page = filteredPages[processIndex];
-					const pageNumber = processIndex + 1;
-					
-					console.log('Processing page ' + pageNumber + ' of ' + filteredPages.length);
-					
-					// Check if page exists and is visible
-					if (!page || !page.offsetParent) {
-						console.warn('Page ' + pageNumber + ' is not visible or does not exist');
-					}
-					
-					const clone = page.cloneNode(true);
-					
-					// Copy canvas content from original to clone with high fidelity
-					const originalCanvases = page.querySelectorAll('canvas');
-					const cloneCanvases = clone.querySelectorAll('canvas');
-					
-					for (let i = 0; i < originalCanvases.length && i < cloneCanvases.length; i++) {
-						try {
-							const originalCanvas = originalCanvases[i];
-							const cloneCanvas = cloneCanvases[i];
-							
-							// Preserve original dimensions
-							cloneCanvas.width = originalCanvas.width;
-							cloneCanvas.height = originalCanvas.height;
-							
-							// High quality canvas copy
-							const cloneCtx = cloneCanvas.getContext('2d', {
-								alpha: true,
-								desynchronized: false,
-								willReadFrequently: false
-							});
-							
-							// Disable smoothing for crisp rendering
-							cloneCtx.imageSmoothingEnabled = false;
-							cloneCtx.drawImage(originalCanvas, 0, 0);
-						} catch (e) {
-							console.warn('Could not copy canvas content:', e);
-						}
-					}
-					
-					// Position clone off-screen
-					clone.style.position = 'fixed';
-					clone.style.left = '-10000px';
-					clone.style.top = '0';
-					clone.style.margin = '0';
-					clone.style.transform = 'none';
-					clone.style.opacity = '1';
-					document.body.appendChild(clone);
-					
-					// Optimal html2canvas configuration
-					const html2canvasOptions = {
-						scale: OPTIMAL_SCALE,
-						useCORS: true,
-						allowTaint: false,
-						backgroundColor: '#ffffff',
-						imageTimeout: CANVAS_TIMEOUT,
-						logging: false,
-						// Quality-focused options
-						letterRendering: true,
-						foreignObjectRendering: false, // More reliable
-						removeContainer: false,
-						// Window sizing
-						windowWidth: clone.scrollWidth,
-						windowHeight: clone.scrollHeight,
-						// Canvas rendering options
-						onclone: function(clonedDoc) {
-							// Ensure all canvases are properly copied
-							const clonedCanvases = clonedDoc.querySelectorAll('canvas');
-							const origCanvases = page.querySelectorAll('canvas');
-							
-							for (let i = 0; i < origCanvases.length && i < clonedCanvases.length; i++) {
-								try {
-									const origCanvas = origCanvases[i];
-									const clonedCanvas = clonedCanvases[i];
-									
-									clonedCanvas.width = origCanvas.width;
-									clonedCanvas.height = origCanvas.height;
-									
-									const clonedCtx = clonedCanvas.getContext('2d', {
-										alpha: true,
-										desynchronized: false
-									});
-									
-									clonedCtx.imageSmoothingEnabled = false;
-									clonedCtx.drawImage(origCanvas, 0, 0);
-								} catch (e) {
-									console.warn('Could not copy canvas in onclone:', e);
-								}
-							}
-							
-							// Ensure all images are loaded
-							const imgs = clonedDoc.querySelectorAll('img');
-							imgs.forEach(function(img) {
-								if (!img.complete) {
-									// Force reload if not complete
-									const src = img.src;
-									img.src = '';
-									img.src = src;
-								}
-							});
-						}
-					};
-					
-					// Use html2canvas to render
-					window.html2canvas(clone, html2canvasOptions)
-						.then(function(canvas) {
-							console.log('Page ' + pageNumber + ' rendered successfully. Canvas size: ' + canvas.width + 'x' + canvas.height);
-							clone.remove();
-							
-							// Validate canvas
-							if (!canvas || canvas.width === 0 || canvas.height === 0) {
-								throw new Error('Invalid canvas generated for page ' + pageNumber);
-							}
-							
-							// Convert to high-quality image
-							const format = USE_PNG ? 'image/png' : 'image/jpeg';
-							const quality = USE_PNG ? 1.0 : 0.98;
-							const imgData = canvas.toDataURL(format, quality);
-							
-							// Validate image data
-							if (!imgData || imgData.length < 100) {
-								throw new Error('Invalid image data generated for page ' + pageNumber);
-							}
-							
-							const pdfWidth = 210; // mm (A4)
-							const pdfHeight = 297; // mm (A4)
-
-							if (processIndex > 0) pdf.addPage();
-							
-							// Add image with compression options for smaller file size
-							const compression = USE_PNG ? 'SLOW' : 'FAST';
-							pdf.addImage(
-								imgData, 
-								USE_PNG ? 'PNG' : 'JPEG', 
-								0, 
-								0, 
-								pdfWidth, 
-								pdfHeight,
-								undefined,
-								compression
-							);
-							
-							console.log('Page ' + pageNumber + ' added to PDF successfully');
-							processedPages.push(pageNumber);
-							processIndex++;
-							failedAttempts = 0; // Reset on success
-							
-							// Process next page with delay for resource cleanup
-							setTimeout(processNextPage, PROCESS_DELAY);
-						})
-						.catch(function(error) {
-							console.error('Error processing page ' + pageNumber, error);
-							clone.remove();
-							
-							// Retry logic for failed pages
-							if (failedAttempts < MAX_RETRIES) {
-								failedAttempts++;
-								console.log('Retrying page ' + pageNumber + ', attempt ' + failedAttempts + ' of ' + MAX_RETRIES);
-								setTimeout(processNextPage, PROCESS_DELAY * 3); // Longer delay on retry
-							} else {
-								// Skip failed page and continue
-								console.error('Skipping page ' + pageNumber + ' after ' + MAX_RETRIES + ' attempts');
-								failedPages.push(pageNumber);
-								processIndex++;
-								failedAttempts = 0;
-								setTimeout(processNextPage, PROCESS_DELAY);
-							}
-						});
-				}
+				updateOverlayProgress(processIndex + 1, filteredPages.length, OPTIMAL_SCALE.toFixed(2));
 				
-				processNextPage();
-			}, 50);
+				const page = filteredPages[processIndex];
+				const pageNumber = processIndex + 1;
+				
+				console.log('Processing page ' + pageNumber + ' of ' + filteredPages.length);
+
+				html2canvas(page, {
+					scale: OPTIMAL_SCALE,
+					useCORS: true,
+					allowTaint: true,
+					backgroundColor: '#ffffff',
+					imageTimeout: CANVAS_TIMEOUT,
+					logging: false,
+					letterRendering: true,
+					foreignObjectRendering: false
+				}).then(function(canvas) {
+					console.log('Page ' + pageNumber + ' rendered successfully. Canvas size: ' + canvas.width + 'x' + canvas.height);
+					
+					// Validate canvas
+					if (!canvas || canvas.width === 0 || canvas.height === 0) {
+						throw new Error('Invalid canvas generated for page ' + pageNumber);
+					}
+					
+					// Convert to high-quality image
+					const format = USE_PNG ? 'image/png' : 'image/jpeg';
+					const quality = 1.0;
+					const imgData = canvas.toDataURL(format, quality);
+					
+					// Validate image data
+					if (!imgData || imgData.length < 100) {
+						throw new Error('Invalid image data generated for page ' + pageNumber);
+					}
+					
+					const pdfWidth = 210; // mm (A4)
+					const pdfHeight = 297; // mm (A4)
+
+					if (processIndex > 0) pdf.addPage();
+					
+					pdf.addImage(imgData, USE_PNG ? 'PNG' : 'JPEG', 0, 0, pdfWidth, pdfHeight);
+					
+					console.log('Page ' + pageNumber + ' added to PDF successfully');
+					processedPages.push(pageNumber);
+					processIndex++;
+					failedAttempts = 0; // Reset on success
+					
+					// Process next page with delay for resource cleanup
+					setTimeout(processNextPage, PROCESS_DELAY);
+				}).catch(function(error) {
+					console.error('Error processing page ' + pageNumber, error);
+					
+					// Retry logic for failed pages
+					if (failedAttempts < MAX_RETRIES) {
+						failedAttempts++;
+						console.log('Retrying page ' + pageNumber + ', attempt ' + failedAttempts + ' of ' + MAX_RETRIES);
+						setTimeout(processNextPage, PROCESS_DELAY * 3); // Longer delay on retry
+					} else {
+						// Skip failed page and continue
+						console.error('Skipping page ' + pageNumber + ' after ' + MAX_RETRIES + ' attempts');
+						failedPages.push(pageNumber);
+						processIndex++;
+						failedAttempts = 0;
+						setTimeout(processNextPage, PROCESS_DELAY);
+					}
+				});
+			}
+			
+			processNextPage();
+		}, 50);
 		}
 	};
 

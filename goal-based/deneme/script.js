@@ -71,26 +71,33 @@
 			try {
 				this._setupContainer();
 				
+				if (this.config.toolbar.enabled) {
+					this._createToolbar();
+				}
+				
+				// Create and initialize modal
+				this._createModal();
+				this._initModal();
+				
+				// Create and initialize download dialog
+				this._createDownloadDialog();
+				this._initDownloadDialog();
+				
+				if (this.config.export.enabled) {
+					this._createExportOverlay();
+					this._createSuccessOverlay();
+				}
+				
+				// Create page loading overlay (must be created before render)
+				this._createPageLoadingOverlay();
+				
+				this._setupEventListeners();
+				
+				// Render exam data if provided (must be after overlay creation)
 				if (this.config.examData) {
 					this.render(this.config.examData);
 				}
 				
-			if (this.config.toolbar.enabled) {
-				this._createToolbar();
-			}
-			
-			// Create and initialize modal
-			this._createModal();
-			this._initModal();
-			
-			// Create and initialize download dialog
-			this._createDownloadDialog();
-			this._initDownloadDialog();
-			
-			if (this.config.export.enabled) {
-				this._createExportOverlay();
-				this._createSuccessOverlay();
-			}				this._setupEventListeners();
 				this.initialized = true;
 				return this;
 				
@@ -132,6 +139,9 @@
 			
 			this.examData = examData;
 			window._examData = examData;
+			
+			// Show loading overlay before rendering
+			this._showPageLoadingOverlay();
 			
 			return this._renderPDF(examData, this.container);
 		},
@@ -254,10 +264,31 @@
 					self._exportToPDF(includeAnswers);
 				}
 
-				// Scale pages to fit viewport on small screens
-				if (self.config.scaling.enabled) {
-					self._scalePagesToFit();
-				}
+				// Wait for all images to load before finalizing
+				const allImages = rootElement.querySelectorAll('img');
+				const imagePromises = Array.from(allImages).map(function(img) {
+					return new Promise(function(resolve) {
+						if (img.complete && img.naturalHeight !== 0) {
+							resolve();
+						} else {
+							img.addEventListener('load', resolve, { once: true });
+							img.addEventListener('error', resolve, { once: true });
+							setTimeout(resolve, 2000);
+						}
+					});
+				});
+				
+				Promise.all(imagePromises).then(function() {
+					// Scale pages to fit viewport on small screens
+					if (self.config.scaling.enabled) {
+						self._scalePagesToFit();
+					}
+					
+					// Hide page loading overlay after pages are rendered and scaled
+					setTimeout(function() {
+						self._hidePageLoadingOverlay();
+					}, 100);
+				});
 
 				// Trigger onLoad callback
 				if (self.config.onLoad && typeof self.config.onLoad === 'function') {
@@ -1038,7 +1069,20 @@
 				actions.appendChild(downloadBtn);
 			}
 
-			// Mobile icon-only buttons (match single-test; no Edit in deneme)
+			// Mobile icon-only buttons
+			// Mobile Edit button (icon-only, directly in toolbar like single-test)
+			const mobileEditIconBtn = this._createEl('button', 'btn btn-icon mobile-btn');
+			mobileEditIconBtn.id = 'mobile-edit-icon-btn';
+			mobileEditIconBtn.type = 'button';
+			mobileEditIconBtn.title = 'Düzenle';
+			mobileEditIconBtn.innerHTML = `
+				<svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" focusable="false">
+					<path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+					<path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+				</svg>
+				<span class="sr-only">Düzenle</span>`;
+			actions.appendChild(mobileEditIconBtn);
+			
 			if (this.config.toolbar.showHomework) {
 				const mobileHomeworkBtn = this._createEl('button', 'btn btn-icon mobile-btn');
 				mobileHomeworkBtn.id = 'mobile-homework-icon-btn';
@@ -1190,6 +1234,43 @@
 			if (overlay) {
 				overlay.setAttribute('aria-hidden', 'false');
 				overlay.classList.add('visible');
+			}
+		},
+		
+		_createPageLoadingOverlay: function() {
+			if (document.getElementById('page-loading-overlay')) return;
+			
+			const overlay = this._createEl('div', 'export-overlay');
+			overlay.id = 'page-loading-overlay';
+			overlay.setAttribute('aria-hidden', 'true');
+			
+			const inner = this._createEl('div', 'export-overlay-inner');
+			
+			const spinner = this._createEl('div', 'spinner');
+			
+			const msg = this._createEl('div', 'export-message');
+			msg.textContent = 'Sayfalar oluşturuluyor...';
+			
+			inner.appendChild(spinner);
+			inner.appendChild(msg);
+			overlay.appendChild(inner);
+			
+			document.body.appendChild(overlay);
+		},
+		
+		_showPageLoadingOverlay: function() {
+			const overlay = document.getElementById('page-loading-overlay');
+			if (overlay) {
+				overlay.setAttribute('aria-hidden', 'false');
+				overlay.classList.add('visible');
+			}
+		},
+		
+		_hidePageLoadingOverlay: function() {
+			const overlay = document.getElementById('page-loading-overlay');
+			if (overlay) {
+				overlay.setAttribute('aria-hidden', 'true');
+				overlay.classList.remove('visible');
 			}
 		},
 
@@ -1702,6 +1783,13 @@
 				}
 				openModal();
 			});
+			
+			// Mobile edit icon button (directly in toolbar)
+			const mobileEditIconBtn = document.getElementById('mobile-edit-icon-btn');
+			if (mobileEditIconBtn) {
+				mobileEditIconBtn.addEventListener('click', openModal);
+			}
+			
 			if (closeBtn) closeBtn.addEventListener('click', closeModal);
 			if (cancelBtn) cancelBtn.addEventListener('click', closeModal);
 			if (saveBtn) saveBtn.addEventListener('click', saveModal);
@@ -1943,7 +2031,7 @@
 				}
 			}
 
-			function updateOverlayProgress(current, total) {
+			function updateOverlayProgress(current, total, scale) {
 				if (overlay) {
 					const progressText = overlay.querySelector('.export-progress');
 					if (progressText) {
@@ -2005,9 +2093,45 @@
 				screenResolution: window.screen.width + 'x' + window.screen.height
 			});
 
+			// Calculate adaptive scale based on actual page width
+			// Reference: 794px width with scale 2 produces good quality
+			const REFERENCE_WIDTH = 794; // px
+			const BASE_SCALE = 2;
+			const MAX_SCALE = 5; // Maximum scale to prevent memory issues
+			
+			// Get actual rendered width of first page (after scaling/transform)
+			const firstPage = filteredPages[0];
+			let actualPageWidth = REFERENCE_WIDTH;
+			
+			if (firstPage) {
+				// Get the bounding box which reflects actual rendered size after transform
+				const rect = firstPage.getBoundingClientRect();
+				actualPageWidth = rect.width;
+				
+				// If page is wrapped in a container with transform, use that width
+				const pageWrap = firstPage.closest('.page-wrap');
+				if (pageWrap) {
+					const wrapRect = pageWrap.getBoundingClientRect();
+					actualPageWidth = wrapRect.width;
+				}
+			}
+			
+			// Calculate adaptive scale: scale up proportionally if page is smaller
+			let OPTIMAL_SCALE = BASE_SCALE * (REFERENCE_WIDTH / actualPageWidth);
+			
+			// Clamp scale to reasonable bounds
+			OPTIMAL_SCALE = Math.min(Math.max(OPTIMAL_SCALE, BASE_SCALE), MAX_SCALE);
+			
+			console.log('Scale Calculation:', {
+				actualPageWidth: actualPageWidth.toFixed(2) + 'px',
+				referenceWidth: REFERENCE_WIDTH + 'px',
+				baseScale: BASE_SCALE,
+				calculatedScale: (BASE_SCALE * (REFERENCE_WIDTH / actualPageWidth)).toFixed(2),
+				finalScale: OPTIMAL_SCALE.toFixed(2)
+			});
+
 			// Optimal settings
 			const USE_PNG = true;
-			const OPTIMAL_SCALE = 3; // High quality baseline for all devices
 			const CANVAS_TIMEOUT = 10000; // More time for slower devices
 			const PROCESS_DELAY = 150; // Delay between pages for better reliability
 
@@ -2065,7 +2189,7 @@
 						pdf.addImage(imgData, USE_PNG ? 'PNG' : 'JPEG', 0, 0, pdfWidth, pdfHeight);
 
 						processedCount++;
-						updateOverlayProgress(processedCount, filteredPages.length);
+						updateOverlayProgress(processedCount, filteredPages.length, OPTIMAL_SCALE.toFixed(2));
 
 						setTimeout(function() {
 							processPage(index + 1);
