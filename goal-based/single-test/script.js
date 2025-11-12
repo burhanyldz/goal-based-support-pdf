@@ -84,6 +84,7 @@
 		_hasAutoOpenedModalOnce: false,
 		_isRendering: false,
 		_pendingDownload: false,
+		_pendingDownloadIncludeAnswers: true, // Store the includeAnswers parameter for pending downloads
 		
 		/**
 		 * Initialize the plugin with configuration
@@ -109,6 +110,10 @@
 					this._createModal();
 					this._initModal();
 				}
+				
+				// Create and initialize download dialog
+				this._createDownloadDialog();
+				this._initDownloadDialog();
 				
 				if (this.config.export.enabled) {
 					this._createExportOverlay();
@@ -310,7 +315,9 @@
 				// If a download was requested during rendering, execute it now
 				if (self._pendingDownload) {
 					self._pendingDownload = false;
-					self._exportToPDF();
+					const includeAnswers = self._pendingDownloadIncludeAnswers;
+					self._pendingDownloadIncludeAnswers = true; // Reset to default
+					self._exportToPDF(includeAnswers);
 				}
 
 				// Auto-open modal on first load (configurable)
@@ -1374,6 +1381,74 @@
 			}
 		},
 
+		_createDownloadDialog: function() {
+			if (document.getElementById('download-dialog')) return;
+
+			const modalOverlay = this._createEl('div', 'modal-overlay');
+			modalOverlay.id = 'download-dialog';
+			modalOverlay.setAttribute('aria-hidden', 'true');
+
+			const modal = this._createEl('div', 'modal download-modal');
+			modal.setAttribute('role', 'dialog');
+			modal.setAttribute('aria-modal', 'true');
+
+			// header
+			const header = this._createEl('header', 'modal-header');
+			const h3 = this._createEl('h3');
+			h3.textContent = 'PDF İndir';
+			const closeBtn = this._createEl('button', 'modal-close');
+			closeBtn.id = 'download-dialog-close';
+			closeBtn.type = 'button';
+			closeBtn.setAttribute('aria-label', 'Kapat');
+			closeBtn.innerHTML = `
+				<svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+					<line x1="18" y1="6" x2="6" y2="18"></line>
+					<line x1="6" y1="6" x2="18" y2="18"></line>
+				</svg>
+			`;
+			header.appendChild(h3);
+			header.appendChild(closeBtn);
+
+			// body
+			const body = this._createEl('div', 'modal-body');
+			body.innerHTML = `
+				<div class="download-options">
+					<label class="radio-option">
+						<input type="radio" name="download-option" value="with-answers" checked>
+						<span class="radio-label">Cevap Anahtarı Dahil</span>
+					</label>
+					<label class="radio-option">
+						<input type="radio" name="download-option" value="without-answers">
+						<span class="radio-label">Cevap Anahtarı Hariç</span>
+					</label>
+				</div>
+			`;
+
+			// footer
+			const footer = this._createEl('div', 'modal-footer');
+			const cancelBtn = this._createEl('button', 'btn btn-secondary');
+			cancelBtn.id = 'download-dialog-cancel';
+			cancelBtn.type = 'button';
+			cancelBtn.textContent = 'İptal';
+			const downloadBtn = this._createEl('button', 'btn btn-primary');
+			downloadBtn.id = 'download-dialog-confirm';
+			downloadBtn.type = 'button';
+			downloadBtn.textContent = 'İndir';
+			footer.appendChild(cancelBtn);
+			footer.appendChild(downloadBtn);
+
+			modal.appendChild(header);
+			modal.appendChild(body);
+			modal.appendChild(footer);
+			modalOverlay.appendChild(modal);
+
+			if (this.container && this.container.parentNode) {
+				this.container.parentNode.insertBefore(modalOverlay, this.container);
+			} else {
+				document.body.appendChild(modalOverlay);
+			}
+		},
+
 		_initModal: function() {
 			const self = this;
 			const modal = document.getElementById('edit-modal');
@@ -1491,6 +1566,62 @@
 			});
 		},
 
+		_initDownloadDialog: function() {
+			const self = this;
+			const dialog = document.getElementById('download-dialog');
+			if (!dialog) return;
+
+			const closeBtn = document.getElementById('download-dialog-close');
+			const cancelBtn = document.getElementById('download-dialog-cancel');
+			const confirmBtn = document.getElementById('download-dialog-confirm');
+
+			function openDialog() {
+				dialog.setAttribute('aria-hidden', 'false');
+				dialog.classList.add('open');
+				document.body.classList.add('modal-open');
+				
+				// Reset to default selection
+				const defaultRadio = dialog.querySelector('input[value="with-answers"]');
+				if (defaultRadio) defaultRadio.checked = true;
+			}
+
+			function closeDialog() {
+				dialog.setAttribute('aria-hidden', 'true');
+				dialog.classList.remove('open');
+				document.body.classList.remove('modal-open');
+			}
+
+			if (closeBtn) {
+				closeBtn.addEventListener('click', closeDialog);
+			}
+
+			if (cancelBtn) {
+				cancelBtn.addEventListener('click', closeDialog);
+			}
+
+			if (confirmBtn) {
+				confirmBtn.addEventListener('click', function() {
+					const selectedOption = dialog.querySelector('input[name="download-option"]:checked');
+					const includeAnswers = selectedOption && selectedOption.value === 'with-answers';
+					
+					closeDialog();
+					self._exportToPDF(includeAnswers);
+				});
+			}
+
+			// Store reference to open function for use in event listeners
+			self._openDownloadDialog = openDialog;
+
+			// Close on outside click or ESC
+			dialog.addEventListener('click', function(e) {
+				if (e.target === dialog) closeDialog();
+			});
+			
+			document.addEventListener('keydown', function(e) {
+				if (e.key === 'Escape' && dialog.classList.contains('open')) closeDialog();
+			});
+		},
+
 		_setupEventListeners: function() {
 			const self = this;
 
@@ -1518,7 +1649,9 @@
 			const downloadBtn = document.getElementById('download-pdf-btn');
 			if (downloadBtn) {
 				downloadBtn.addEventListener('click', function() {
-					self._exportToPDF();
+					if (self._openDownloadDialog) {
+						self._openDownloadDialog();
+					}
 				});
 			}
 
@@ -1576,8 +1709,10 @@
 				const contextDownloadBtn = mobileContextMenu.querySelector('#mobile-download-btn');
 				if (contextDownloadBtn) {
 					contextDownloadBtn.addEventListener('click', function() {
-						self._exportToPDF();
 						mobileContextMenu.classList.remove('show');
+						if (self._openDownloadDialog) {
+							self._openDownloadDialog();
+						}
 					});
 				}
 
@@ -1636,7 +1771,7 @@
 		},
 
 		// PDF export functionality
-		_exportToPDF: function() {
+		_exportToPDF: function(includeAnswers = true) {
 			const self = this;
 			
 			// Set download button to loading state and replace icon with spinner
@@ -1664,6 +1799,7 @@
 			// If rendering is still in progress, queue the download and wait
 			if (this._isRendering) {
 				this._pendingDownload = true;
+				this._pendingDownloadIncludeAnswers = includeAnswers;
 				return;
 			}
 			
@@ -1711,7 +1847,15 @@
 			}
 
 			const pages = Array.from(document.querySelectorAll('.page'));
-			if (!pages.length) {
+			
+			// Filter out answer key pages if not included
+			const filteredPages = includeAnswers 
+				? pages 
+				: pages.filter(function(page) {
+					return !page.classList.contains('answer-key');
+				});
+			
+			if (!filteredPages.length) {
 				alert('PDF için sayfa bulunamadı.');
 				return;
 			}
@@ -1719,7 +1863,7 @@
 			showOverlay();
 			
 			// Debugging: Log export start
-			console.log('PDF Export Started: ' + pages.length + ' pages total');
+			console.log('PDF Export Started: ' + filteredPages.length + ' pages total (includeAnswers: ' + includeAnswers + ')');
 			console.log('Device Info:', {
 				userAgent: navigator.userAgent,
 				devicePixelRatio: window.devicePixelRatio,
@@ -1750,7 +1894,7 @@
 				const failedPages = [];
 				
 				function processNextPage() {
-					if (processIndex >= pages.length) {
+					if (processIndex >= filteredPages.length) {
 					// All done
 					pdf.save(self.config.export.filename);
 					hideOverlay();
@@ -1774,12 +1918,12 @@
 					}
 					
 					// Update progress display (after checking if we're done)
-					updateOverlayProgress(processIndex + 1, pages.length);
+					updateOverlayProgress(processIndex + 1, filteredPages.length);
 					
-					const page = pages[processIndex];
+					const page = filteredPages[processIndex];
 					const pageNumber = processIndex + 1;
 					
-					console.log('Processing page ' + pageNumber + ' of ' + pages.length);
+					console.log('Processing page ' + pageNumber + ' of ' + filteredPages.length);
 					
 					// Check if page exists and is visible
 					if (!page || !page.offsetParent) {

@@ -421,6 +421,55 @@
   overflow: hidden;
 }
 
+/* Download Dialog Styles */
+.download-modal {
+  max-width: 450px;
+}
+
+.download-options {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.radio-option {
+  display: flex;
+  flex-direction: row !important;
+  align-items: center;
+  gap: 12px;
+  padding: 14px 16px;
+  border: 2px solid #ddd;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+.radio-option:hover {
+  border-color: var(--primary-color);
+  background: rgba(var(--primary-color-rgb, 147, 111, 183), 0.04);
+}
+.radio-option input[type=radio] {
+  width: 20px;
+  height: 20px;
+  margin: 0;
+  cursor: pointer;
+  accent-color: var(--primary-color);
+}
+.radio-option .radio-label {
+  font-size: 15px;
+  font-weight: 500;
+  color: #333;
+  cursor: pointer;
+  flex: 1;
+}
+.radio-option:has(input[type=radio]:checked) {
+  border-color: var(--primary-color);
+  background: rgba(var(--primary-color-rgb, 147, 111, 183), 0.08);
+}
+.radio-option:has(input[type=radio]:checked) .radio-label {
+  color: var(--primary-color);
+  font-weight: 600;
+}
+
 .page {
   background-color: #ffffff;
   border-radius: 1mm;
