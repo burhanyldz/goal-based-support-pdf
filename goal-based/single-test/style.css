@@ -548,6 +548,10 @@
   align-items: flex-start;
   justify-content: flex-end;
 }
+.page .content .left-column .question.math-question,
+.page .content .right-column .question.math-question {
+  padding-bottom: 40mm !important;
+}
 .page .content .left-column .question .question-number,
 .page .content .right-column .question .question-number {
   font-size: 3.5mm;

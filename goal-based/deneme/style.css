@@ -876,6 +876,10 @@ li {
   align-items: flex-start;
   justify-content: flex-end;
 }
+.page.first-page .content .left-column .question.math-question,
+.page.first-page .content .right-column .question.math-question {
+  padding-bottom: 50mm !important;
+}
 .page.first-page .content .left-column .question .question-number,
 .page.first-page .content .right-column .question .question-number {
   font-size: 3.5mm;
@@ -1005,6 +1009,10 @@ li {
   flex-direction: row;
   align-items: flex-start;
   justify-content: flex-end;
+}
+.page:not(.cover-page):not(.first-page):not(.answer-key) .content .left-column .question.math-question,
+.page:not(.cover-page):not(.first-page):not(.answer-key) .content .right-column .question.math-question {
+  padding-bottom: 40mm !important;
 }
 .page:not(.cover-page):not(.first-page):not(.answer-key) .content .left-column .question .question-number,
 .page:not(.cover-page):not(.first-page):not(.answer-key) .content .right-column .question .question-number {

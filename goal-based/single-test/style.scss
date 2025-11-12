@@ -593,6 +593,10 @@ $ydt-color: #e46664;
         align-items: flex-start;
         justify-content: flex-end;
 
+        &.math-question {
+          padding-bottom: 40mm !important;
+        }
+
         .question-number {
           font-size: 3.5mm;
           font-weight: 600;

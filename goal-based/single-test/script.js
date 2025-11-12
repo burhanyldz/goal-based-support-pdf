@@ -844,6 +844,12 @@
 					// create element, crop the source and set src before appending
 					const questionEl = self._createQuestionElement(q);
 					
+					// Check if this is a math test and add class for extra padding
+					const lessonName = pagesState.data.lessonName || '';
+					if (lessonName.toLowerCase().includes('matematik')) {
+						questionEl.wrapper.classList.add('math-question');
+					}
+					
 					self._cropImageWhitespace(questionEl.originalSrc).then(function(croppedSrc) {
 						const finalSrc = croppedSrc || questionEl.originalSrc;
 						questionEl.img.src = finalSrc;
