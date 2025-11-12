@@ -63,7 +63,8 @@
 		currentTestType: null,
 		_isRendering: false,
 		_pendingDownload: false,
-		
+		_pendingDownloadIncludeAnswers: true, // Store the includeAnswers parameter for pending downloads
+
 		init: function(options = {}) {
 			this.config = this._mergeConfig(defaultConfig, options);
 			
@@ -81,6 +82,10 @@
 			// Create and initialize modal
 			this._createModal();
 			this._initModal();
+			
+			// Create and initialize download dialog
+			this._createDownloadDialog();
+			this._initDownloadDialog();
 			
 			if (this.config.export.enabled) {
 				this._createExportOverlay();
@@ -244,7 +249,9 @@
 				// If a download was requested during rendering, execute it now
 				if (self._pendingDownload) {
 					self._pendingDownload = false;
-					self._exportToPDF();
+					const includeAnswers = self._pendingDownloadIncludeAnswers;
+					self._pendingDownloadIncludeAnswers = true; // Reset to default
+					self._exportToPDF(includeAnswers);
 				}
 
 				// Scale pages to fit viewport on small screens
@@ -308,9 +315,13 @@
 				page.innerHTML = `
 					<img src="images/${imageFilename}" alt="${testType.toUpperCase()} Kapak ${pageNumber}" class="cover-image">
 					<div id="school-name" class="school-name"></div>
+					<div id="legal-notice" class="legal-notice">
+						“MEBİ Bireysel Öğrenme Platformu” üzerinden hazırlanan bu yayının, yalnızca eğitim-öğretim faaliyetlerinde kullanılması esastır. Bu yayının herhangi bir şekilde ticari amaçla çoğaltılması, satılması, dağıtılması, kullanılması veya tanıtım amacıyla paylaşılması, 5846 sayılı Fikir ve Sanat Eserleri Kanunu ve ilgili mevzuat hükümleri uyarınca hukuka aykırıdır. Aykırı kullanım tespiti hâlinde, ilgililer hakkında gerekli idari ve hukuki işlemler başlatılacaktır.
+					</div>
 					<div class="qr-code-container">
 						<div class="qr-code"></div>
 					</div>
+					<div class="deneme-number">${this.examData && this.examData.denemeNumber ? this.examData.denemeNumber + '. DENEME' : ''}</div>
 				`;
 				if (this.examData && this.examData.attentionCandidate) {
 					page.innerHTML += `
@@ -361,6 +372,7 @@
 			page.innerHTML = `
 				<div class="header">
 					<div class="test-title" style="color: ${testColor.primary};">${this._toUpperCaseTR(this._escapeHtml(testName))} TESTİ</div>
+					<div class="deneme-number">${this.examData && this.examData.denemeNumber ? this.examData.denemeNumber + '. Deneme' : ''}</div>
                     <div class="test-info-bar" style="border-top: .7mm solid ${testColor.primary}; border-bottom: .7mm solid ${testColor.primary};">
 						<div class="dark-ribbon" style="background: ${testColor.primary};"></div>
 						<div class="high-ribbon-left" style="background: ${testColor.secondary};"></div>
@@ -388,6 +400,7 @@
 					<div class="light-ribbon" style="background: ${testColor.secondary};"></div>
 				</div>
 				<div class="footer-test-name">${testTypeUpper} - ${this._toUpperCaseTR(this._escapeHtml(testName))} TESTİ</div>
+				<div class="footer-school-name">${this.examData && this.examData.schoolName ? this._escapeHtml(this.examData.schoolName) : ''}</div>
 			</div>
 		`;
 		
@@ -403,9 +416,9 @@
 		const testTypeUpper = this.currentTestType ? this.currentTestType.toUpperCase() : '';
 		const testName = test.name || '';			page.innerHTML = `
 				<div class="header">
-					<div class="header-left">YKS DENEMELERİ</div>
+					<div class="header-left">OKUL YKS DENEMESİ</div>
 					<div class="header-center">Ortaöğretim Genel Müdürlüğü</div>
-					<div class="header-right">${this._escapeHtml(this.examData.denemeName || '')}</div>
+					<div class="header-right">${this.examData.denemeNumber ? this.examData.denemeNumber + '. Deneme' : ''}</div>
 				</div>
 				<div class="content">
 					<div class="left-column"></div>
@@ -420,6 +433,7 @@
 						<div class="light-ribbon" style="background: ${testColor.secondary};"></div>
 					</div>
 					<div class="footer-test-name">${testTypeUpper} - ${this._toUpperCaseTR(this._escapeHtml(testName))} TESTİ</div>
+					<div class="footer-school-name">${this.examData && this.examData.schoolName ? this._escapeHtml(this.examData.schoolName) : ''}</div>
 				</div>
 			`;
 			
@@ -1203,8 +1217,8 @@
 			const body = this._createEl('div', 'modal-body');
 			body.innerHTML = `
 				<div class="form-group">
-					<label for="input-denemeName">Deneme Başlığı</label>
-					<input id="input-denemeName" type="text" placeholder="Deneme başlığı" maxlength="100">
+					<label for="input-denemeNumber">Deneme Sayısı</label>
+					<input id="input-denemeNumber" type="number" placeholder="1" min="1" max="999" step="1">
 				</div>
 				<div class="form-group">
 					<label for="wysiwyg-attentionCandidate">Adayın Dikkatine metni</label>
@@ -1365,6 +1379,74 @@
 			}
 		},
 
+		_createDownloadDialog: function() {
+			if (document.getElementById('download-dialog')) return;
+
+			const modalOverlay = this._createEl('div', 'modal-overlay');
+			modalOverlay.id = 'download-dialog';
+			modalOverlay.setAttribute('aria-hidden', 'true');
+
+			const modal = this._createEl('div', 'modal download-modal');
+			modal.setAttribute('role', 'dialog');
+			modal.setAttribute('aria-modal', 'true');
+
+			// header
+			const header = this._createEl('header', 'modal-header');
+			const h3 = this._createEl('h3');
+			h3.textContent = 'PDF İndir';
+			const closeBtn = this._createEl('button', 'modal-close');
+			closeBtn.id = 'download-dialog-close';
+			closeBtn.type = 'button';
+			closeBtn.setAttribute('aria-label', 'Kapat');
+			closeBtn.innerHTML = `
+				<svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+					<line x1="18" y1="6" x2="6" y2="18"></line>
+					<line x1="6" y1="6" x2="18" y2="18"></line>
+				</svg>
+			`;
+			header.appendChild(h3);
+			header.appendChild(closeBtn);
+
+			// body
+			const body = this._createEl('div', 'modal-body');
+			body.innerHTML = `
+				<div class="download-options">
+					<label class="radio-option">
+						<input type="radio" name="download-option" value="with-answers" checked>
+						<span class="radio-label">Cevap Anahtarı Dahil</span>
+					</label>
+					<label class="radio-option">
+						<input type="radio" name="download-option" value="without-answers">
+						<span class="radio-label">Cevap Anahtarı Hariç</span>
+					</label>
+				</div>
+			`;
+
+			// footer
+			const footer = this._createEl('div', 'modal-footer');
+			const cancelBtn = this._createEl('button', 'btn btn-secondary');
+			cancelBtn.id = 'download-dialog-cancel';
+			cancelBtn.type = 'button';
+			cancelBtn.textContent = 'İptal';
+			const downloadBtn = this._createEl('button', 'btn btn-primary');
+			downloadBtn.id = 'download-dialog-confirm';
+			downloadBtn.type = 'button';
+			downloadBtn.textContent = 'İndir';
+			footer.appendChild(cancelBtn);
+			footer.appendChild(downloadBtn);
+
+			modal.appendChild(header);
+			modal.appendChild(body);
+			modal.appendChild(footer);
+			modalOverlay.appendChild(modal);
+
+			if (this.container && this.container.parentNode) {
+				this.container.parentNode.insertBefore(modalOverlay, this.container);
+			} else {
+				document.body.appendChild(modalOverlay);
+			}
+		},
+
 		_initModal: function() {
 			const self = this;
 			const modal = document.getElementById('edit-modal');
@@ -1375,6 +1457,41 @@
 			const closeBtn = document.getElementById('edit-modal-close');
 			const cancelBtn = document.getElementById('modal-cancel');
 			const saveBtn = document.getElementById('modal-save');
+
+			// Number input validation - only allow numbers, no spaces
+			const inputDenemeNumber = document.getElementById('input-denemeNumber');
+			if (inputDenemeNumber) {
+				inputDenemeNumber.addEventListener('input', function(e) {
+					// Remove any non-digit characters
+					this.value = this.value.replace(/\D/g, '');
+					
+					// Enforce min/max
+					const num = parseInt(this.value, 10);
+					if (!isNaN(num)) {
+						if (num < 1) this.value = '1';
+						if (num > 999) this.value = '999';
+					}
+				});
+				
+				inputDenemeNumber.addEventListener('keypress', function(e) {
+					// Only allow digits
+					if (!/^\d$/.test(e.key) && !['Backspace', 'Delete', 'ArrowLeft', 'ArrowRight', 'Tab'].includes(e.key)) {
+						e.preventDefault();
+					}
+				});
+				
+				inputDenemeNumber.addEventListener('paste', function(e) {
+					e.preventDefault();
+					const pastedText = (e.clipboardData || window.clipboardData).getData('text');
+					const digitsOnly = pastedText.replace(/\D/g, '');
+					if (digitsOnly) {
+						const num = parseInt(digitsOnly, 10);
+						if (num >= 1 && num <= 999) {
+							this.value = num.toString();
+						}
+					}
+				});
+			}
 
 			// Setup WYSIWYG toolbars
 			try {
@@ -1498,12 +1615,14 @@
 			function openModal() {
 				const data = self.examData || {};
 				
-				const inputDenemeName = document.getElementById('input-denemeName');
+				const inputDenemeNumber = document.getElementById('input-denemeNumber');
 				const wysiwygAttentionCandidate = document.getElementById('wysiwyg-attentionCandidate');
 				const wysiwygAttention = document.getElementById('wysiwyg-attention');
 				const wysiwygDenemeInstructions = document.getElementById('wysiwyg-denemeInstructions');
 
-				if (inputDenemeName) inputDenemeName.value = data.denemeName || '';
+				if (inputDenemeNumber) {
+					inputDenemeNumber.value = data.denemeNumber || 1;
+				}
 				
 				// Set HTML content directly (already formatted)
 				if (wysiwygAttentionCandidate) {
@@ -1520,7 +1639,7 @@
 				modal.classList.add('open');
 				document.body.classList.add('modal-open');
 				
-				if (inputDenemeName) inputDenemeName.focus();
+				if (inputDenemeNumber) inputDenemeNumber.focus();
 			}
 
 			function closeModal() {
@@ -1530,14 +1649,22 @@
 			}
 
 		function saveModal() {
-			const inputDenemeName = document.getElementById('input-denemeName');
+			const inputDenemeNumber = document.getElementById('input-denemeNumber');
 			const wysiwygAttentionCandidate = document.getElementById('wysiwyg-attentionCandidate');
 			const wysiwygAttention = document.getElementById('wysiwyg-attention');
 			const wysiwygDenemeInstructions = document.getElementById('wysiwyg-denemeInstructions');
 
 			const oldData = JSON.parse(JSON.stringify(self.examData || {}));
 			
-			if (inputDenemeName) self.examData.denemeName = inputDenemeName.value.trim();
+			if (inputDenemeNumber) {
+				const numValue = parseInt(inputDenemeNumber.value, 10);
+				if (!isNaN(numValue) && numValue >= 1 && numValue <= 999) {
+					self.examData.denemeNumber = numValue;
+				} else {
+					// Reset to default if invalid
+					self.examData.denemeNumber = 1;
+				}
+			}
 			
 			// Save HTML content with formatting preserved
 			if (wysiwygAttentionCandidate) {
@@ -1583,6 +1710,65 @@
 			});
 		},
 
+		_initDownloadDialog: function() {
+			const self = this;
+			const dialog = document.getElementById('download-dialog');
+			if (!dialog) return;
+
+			const closeBtn = document.getElementById('download-dialog-close');
+			const cancelBtn = document.getElementById('download-dialog-cancel');
+			const confirmBtn = document.getElementById('download-dialog-confirm');
+
+			function openDialog() {
+				dialog.setAttribute('aria-hidden', 'false');
+				dialog.classList.add('open');
+				document.body.classList.add('modal-open');
+				
+				// Reset to default selection
+				const defaultRadio = dialog.querySelector('input[value="with-answers"]');
+				if (defaultRadio) defaultRadio.checked = true;
+			}
+
+			function closeDialog() {
+				dialog.setAttribute('aria-hidden', 'true');
+				dialog.classList.remove('open');
+				document.body.classList.remove('modal-open');
+			}
+
+			if (closeBtn) {
+				closeBtn.addEventListener('click', closeDialog);
+			}
+
+			if (cancelBtn) {
+				cancelBtn.addEventListener('click', closeDialog);
+			}
+
+			if (confirmBtn) {
+				confirmBtn.addEventListener('click', function() {
+					const selectedOption = dialog.querySelector('input[name="download-option"]:checked');
+					const includeAnswers = selectedOption && selectedOption.value === 'with-answers';
+					
+					console.log('Download dialog - Selected option:', selectedOption ? selectedOption.value : 'none');
+					console.log('Download dialog - Include answers:', includeAnswers);
+					
+					closeDialog();
+					self._exportToPDF(includeAnswers);
+				});
+			}
+
+			// Store reference to open function for use in event listeners
+			self._openDownloadDialog = openDialog;
+
+			// Close on outside click or ESC
+			dialog.addEventListener('click', function(e) {
+				if (e.target === dialog) closeDialog();
+			});
+			
+			document.addEventListener('keydown', function(e) {
+				if (e.key === 'Escape' && dialog.classList.contains('open')) closeDialog();
+			});
+		},
+
 		_setupEventListeners: function() {
 			const self = this;
 
@@ -1607,7 +1793,9 @@
 			const downloadBtn = document.getElementById('download-pdf-btn');
 			if (downloadBtn) {
 				downloadBtn.addEventListener('click', function() {
-					self._exportToPDF();
+					if (self._openDownloadDialog) {
+						self._openDownloadDialog();
+					}
 				});
 			}
 
@@ -1661,7 +1849,9 @@
 						contextMenu.setAttribute('aria-hidden', 'true');
 						contextMenu.classList.remove('show');
 					}
-					self._exportToPDF();
+					if (self._openDownloadDialog) {
+						self._openDownloadDialog();
+					}
 				});
 			}
 
@@ -1685,7 +1875,7 @@
 			});
 		},
 
-		_exportToPDF: function() {
+		_exportToPDF: function(includeAnswers = true) {
 			const self = this;
 			
 			// Set download button to loading state and replace icon with spinner
@@ -1727,6 +1917,7 @@
 			// If rendering is still in progress, queue the download and wait
 			if (this._isRendering) {
 				this._pendingDownload = true;
+				this._pendingDownloadIncludeAnswers = includeAnswers;
 				return;
 			}
 			
@@ -1774,7 +1965,24 @@
 			}
 
 			const pages = Array.from(document.querySelectorAll('.page'));
-			if (!pages.length) {
+			
+			console.log('Total pages before filter:', pages.length);
+			console.log('Include answers parameter:', includeAnswers);
+			
+			// Filter out answer key pages if not included
+			const filteredPages = includeAnswers 
+				? pages 
+				: pages.filter(function(page) {
+					const hasAnswerKey = page.classList.contains('answer-key');
+					if (hasAnswerKey) {
+						console.log('Filtering out answer key page:', page);
+					}
+					return !hasAnswerKey;
+				});
+			
+			console.log('Total pages after filter:', filteredPages.length);
+			
+			if (!filteredPages.length) {
 				alert('PDF için sayfa bulunamadı.');
 				return;
 			}
@@ -1782,7 +1990,7 @@
 			showOverlay();
 
 			// Debugging: Log export start
-			console.log('PDF Export Started: ' + pages.length + ' pages total');
+			console.log('PDF Export Started: ' + filteredPages.length + ' pages total (includeAnswers: ' + includeAnswers + ')');
 			console.log('Device Info:', {
 				userAgent: navigator.userAgent,
 				devicePixelRatio: window.devicePixelRatio,
@@ -1802,7 +2010,7 @@
 				let processedCount = 0;
 
 				function processPage(index) {
-					if (index >= pages.length) {
+					if (index >= filteredPages.length) {
 						pdf.save(self.config.export.filename);
 						hideOverlay();
 						self._showSuccessOverlay();
@@ -1831,7 +2039,7 @@
 						return;
 					}
 
-					const page = pages[index];
+					const page = filteredPages[index];
 
 					html2canvas(page, {
 						scale: 2,
@@ -1845,7 +2053,7 @@
 						pdf.addImage(imgData, USE_PNG ? 'PNG' : 'JPEG', 0, 0, pdfWidth, pdfHeight);
 
 						processedCount++;
-						updateOverlayProgress(processedCount, pages.length);
+						updateOverlayProgress(processedCount, filteredPages.length);
 
 						setTimeout(function() {
 							processPage(index + 1);

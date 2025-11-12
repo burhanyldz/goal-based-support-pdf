@@ -1,6 +1,6 @@
 {
     "qrCodeUrl": "https://mebi.eba.gov.tr/student/goal-based-assignments/qr-details/fa98fd23-3a6e-4b98-b4c0-08de0afa1260",
-    "schoolName": "Yozgat Nida Tüfekçi Güzel Sanatlar Lisesi",
+    "schoolName": "Melikgazi Belediyesi Mehmet Altun Havacılık ve Uzay Teknolojileri Mesleki ve Teknik Anadolu Lisesi",
     "testType": "ydt",
     "availableTestTypes": [
         "tyt",
@@ -9,7 +9,7 @@
     ],
     "attentionCandidate": "<ol><li>Bu sınavda YDT soru dağılımları dikkate alınmıştır. </li><li>Deneme tam kapsam oluş YDT konularının tamamını kapsamaktadır.</li><li>Bu sınav 80 soru içermektedir.</li></ol>",
     "denemeInstructions": "<ol><li>Bu kitapçıkta 80 soru bulunmaktadır.</li><li>Bu sınav için verilen cevaplama süresi <b>120 dakikadır (2 saat)</b>.</li><li><b>Bu sınavda her testteki doğru cevaplarınızın sayısından yanlış cevaplarınızın sayısının dörtte biri çıkarılacak ve kalan sayı o bölümle ilgili ham puanınız olacaktır.</b></li><li>Kitapçığın sayfalarındaki boş yerleri müsvedde için kullanabilirsiniz.</li><li>Cevaplamaya istediğiniz sorudan başlayabilirsiniz. Bir soru ile ilgili cevabınızı, cevap kâğıdında o soru için ayrılmış olan yere işaretlemeyi unutmayınız.</li><li>Bu kitapçıkta yer alan her sorunun sadece bir doğru cevabı vardır. Cevap kâğıdında bir soru için birden çok cevap yeri işaretlenmişse o soru yanlış cevaplanmış sayılacaktır. İşaretlediğiniz bir cevabı değiştirmek istediğinizde silme işlemini çok iyi yapmanız gerektiğini unutmayınız.</li></ol>",
-    "denemeName": "Deneme - 1",
+    "denemeNumber": 1,
     "tests": [
         {
             "name": "İngilizce",

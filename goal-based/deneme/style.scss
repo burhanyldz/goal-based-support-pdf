@@ -474,7 +474,8 @@ li {
     font-weight: 600;
   }
 
-  input[type="text"] {
+  input[type="text"],
+  input[type="number"] {
     padding: 10px 12px;
     border: 1px solid #ddd;
     border-radius: 6px;
@@ -516,6 +517,59 @@ li {
 
 .modal-open {
   overflow: hidden;
+}
+
+/* Download Dialog Styles */
+.download-modal {
+  max-width: 450px;
+}
+
+.download-options {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.radio-option {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 14px 16px;
+  border: 2px solid #ddd;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  
+  &:hover {
+    border-color: var(--primary-color);
+    background: rgba(var(--primary-color-rgb, 147, 111, 183), 0.04);
+  }
+
+  input[type="radio"] {
+    width: 20px;
+    height: 20px;
+    margin: 0;
+    cursor: pointer;
+    accent-color: var(--primary-color);
+  }
+
+  .radio-label {
+    font-size: 15px;
+    font-weight: 500;
+    color: #333;
+    cursor: pointer;
+    flex: 1;
+  }
+
+  &:has(input[type="radio"]:checked) {
+    border-color: var(--primary-color);
+    background: rgba(var(--primary-color-rgb, 147, 111, 183), 0.08);
+    
+    .radio-label {
+      color: var(--primary-color);
+      font-weight: 600;
+    }
+  }
 }
 
 /* WYSIWYG Editor Styles */
@@ -664,11 +718,11 @@ li {
 
   .qr-code-container {
     position: absolute;
-    top: 56%;
+    top: 51.3%;
     left: 50%;
     transform: translate(-50%, -50%);
-    width: 34mm;
-    height: 34mm;
+    width: 30mm;
+    height: 30mm;
     background: rgba(255, 255, 255, 0.95);
     z-index: 10;
 
@@ -685,8 +739,8 @@ li {
 
   .school-name {
     position: absolute;
-    top: 198.5mm;
-    left: 64mm;
+    top: 201mm;
+    left: 55mm;
     font-size: 4.5mm;
     max-width: 150mm;
     height: 10mm;
@@ -696,9 +750,32 @@ li {
     font-family: 'Arial', Gadget, sans-serif;
   }
 
+  .legal-notice{
+    position: absolute;
+    bottom: 8mm;
+    left: 35mm;
+    width: 170mm;
+    font-size: 3mm;
+    font-family: 'Arial', Gadget, sans-serif;
+    color: #333;
+    line-height: 3.5mm;
+    text-align: justify;
+  }
+
+  .deneme-number {
+    position: absolute;
+    top: 171.5mm;
+    width: 210mm;
+    font-size: 5.5mm;
+    font-family: "Arial", Gadget, sans-serif;
+    font-weight: bold;
+    text-align: center;
+    color: white;
+  }
+
   .attention-candidate {
     position: absolute;
-    top: 227mm;
+    top: 230mm;
     font-family: Arial;
     font-size: 3.45mm;
     width: 190mm;
@@ -767,6 +844,18 @@ li {
       font-size: 4.3mm;
       font-family: 'Arial Black', Gadget, sans-serif;
       font-weight: bold;
+    }
+
+    .deneme-number {
+      position: absolute;
+      top: 5mm;
+      right: 10mm;
+      width: 30mm;
+      text-align: right;
+      font-weight: bold;
+      font-size: 3.5mm;
+      margin-top: 0.5mm;
+      font-family: "Arial", Gadget, sans-serif;
     }
 
     .test-info-bar {
@@ -972,6 +1061,13 @@ li {
       width: 1.5mm;
     }
   }
+
+  .footer-school-name {
+    font-size: 3mm;
+    color: #666666;
+    position: absolute;
+    bottom: 4mm;
+  }
 }
 
 /* Normal pages header */
@@ -1082,6 +1178,11 @@ li {
       top: 0.5mm;
     }
 
+    .footer-school-name {
+      right: auto;
+      left: 14mm;
+    }
+
     .footer-page-number {
       right: 2mm;
     }
@@ -1102,6 +1203,11 @@ li {
     .footer-test-name {
       right: 14mm;
       top: 0.5mm;
+    }
+
+    .footer-school-name {
+      left: auto;
+      right: 14mm;
     }
 
     .footer-page-number {
