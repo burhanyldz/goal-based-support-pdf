@@ -2007,6 +2007,9 @@
 
 			// Optimal settings
 			const USE_PNG = true;
+			const OPTIMAL_SCALE = 3; // High quality baseline for all devices
+			const CANVAS_TIMEOUT = 10000; // More time for slower devices
+			const PROCESS_DELAY = 150; // Delay between pages for better reliability
 
 			setTimeout(function() {
 				const pdf = new jsPDF({ unit: 'mm', format: 'a4', compress: true, precision: 16 });
@@ -2048,11 +2051,14 @@
 					const page = filteredPages[index];
 
 					html2canvas(page, {
-						scale: 2,
+						scale: OPTIMAL_SCALE,
 						useCORS: true,
 						allowTaint: true,
 						backgroundColor: '#ffffff',
-						logging: false
+						imageTimeout: CANVAS_TIMEOUT,
+						logging: false,
+						letterRendering: true,
+						foreignObjectRendering: false
 					}).then(function(canvas) {
 						const imgData = canvas.toDataURL(USE_PNG ? 'image/png' : 'image/jpeg', 1.0);
 						if (index > 0) pdf.addPage();
@@ -2063,7 +2069,7 @@
 
 						setTimeout(function() {
 							processPage(index + 1);
-						}, 100);
+						}, PROCESS_DELAY);
 					}).catch(function(error) {
 						console.error('Canvas error:', error);
 						processPage(index + 1);
