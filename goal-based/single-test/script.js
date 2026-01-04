@@ -1290,6 +1290,12 @@
 		// body
 		const body = this._createEl('div', 'modal-body');
 		body.innerHTML = `
+			<label id="label-schoolName" style="display: none;">
+				Okul Adı
+				<select id="select-schoolName">
+					<!-- options populated dynamically -->
+				</select>
+			</label>
 			<label>
 				Ders Adı
 				<input id="input-lessonName" type="text" placeholder="Ders adı">
@@ -1535,11 +1541,33 @@
 		function openModal() {
 			const data = self.data || {};
 			
+			const labelSchool = document.getElementById('label-schoolName');
+			const selectSchool = document.getElementById('select-schoolName');
 			const inputLesson = document.getElementById('input-lessonName');
 			const inputSubject = document.getElementById('input-subjectName');
 			const selectTest = document.getElementById('select-testType');
 			const checkboxHideLesson = document.getElementById('checkbox-hideLessonName');
 			const checkboxHideSubject = document.getElementById('checkbox-hideSubjectName');
+
+			// Handle school name dropdown
+			if (selectSchool && labelSchool) {
+				const availableSchools = Array.isArray(data.availableSchoolNames) ? data.availableSchoolNames : [];
+				if (availableSchools.length > 1) {
+					// Show the school name dropdown only if there are multiple options
+					labelSchool.style.display = 'flex';
+					selectSchool.innerHTML = '';
+					availableSchools.forEach(function(schoolName) {
+						const o = document.createElement('option');
+						o.value = schoolName;
+						o.textContent = schoolName;
+						selectSchool.appendChild(o);
+					});
+					selectSchool.value = data.schoolName || availableSchools[0];
+				} else {
+					// Hide the school name dropdown if there's only one or no options
+					labelSchool.style.display = 'none';
+				}
+			}
 
 			if (inputLesson) inputLesson.value = data.lessonName || '';
 			if (inputSubject) inputSubject.value = data.subjectName || '';
@@ -1595,6 +1623,8 @@
 			}
 
 		function saveModal() {
+			const selectSchool = document.getElementById('select-schoolName');
+			const labelSchool = document.getElementById('label-schoolName');
 			const inputLesson = document.getElementById('input-lessonName');
 			const inputSubject = document.getElementById('input-subjectName');
 			const selectTest = document.getElementById('select-testType');
@@ -1603,6 +1633,10 @@
 
 			const oldData = JSON.parse(JSON.stringify(self.data || {}));
 			
+			// Only update school name if the dropdown is visible (has multiple options)
+			if (selectSchool && labelSchool && labelSchool.style.display !== 'none') {
+				self.data.schoolName = selectSchool.value;
+			}
 			if (inputLesson) self.data.lessonName = inputLesson.value.trim();
 			if (inputSubject) self.data.subjectName = inputSubject.value.trim();
 			if (selectTest) self.data.testType = selectTest.value || '';

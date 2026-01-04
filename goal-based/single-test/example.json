@@ -1,6 +1,10 @@
 {
     "qrCodeUrl": "https://mebi.eba.gov.tr/student/goal-based-assignments/qr-details/fa98fd23-3a6e-4b98-b4c0-08de0afa1260",
     "schoolName": "Yozgat Nida T\u00FCfek\u00E7i G\u00FCzel Sanatlar Lisesi",
+    "availableSchoolNames": [
+        "Yozgat Nida T\u00FCfek\u00E7i G\u00FCzel Sanatlar Lisesi",
+        "Fatma Temel Turhan Bilim ve Sanat Merkezi"
+    ],
     "lessonName": "Matematik",
     "subjectName": null,
     "testType": null,
