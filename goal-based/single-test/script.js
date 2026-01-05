@@ -498,7 +498,7 @@
 					<div class="header-ribbon"></div>
 					<div class="test-type">${this._escapeHtml(data.testType || '')}</div>
 					<span class="page-title">HEDEF TEMELLİ DESTEK EĞİTİMİ</span>
-					<span class="first-page-subtitle">${this._escapeHtml(data.schoolName || 'okul adı')}</span>
+					<span class="first-page-subtitle">${this._escapeHtml((data.schoolName && data.schoolName.name) || 'okul adı')}</span>
 					<div class="first-page-bar">
 						${firstPageBarContent}
 					</div>
@@ -523,7 +523,7 @@
 			`;
 			// set school name in title area
 			const subtitle = this._qs('.first-page-subtitle', page);
-			if (subtitle) subtitle.textContent = data.schoolName || 'okul adı';
+			if (subtitle) subtitle.textContent = (data.schoolName && data.schoolName.name) || 'okul adı';
 
 			return page;
 		},
@@ -1556,13 +1556,13 @@
 					// Show the school name dropdown only if there are multiple options
 					labelSchool.style.display = 'flex';
 					selectSchool.innerHTML = '';
-					availableSchools.forEach(function(schoolName) {
+					availableSchools.forEach(function(school) {
 						const o = document.createElement('option');
-						o.value = schoolName;
-						o.textContent = schoolName;
+						o.value = school.id;
+						o.textContent = school.name;
 						selectSchool.appendChild(o);
 					});
-					selectSchool.value = data.schoolName || availableSchools[0];
+					selectSchool.value = (data.schoolName && data.schoolName.id) || (availableSchools[0] && availableSchools[0].id);
 				} else {
 					// Hide the school name dropdown if there's only one or no options
 					labelSchool.style.display = 'none';
@@ -1635,7 +1635,13 @@
 			
 			// Only update school name if the dropdown is visible (has multiple options)
 			if (selectSchool && labelSchool && labelSchool.style.display !== 'none') {
-				self.data.schoolName = selectSchool.value;
+				const selectedSchoolId = selectSchool.value;
+				const selectedSchool = (self.data.availableSchoolNames || []).find(function(school) {
+					return school.id === selectedSchoolId;
+				});
+				if (selectedSchool) {
+					self.data.schoolName = { id: selectedSchool.id, name: selectedSchool.name };
+				}
 			}
 			if (inputLesson) self.data.lessonName = inputLesson.value.trim();
 			if (inputSubject) self.data.subjectName = inputSubject.value.trim();
