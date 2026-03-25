@@ -2,10 +2,13 @@
 $tyt-color: #936fb7;
 $ayt-color: #258264;
 $ydt-color: #e46664;
+$lgs-soz-color: #1baec4;
+$lgs-say-color: #594c9b;
 
 // Lesson color variables
 $tur-color: #c37f67; // Türkçe
 $sos-color: #72a15e; // Sosyal Bilgiler
+$dikab-color: #c18a41; // Din Kültürü ve Ahlâk Bilgisi
 $mat-color: #608ab1; // Matematik
 $fen-color: #91719b; // Fen Bilimleri
 // Additional lesson colors
@@ -36,6 +39,13 @@ $ing-color: #e46664; // Yabancı Dil
   --lesson-color-light: #{lighten($sos-color, 20%)};
   --lesson-color-lightest: #{lighten($sos-color, 50%)};
   --lesson-color-lightest-alt: #{lighten($sos-color, 35%)};
+}
+
+.lesson-dikab {
+  --lesson-color: #{$dikab-color};
+  --lesson-color-light: #{lighten($dikab-color, 20%)};
+  --lesson-color-lightest: #{lighten($dikab-color, 48%)};
+  --lesson-color-lightest-alt: #{lighten($dikab-color, 38%)};
 }
 
 .lesson-mat {
@@ -100,6 +110,24 @@ $ing-color: #e46664; // Yabancı Dil
   --primary-color-transparent: #{$ydt-color}99;
   --primary-color-lightest: #{lighten($ydt-color, 35%)};
   --primary-color-lightest-alt: #{lighten($ydt-color, 33%)};
+}
+
+.theme-lgs-soz {
+  --primary-color: #{$lgs-soz-color};
+  --primary-color-hover: #{darken($lgs-soz-color, 10%)};
+  --primary-color-light: #{lighten($lgs-soz-color, 18%)};
+  --primary-color-transparent: #{$lgs-soz-color}99;
+  --primary-color-lightest: #{lighten($lgs-soz-color, 46%)};
+  --primary-color-lightest-alt: #{lighten($lgs-soz-color, 40%)};
+}
+
+.theme-lgs-say {
+  --primary-color: #{$lgs-say-color};
+  --primary-color-hover: #{darken($lgs-say-color, 10%)};
+  --primary-color-light: #{lighten($lgs-say-color, 18%)};
+  --primary-color-transparent: #{$lgs-say-color}99;
+  --primary-color-lightest: #{lighten($lgs-say-color, 42%)};
+  --primary-color-lightest-alt: #{lighten($lgs-say-color, 36%)};
 }
 
 ol {
@@ -823,6 +851,93 @@ li {
     font-family: "Arial", Gadget, sans-serif;
     line-height: 4mm;
     color: #333;
+  }
+}
+
+body.theme-lgs-soz,
+body.theme-lgs-say {
+
+
+  .first-page{
+    .header{
+      .test-info-bar{
+        .light-ribbon{
+          div {
+            font-size: 5mm;
+          }
+        }
+      }
+    }
+  }
+
+  .cover-page {
+
+    .qr-code-container {
+      position: absolute;
+      top: 77.3%;
+      left: 88%;
+      transform: translate(-50%, -50%);
+      width: 30mm;
+      height: 30mm;
+      background: rgba(255, 255, 255, 0.95);
+      z-index: 10;
+    }
+    .school-name {
+      top: 182.5mm;
+      height: 12mm;
+      left: 65mm;
+      max-width: 140mm;
+    }
+
+    .deneme-number {
+      top: 159.8mm;
+      font-size: 6.3mm;
+      color: black;
+    }
+
+    .attention-candidate {
+      top: 215.5mm;
+      left: 9mm;
+      width: 153mm;
+      height: 40mm;
+      font-size: 3.85mm;
+      line-height: 5.45mm;
+    }
+
+    .attention-box {
+      top: 146.5mm;
+      width: 82mm;
+      height: 121mm;
+
+      .attention-label {
+        padding: 5mm 8mm 4mm 8mm;
+        font-size: 4.5mm;
+      }
+
+      .attention {
+        font-size: 3.75mm;
+        line-height: 5.05mm;
+      }
+    }
+
+    .deneme-instructions {
+      top: 146.5mm;
+      width: 87mm;
+      font-size: 3.75mm;
+      line-height: 4.65mm;
+    }
+
+    .legal-notice {
+        position: absolute;
+        bottom: 16mm;
+        left: 31mm;
+        width: 176mm;
+        font-size: 3mm;
+        font-family: "Arial", Gadget, sans-serif;
+        color: #333;
+        line-height: 3.5mm;
+        text-align: justify;
+    }
   }
 }
 

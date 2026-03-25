@@ -21,6 +21,13 @@
   --lesson-color-lightest-alt: rgb(212.7, 226.8, 206.7);
 }
 
+.lesson-dikab {
+  --lesson-color: #c18a41;
+  --lesson-color-light: rgb(218.0952380952, 185.3571428571, 141.9047619048);
+  --lesson-color-lightest: rgb(253.2285714286, 251.6571428571, 249.5714285714);
+  --lesson-color-lightest-alt: rgb(240.680952381, 227.9785714286, 211.119047619);
+}
+
 .lesson-mat {
   --lesson-color: #608ab1;
   --lesson-color-light: rgb(164.4303797468, 188.3544303797, 210.5696202532);
@@ -81,6 +88,24 @@
   --primary-color-transparent: #e4666499;
   --primary-color-lightest: rgb(254.4807692308, 252.0576923077, 252.0192307692);
   --primary-color-lightest-alt: rgb(252.9675824176, 243.482967033, 243.3324175824);
+}
+
+.theme-lgs-soz {
+  --primary-color: #1baec4;
+  --primary-color-hover: rgb(20.8251121076, 134.2062780269, 151.1748878924);
+  --primary-color-light: rgb(83.4340807175, 212.1085201794, 231.3659192825);
+  --primary-color-transparent: #1baec499;
+  --primary-color-lightest: rgb(208.9443946188, 243.4860986547, 248.6556053812);
+  --primary-color-lightest-alt: rgb(182.0493273543, 236.7623318386, 244.9506726457);
+}
+
+.theme-lgs-say {
+  --primary-color: #594c9b;
+  --primary-color-hover: rgb(69.3506493506, 59.2207792208, 120.7792207792);
+  --primary-color-light: rgb(139.9246753247, 129.3896103896, 193.4103896104);
+  --primary-color-transparent: #594c9b99;
+  --primary-color-lightest: rgb(215.1662337662, 211.5194805195, 233.6805194805);
+  --primary-color-lightest-alt: rgb(196.3558441558, 190.987012987, 223.612987013);
 }
 
 ol {
@@ -581,7 +606,6 @@ li {
   background: #fff;
   color: #333;
   font-weight: 400;
-  /* Style formatted content */
 }
 .wysiwyg-editor:focus {
   outline: 2px solid var(--primary-color);
@@ -592,6 +616,9 @@ li {
   content: attr(data-placeholder);
   color: #999;
   font-style: italic;
+}
+.wysiwyg-editor {
+  /* Style formatted content */
 }
 .wysiwyg-editor b,
 .wysiwyg-editor strong {
@@ -744,6 +771,79 @@ li {
   font-family: "Arial", Gadget, sans-serif;
   line-height: 4mm;
   color: #333;
+}
+
+body.theme-lgs-soz .first-page .header .test-info-bar .light-ribbon div,
+body.theme-lgs-say .first-page .header .test-info-bar .light-ribbon div {
+  font-size: 5mm;
+}
+body.theme-lgs-soz .cover-page .qr-code-container,
+body.theme-lgs-say .cover-page .qr-code-container {
+  position: absolute;
+  top: 77.3%;
+  left: 88%;
+  transform: translate(-50%, -50%);
+  width: 30mm;
+  height: 30mm;
+  background: rgba(255, 255, 255, 0.95);
+  z-index: 10;
+}
+body.theme-lgs-soz .cover-page .school-name,
+body.theme-lgs-say .cover-page .school-name {
+  top: 182.5mm;
+  height: 12mm;
+  left: 65mm;
+  max-width: 140mm;
+}
+body.theme-lgs-soz .cover-page .deneme-number,
+body.theme-lgs-say .cover-page .deneme-number {
+  top: 159.8mm;
+  font-size: 6.3mm;
+  color: black;
+}
+body.theme-lgs-soz .cover-page .attention-candidate,
+body.theme-lgs-say .cover-page .attention-candidate {
+  top: 215.5mm;
+  left: 9mm;
+  width: 153mm;
+  height: 40mm;
+  font-size: 3.85mm;
+  line-height: 5.45mm;
+}
+body.theme-lgs-soz .cover-page .attention-box,
+body.theme-lgs-say .cover-page .attention-box {
+  top: 146.5mm;
+  width: 82mm;
+  height: 121mm;
+}
+body.theme-lgs-soz .cover-page .attention-box .attention-label,
+body.theme-lgs-say .cover-page .attention-box .attention-label {
+  padding: 5mm 8mm 4mm 8mm;
+  font-size: 4.5mm;
+}
+body.theme-lgs-soz .cover-page .attention-box .attention,
+body.theme-lgs-say .cover-page .attention-box .attention {
+  font-size: 3.75mm;
+  line-height: 5.05mm;
+}
+body.theme-lgs-soz .cover-page .deneme-instructions,
+body.theme-lgs-say .cover-page .deneme-instructions {
+  top: 146.5mm;
+  width: 87mm;
+  font-size: 3.75mm;
+  line-height: 4.65mm;
+}
+body.theme-lgs-soz .cover-page .legal-notice,
+body.theme-lgs-say .cover-page .legal-notice {
+  position: absolute;
+  bottom: 16mm;
+  left: 31mm;
+  width: 176mm;
+  font-size: 3mm;
+  font-family: "Arial", Gadget, sans-serif;
+  color: #333;
+  line-height: 3.5mm;
+  text-align: justify;
 }
 
 /* First page header styling */
@@ -1122,7 +1222,6 @@ li {
   display: grid;
   grid-template-columns: repeat(10, 1fr);
   margin: 0 3mm 0 3mm;
-  /* alternating backgrounds in blocks of 10 */
 }
 .answer-key .content .answer-section .answers .answer-question {
   font-size: 3.7mm;
@@ -1139,6 +1238,9 @@ li {
 }
 .answer-key .content .answer-section .answers .answer-question span:nth-child(2) {
   margin-left: 1mm;
+}
+.answer-key .content .answer-section .answers {
+  /* alternating backgrounds in blocks of 10 */
 }
 .answer-key .content .answer-section .answers .answer-question:nth-child(20n+1),
 .answer-key .content .answer-section .answers .answer-question:nth-child(20n+2),

@@ -1,5 +1,5 @@
 /**
- * DenemePDF - PDF generation for multi-test booklets (TYT/AYT/YDT)
+ * DenemePDF - PDF generation for multi-test booklets (TYT/AYT/YDT/LGS)
  * 
  * @version 2.0.0
  * @author Deneme Team
@@ -9,11 +9,20 @@
 	'use strict';
 	
 	const LETTERS = ['A', 'B', 'C', 'D', 'E'];
+	const SUPPORTED_TEST_TYPES = ['tyt', 'ayt', 'ydt', 'lgs-soz', 'lgs-say'];
+	const TEST_TYPE_META = {
+		'tyt': { label: 'TYT', schoolHeader: 'OKUL YKS DENEMESİ', directorateTitle: 'Ortaöğretim Genel Müdürlüğü' },
+		'ayt': { label: 'AYT', schoolHeader: 'OKUL YKS DENEMESİ', directorateTitle: 'Ortaöğretim Genel Müdürlüğü' },
+		'ydt': { label: 'YDT', schoolHeader: 'OKUL YKS DENEMESİ', directorateTitle: 'Ortaöğretim Genel Müdürlüğü' },
+		'lgs-soz': { label: 'LGS SÖZEL', schoolHeader: 'OKUL LGS DENEMESİ', directorateTitle: 'Temel Eğitim Genel Müdürlüğü' },
+		'lgs-say': { label: 'LGS SAYISAL', schoolHeader: 'OKUL LGS DENEMESİ', directorateTitle: 'Temel Eğitim Genel Müdürlüğü' }
+	};
 	
 	// Lesson color mapping
 	const LESSON_COLORS = {
 		'tur': { primary: '#c37f67', secondary: '#f7a180' },    // Türkçe
 		'sos': { primary: '#72a15e', secondary: '#92cc77' },     // Sosyal Bilgiler
+		'dikab': { primary: '#c18a41', secondary: '#ebbc73' },   // Din Kültürü ve Ahlâk Bilgisi
 		'mat': { primary: '#608ab1', secondary: '#79addd' },    // Matematik
 		'fen': { primary: '#91719b', secondary: '#b78bbf' },     // Fen Bilimleri
 		'ing': { primary: '#bd484a', secondary: '#f06061' },     // Yabancı Dil
@@ -192,9 +201,7 @@
 			const testType = examData.testType || 'tyt';
 			
 			// Check if testType is valid (exists in availableTestTypes)
-			const availableTypes = examData.availableTestTypes || [
-				'tyt', 'ayt', 'ydt'
-			];
+			const availableTypes = examData.availableTestTypes || SUPPORTED_TEST_TYPES;
 			const isValidTestType = availableTypes.includes(testType);
 			
 			this.currentTestType = testType;
@@ -305,7 +312,7 @@
 			const self = this;
 			
 			// Create first page for this test
-			const testColor = LESSON_COLORS[test.lessonCode] || '';
+			const testColor = LESSON_COLORS[test.lessonCode] || LESSON_COLORS.tur;
 			const firstPage = this._createTestFirstPage(test, pagesState, testColor);
 			rootElement.appendChild(firstPage);
 			pagesState.pages.push(firstPage);
@@ -341,10 +348,12 @@
 
 		_createCoverPage: function(testType, pageNumber) {
 			const page = this._createEl('div', 'page cover-page');
+			page.setAttribute('data-test-type', String(testType || '').toLowerCase());
 			const imageFilename = `${testType.toLowerCase()}-kapak${pageNumber === 2 ? '2' : ''}.jpg`;
+			const testTypeLabel = this._getTestTypeMeta(testType).label;
 			if (pageNumber === 1) {
 				page.innerHTML = `
-					<img src="images/${imageFilename}" alt="${testType.toUpperCase()} Kapak ${pageNumber}" class="cover-image">
+					<img src="images/${imageFilename}" alt="${testTypeLabel} Kapak ${pageNumber}" class="cover-image">
 					<div id="school-name" class="school-name"></div>
 					<div id="legal-notice" class="legal-notice">
 						“MEBİ Bireysel Öğrenme Platformu” üzerinden hazırlanan bu yayının, yalnızca eğitim-öğretim faaliyetlerinde kullanılması esastır. Bu yayının herhangi bir şekilde ticari amaçla çoğaltılması, satılması, dağıtılması, kullanılması veya tanıtım amacıyla paylaşılması, 5846 sayılı Fikir ve Sanat Eserleri Kanunu ve ilgili mevzuat hükümleri uyarınca hukuka aykırıdır. Aykırı kullanım tespiti hâlinde, ilgililer hakkında gerekli idari ve hukuki işlemler başlatılacaktır.
@@ -397,7 +406,7 @@
 			const page = this._createEl('div', pageClass);
 			page.setAttribute('data-test-color', testColor.primary);
 			
-			const testTypeUpper = this.currentTestType ? this.currentTestType.toUpperCase() : '-';
+			const testTypeUpper = this._getCurrentTestTypeLabel();
 			const testName = test.name || '';
 			
 			page.innerHTML = `
@@ -444,11 +453,14 @@
 		const page = this._createEl('div', cls);
 		page.setAttribute('data-test-color', testColor.primary);
 		
-		const testTypeUpper = this.currentTestType ? this.currentTestType.toUpperCase() : '';
-		const testName = test.name || '';			page.innerHTML = `
+		const testTypeUpper = this._getCurrentTestTypeLabel();
+		const schoolHeader = this._getCurrentSchoolHeader();
+		const directorateTitle = this._getCurrentDirectorateTitle();
+		const testName = test.name || '';
+		page.innerHTML = `
 				<div class="header">
-					<div class="header-left">OKUL YKS DENEMESİ</div>
-					<div class="header-center">Ortaöğretim Genel Müdürlüğü</div>
+					<div class="header-left">${schoolHeader}</div>
+					<div class="header-center">${directorateTitle}</div>
 					<div class="header-right">${this.examData.denemeNumber ? this.examData.denemeNumber + '. Deneme' : ''}</div>
 				</div>
 				<div class="content">
@@ -919,7 +931,9 @@
 
 		_applyTheme: function(testType) {
 			const body = document.body;
-			body.classList.remove('theme-tyt', 'theme-ayt', 'theme-ydt');
+			SUPPORTED_TEST_TYPES.forEach(function(type) {
+				body.classList.remove(`theme-${type}`);
+			});
 			
 			if (testType) {
 				const themeClass = `theme-${testType.toLowerCase()}`;
@@ -2216,6 +2230,23 @@
 		_toUpperCaseTR: function(str) {
 			const map = { 'i': 'İ', 'ş': 'Ş', 'ğ': 'Ğ', 'ü': 'Ü', 'ö': 'Ö', 'ç': 'Ç', 'ı': 'I' };
 			return str.replace(/[işğüöçı]/g, function(c) { return map[c] || c; }).toUpperCase();
+		},
+
+		_getTestTypeMeta: function(testType) {
+			const normalizedType = String(testType || 'tyt').toLowerCase();
+			return TEST_TYPE_META[normalizedType] || TEST_TYPE_META.tyt;
+		},
+
+		_getCurrentTestTypeLabel: function() {
+			return this._getTestTypeMeta(this.currentTestType).label;
+		},
+
+		_getCurrentSchoolHeader: function() {
+			return this._getTestTypeMeta(this.currentTestType).schoolHeader;
+		},
+
+		_getCurrentDirectorateTitle: function() {
+			return this._getTestTypeMeta(this.currentTestType).directorateTitle;
 		},
 
 		// Scale pages so their A4 proportions remain intact but fit into narrow viewports
