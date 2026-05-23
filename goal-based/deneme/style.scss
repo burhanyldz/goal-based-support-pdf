@@ -1295,6 +1295,68 @@ body.theme-lgs-say {
   }
 }
 
+/* Landscape question layout */
+.page:not(.cover-page):not(.answer-key) {
+  .content {
+    position: relative;
+
+    &.has-landscape.landscape-bottom {
+      align-items: flex-start;
+
+      .left-column,
+      .right-column,
+      .divider {
+        height: calc(100% - var(--landscape-reserved-height, 0px));
+        max-height: calc(100% - var(--landscape-reserved-height, 0px));
+      }
+
+      .divider {
+        align-self: flex-start;
+      }
+    }
+
+    > .landscape-question {
+      position: absolute;
+      left: 10mm;
+      right: 10mm;
+      display: flex;
+      flex-direction: row;
+      align-items: flex-start;
+      box-sizing: border-box;
+      padding: 3mm 0;
+      background: #ffffff;
+      z-index: 2;
+
+      &.landscape-top {
+        top: 4mm;
+      }
+
+      &.landscape-bottom {
+        bottom: 4mm;
+      }
+
+      .question-number {
+        font-size: 3.5mm;
+        font-weight: 600;
+        color: #333333;
+        margin-top: -1mm;
+        width: 9mm;
+        display: flex;
+        justify-content: flex-end;
+        padding: 0 2mm 0 0;
+        flex: 0 0 9mm;
+      }
+
+      img {
+        width: calc(100% - 9mm);
+        max-width: calc(100% - 9mm);
+        height: auto;
+        object-fit: contain;
+      }
+    }
+  }
+}
+
 /* Odd page footer layout */
 .page.odd:not(.cover-page):not(.answer-key) {
   .footer {

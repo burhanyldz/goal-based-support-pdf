@@ -672,8 +672,7 @@ li {
 .cover-page .cover-image {
   width: 100%;
   height: 100%;
-  -o-object-fit: cover;
-     object-fit: cover;
+  object-fit: cover;
 }
 .cover-page .qr-code-container {
   position: absolute;
@@ -689,8 +688,7 @@ li {
 .cover-page .qr-code-container .qr-code img {
   width: 100%;
   height: 100%;
-  -o-object-fit: contain;
-     object-fit: contain;
+  object-fit: contain;
 }
 .cover-page .school-name {
   position: absolute;
@@ -1153,6 +1151,58 @@ body.theme-lgs-say .cover-page .legal-notice {
   border-radius: 20mm;
 }
 
+/* Landscape question layout */
+.page:not(.cover-page):not(.answer-key) .content {
+  position: relative;
+}
+.page:not(.cover-page):not(.answer-key) .content.has-landscape.landscape-bottom {
+  align-items: flex-start;
+}
+.page:not(.cover-page):not(.answer-key) .content.has-landscape.landscape-bottom .left-column,
+.page:not(.cover-page):not(.answer-key) .content.has-landscape.landscape-bottom .right-column,
+.page:not(.cover-page):not(.answer-key) .content.has-landscape.landscape-bottom .divider {
+  height: calc(100% - var(--landscape-reserved-height, 0px));
+  max-height: calc(100% - var(--landscape-reserved-height, 0px));
+}
+.page:not(.cover-page):not(.answer-key) .content.has-landscape.landscape-bottom .divider {
+  align-self: flex-start;
+}
+.page:not(.cover-page):not(.answer-key) .content > .landscape-question {
+  position: absolute;
+  left: 10mm;
+  right: 10mm;
+  display: flex;
+  flex-direction: row;
+  align-items: flex-start;
+  box-sizing: border-box;
+  padding: 3mm 0;
+  background: #ffffff;
+  z-index: 2;
+}
+.page:not(.cover-page):not(.answer-key) .content > .landscape-question.landscape-top {
+  top: 4mm;
+}
+.page:not(.cover-page):not(.answer-key) .content > .landscape-question.landscape-bottom {
+  bottom: 4mm;
+}
+.page:not(.cover-page):not(.answer-key) .content > .landscape-question .question-number {
+  font-size: 3.5mm;
+  font-weight: 600;
+  color: #333333;
+  margin-top: -1mm;
+  width: 9mm;
+  display: flex;
+  justify-content: flex-end;
+  padding: 0 2mm 0 0;
+  flex: 0 0 9mm;
+}
+.page:not(.cover-page):not(.answer-key) .content > .landscape-question img {
+  width: calc(100% - 9mm);
+  max-width: calc(100% - 9mm);
+  height: auto;
+  object-fit: contain;
+}
+
 /* Odd page footer layout */
 .page.odd:not(.cover-page):not(.answer-key) .footer .footer-test-name {
   left: 14mm;
@@ -1490,4 +1540,6 @@ body:has(#page-loading-overlay.visible) #pdf-root {
   .page {
     margin: 5mm auto;
   }
-}/*# sourceMappingURL=style.css.map */
+}
+
+/*# sourceMappingURL=style.css.map */

@@ -522,6 +522,41 @@
 			return container.scrollHeight > container.clientHeight + 1;
 		},
 
+		_startNewQuestionPage: function(root, pagesState, testColor, test) {
+			const newIsOdd = ((pagesState.pageCount + 1) % 2) === 1;
+			const newPage = this._createNormalPage(newIsOdd, pagesState, testColor, test);
+			root.appendChild(newPage);
+			pagesState.pages.push(newPage);
+			pagesState.pageCount += 1;
+			pagesState.currentPage = newPage;
+			pagesState.currentColumn = 'left';
+			pagesState.forceNewPageNext = false;
+			return newPage;
+		},
+
+		_isLandscapeQuestion: function(q) {
+			if (!q) return false;
+			const value = q.IsLandscape != null ? q.IsLandscape : q.isLandscape;
+			if (typeof value === 'boolean') return value;
+			if (typeof value === 'number') return value === 1;
+			if (typeof value === 'string') {
+				const normalized = value.trim().toLowerCase();
+				return normalized === 'true' || normalized === '1' || normalized === 'yes';
+			}
+			return false;
+		},
+
+		_pageHasQuestionContent: function(pageEl) {
+			if (!pageEl) return false;
+			const left = this._qs('.left-column', pageEl);
+			const right = this._qs('.right-column', pageEl);
+			return !!(
+				(left && left.children.length > 0) ||
+				(right && right.children.length > 0) ||
+				this._qs('.content > .landscape-question', pageEl)
+			);
+		},
+
 		_createQuestionElement: function(q) {
 			const wrapper = this._createEl('div', 'question');
 			const num = this._createEl('div', 'question-number');
@@ -535,21 +570,157 @@
 			return { wrapper, img, originalSrc: q.imageUrl || '' };
 		},
 
+		_setQuestionImageSource: function(questionEl) {
+			return this._cropImageWhitespace(questionEl.originalSrc).then(function(croppedSrc) {
+				const finalSrc = croppedSrc || questionEl.originalSrc;
+				questionEl.img.src = finalSrc;
+
+				try {
+					if (questionEl.wrapper && typeof questionEl.wrapper.setAttribute === 'function') {
+						if (croppedSrc && (String(croppedSrc).startsWith('data:') || String(croppedSrc).startsWith('blob:'))) {
+							questionEl.wrapper.setAttribute('data-cropped', 'yes');
+							questionEl.wrapper.setAttribute('data-cropped-src', croppedSrc.startsWith('blob:') ? 'blob' : 'data');
+						} else {
+							questionEl.wrapper.setAttribute('data-cropped', 'no');
+							questionEl.wrapper.setAttribute('data-cropped-src', 'remote');
+						}
+					}
+				} catch (e) {
+					console.warn('Error setting debug attributes:', e);
+				}
+
+				return finalSrc;
+			});
+		},
+
+		_ensureImageLoaded: function(img) {
+			return new Promise(function(resolve) {
+				if (img.complete && img.naturalHeight !== 0) return resolve();
+				img.addEventListener('load', function() { resolve(); }, { once: true });
+				img.addEventListener('error', function() { resolve(); }, { once: true });
+				setTimeout(resolve, 1500);
+			});
+		},
+
+		_scaleLandscapeQuestionToFit: function(questionEl, maxHeight) {
+			const questionHeight = questionEl.wrapper.scrollHeight || questionEl.wrapper.getBoundingClientRect().height;
+			if (!questionHeight || !maxHeight || questionHeight <= maxHeight) return false;
+			const finalScale = maxHeight / questionHeight;
+
+			questionEl.img.style.transformOrigin = 'top left';
+			questionEl.img.style.transform = `scale(${finalScale})`;
+			questionEl.img.style.width = `${100 / finalScale}%`;
+			questionEl.wrapper.style.height = (questionHeight * finalScale) + 'px';
+			questionEl.wrapper.style.overflow = 'hidden';
+			questionEl.wrapper.setAttribute('data-scaled', finalScale.toFixed(3));
+
+			void questionEl.wrapper.offsetHeight;
+			return true;
+		},
+
+		_measureLandscapeQuestionHeight: function(pageEl, questionEl) {
+			const content = this._qs('.content', pageEl);
+			if (!content) return 0;
+
+			const leftColumn = this._qs('.left-column', pageEl);
+			const maxHeight = leftColumn ? leftColumn.clientHeight : content.clientHeight;
+			const previousVisibility = questionEl.wrapper.style.visibility;
+
+			questionEl.wrapper.classList.remove('landscape-bottom');
+			questionEl.wrapper.classList.add('landscape-top');
+			questionEl.wrapper.style.visibility = 'hidden';
+			content.appendChild(questionEl.wrapper);
+
+			this._scaleLandscapeQuestionToFit(questionEl, maxHeight);
+			const rectHeight = questionEl.wrapper.getBoundingClientRect().height;
+			const measuredHeight = Math.ceil(rectHeight || questionEl.wrapper.scrollHeight || 0);
+
+			questionEl.wrapper.remove();
+			questionEl.wrapper.style.visibility = previousVisibility;
+
+			return measuredHeight;
+		},
+
+		_tryPlaceLandscapeAtBottom: function(pageEl, questionEl, reservedHeight) {
+			const content = this._qs('.content', pageEl);
+			const leftColumn = this._qs('.left-column', pageEl);
+			const rightColumn = this._qs('.right-column', pageEl);
+			if (!content || !leftColumn || !rightColumn) return false;
+
+			content.classList.add('has-landscape', 'landscape-bottom');
+			content.style.setProperty('--landscape-reserved-height', reservedHeight + 'px');
+			questionEl.wrapper.classList.remove('landscape-top');
+			questionEl.wrapper.classList.add('landscape-bottom');
+			content.appendChild(questionEl.wrapper);
+
+			void content.offsetHeight;
+			const fits = !this._isOverflowing(leftColumn) && !this._isOverflowing(rightColumn);
+
+			if (!fits) {
+				questionEl.wrapper.remove();
+				content.classList.remove('has-landscape', 'landscape-bottom');
+				content.style.removeProperty('--landscape-reserved-height');
+			}
+
+			return fits;
+		},
+
+		_placeLandscapeAtTop: function(pageEl, questionEl, reservedHeight) {
+			const content = this._qs('.content', pageEl);
+			if (!content) return;
+
+			content.classList.add('has-landscape', 'landscape-top');
+			content.style.setProperty('--landscape-reserved-height', reservedHeight + 'px');
+			questionEl.wrapper.classList.remove('landscape-bottom');
+			questionEl.wrapper.classList.add('landscape-top');
+			content.appendChild(questionEl.wrapper);
+		},
+
+		_placeLandscapeQuestion: function(root, pagesState, q, testColor, test) {
+			const self = this;
+
+			return new Promise(function(resolve) {
+				if (pagesState.forceNewPageNext) {
+					self._startNewQuestionPage(root, pagesState, testColor, test);
+				}
+
+				const questionEl = self._createQuestionElement(q);
+				questionEl.wrapper.classList.add('landscape-question');
+				questionEl.wrapper.setAttribute('data-landscape', 'true');
+
+				self._setQuestionImageSource(questionEl).then(function() {
+					self._ensureImageLoaded(questionEl.img).then(function() {
+						let pageEl = pagesState.currentPage;
+						let reservedHeight = self._measureLandscapeQuestionHeight(pageEl, questionEl);
+						const hasQuestionContent = self._pageHasQuestionContent(pageEl);
+
+						if (!hasQuestionContent) {
+							self._placeLandscapeAtTop(pageEl, questionEl, reservedHeight);
+						} else if (!self._tryPlaceLandscapeAtBottom(pageEl, questionEl, reservedHeight)) {
+							pageEl = self._startNewQuestionPage(root, pagesState, testColor, test);
+							reservedHeight = self._measureLandscapeQuestionHeight(pageEl, questionEl);
+							self._placeLandscapeAtTop(pageEl, questionEl, reservedHeight);
+						}
+
+						pagesState.currentPage = pageEl;
+						pagesState.currentColumn = 'left';
+						pagesState.forceNewPageNext = true;
+						resolve();
+					});
+				});
+			});
+		},
+
 		_placeQuestion: function(root, pagesState, q, testColor, test) {
 			const self = this;
+
+			if (this._isLandscapeQuestion(q)) {
+				return this._placeLandscapeQuestion(root, pagesState, q, testColor, test);
+			}
 			
 			const placeInColumn = function(pageEl, colSelector, questionEl) {
 				const col = self._qs(colSelector, pageEl);
 				col.appendChild(questionEl.wrapper);
-			};
-
-			const ensureImageLoaded = function(img) {
-				return new Promise(function(resolve) {
-					if (img.complete && img.naturalHeight !== 0) return resolve();
-					img.addEventListener('load', function() { resolve(); }, { once: true });
-					img.addEventListener('error', function() { resolve(); }, { once: true });
-					setTimeout(resolve, 1500);
-				});
 			};
 
 			const scaleQuestionToFit = function(questionEl, colNode) {
@@ -594,15 +765,8 @@
 					if (placed) return resolve();
 					// If previous question was scaled in the right column, we must start on a new page's left column
 					if (pagesState.forceNewPageNext) {
-						const newIsOdd = ((pagesState.pageCount + 1) % 2) === 1;
-						const newPage = self._createNormalPage(newIsOdd, pagesState, testColor, test);
-						root.appendChild(newPage);
-						pagesState.pages.push(newPage);
-						pagesState.pageCount += 1;
-						pagesState.currentPage = newPage;
-						pagesState.currentColumn = 'left';
+						self._startNewQuestionPage(root, pagesState, testColor, test);
 						attemptColumn = 'left';
-						pagesState.forceNewPageNext = false;
 					}
 										
 					const pageEl = pagesState.currentPage;
@@ -617,29 +781,11 @@
 						questionEl.wrapper.classList.add('math-question');
 					}
 					
-					self._cropImageWhitespace(questionEl.originalSrc).then(function(croppedSrc) {
-						const finalSrc = croppedSrc || questionEl.originalSrc;
-						questionEl.img.src = finalSrc;
-
-						// debugging markers
-						try {
-							if (questionEl.wrapper && typeof questionEl.wrapper.setAttribute === 'function') {
-								if (croppedSrc && (String(croppedSrc).startsWith('data:') || String(croppedSrc).startsWith('blob:'))) {
-									questionEl.wrapper.setAttribute('data-cropped', 'yes');
-									questionEl.wrapper.setAttribute('data-cropped-src', croppedSrc.startsWith('blob:') ? 'blob' : 'data');
-								} else {
-									questionEl.wrapper.setAttribute('data-cropped', 'no');
-									questionEl.wrapper.setAttribute('data-cropped-src', 'remote');
-								}
-							}
-						} catch (e) {
-							console.warn('Error setting debug attributes:', e);
-						}
-						
+					self._setQuestionImageSource(questionEl).then(function() {
 						placeInColumn(pageEl, colSelector, questionEl);
 
 						// wait for image to load
-						ensureImageLoaded(questionEl.img).then(function() {
+						self._ensureImageLoaded(questionEl.img).then(function() {
 							const colNode = self._qs(colSelector, pageEl);
 							if (!self._isOverflowing(colNode)) {
 								// fits in this column
@@ -694,13 +840,7 @@
 								tryPlacement();
 							} else {
 								// both columns full -> create new page
-								const newIsOdd = ((pagesState.pageCount + 1) % 2) === 1;
-								const newPage = self._createNormalPage(newIsOdd, pagesState, testColor, test);
-								root.appendChild(newPage);
-								pagesState.pages.push(newPage);
-								pagesState.pageCount += 1;
-								pagesState.currentPage = newPage;
-								pagesState.currentColumn = 'left';
+								self._startNewQuestionPage(root, pagesState, testColor, test);
 								attemptColumn = 'left';
 								hasTriedScaling = false; // Reset scaling flag for new page
 								tryPlacement();
