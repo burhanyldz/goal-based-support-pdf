@@ -557,6 +557,33 @@
 			);
 		},
 
+		_pageHasLandscapeQuestion: function(pageEl) {
+			return !!this._qs('.content > .landscape-question', pageEl);
+		},
+
+		_pageHasColumnQuestions: function(pageEl, excludeEl) {
+			if (!pageEl) return false;
+			const columnQuestions = pageEl.querySelectorAll('.left-column > .question, .right-column > .question');
+			return Array.prototype.some.call(columnQuestions, function(question) {
+				return question !== excludeEl;
+			});
+		},
+
+		_isEmptyLandscapeTopColumnArea: function(pageEl, excludeEl) {
+			const content = this._qs('.content', pageEl);
+			return !!(
+				content &&
+				content.classList.contains('landscape-top') &&
+				!this._pageHasColumnQuestions(pageEl, excludeEl)
+			);
+		},
+
+		_setLandscapeDividerHidden: function(pageEl, hidden) {
+			const content = this._qs('.content', pageEl);
+			if (!content || !content.classList.contains('landscape-top')) return;
+			content.classList.toggle('landscape-divider-hidden', !!hidden);
+		},
+
 		_createQuestionElement: function(q) {
 			const wrapper = this._createEl('div', 'question');
 			const num = this._createEl('div', 'question-number');
@@ -647,6 +674,7 @@
 			const rightColumn = this._qs('.right-column', pageEl);
 			if (!content || !leftColumn || !rightColumn) return false;
 
+			content.classList.remove('landscape-top', 'landscape-divider-hidden');
 			content.classList.add('has-landscape', 'landscape-bottom');
 			content.style.setProperty('--landscape-reserved-height', reservedHeight + 'px');
 			questionEl.wrapper.classList.remove('landscape-top');
@@ -669,7 +697,8 @@
 			const content = this._qs('.content', pageEl);
 			if (!content) return;
 
-			content.classList.add('has-landscape', 'landscape-top');
+			content.classList.remove('landscape-bottom');
+			content.classList.add('has-landscape', 'landscape-top', 'landscape-divider-hidden');
 			content.style.setProperty('--landscape-reserved-height', reservedHeight + 'px');
 			questionEl.wrapper.classList.remove('landscape-bottom');
 			questionEl.wrapper.classList.add('landscape-top');
@@ -691,20 +720,27 @@
 				self._setQuestionImageSource(questionEl).then(function() {
 					self._ensureImageLoaded(questionEl.img).then(function() {
 						let pageEl = pagesState.currentPage;
+						if (self._pageHasLandscapeQuestion(pageEl)) {
+							pageEl = self._startNewQuestionPage(root, pagesState, testColor, test);
+						}
+
 						let reservedHeight = self._measureLandscapeQuestionHeight(pageEl, questionEl);
 						const hasQuestionContent = self._pageHasQuestionContent(pageEl);
+						let placedAtTop = false;
 
 						if (!hasQuestionContent) {
 							self._placeLandscapeAtTop(pageEl, questionEl, reservedHeight);
+							placedAtTop = true;
 						} else if (!self._tryPlaceLandscapeAtBottom(pageEl, questionEl, reservedHeight)) {
 							pageEl = self._startNewQuestionPage(root, pagesState, testColor, test);
 							reservedHeight = self._measureLandscapeQuestionHeight(pageEl, questionEl);
 							self._placeLandscapeAtTop(pageEl, questionEl, reservedHeight);
+							placedAtTop = true;
 						}
 
 						pagesState.currentPage = pageEl;
 						pagesState.currentColumn = 'left';
-						pagesState.forceNewPageNext = true;
+						pagesState.forceNewPageNext = !placedAtTop;
 						resolve();
 					});
 				});
@@ -790,6 +826,7 @@
 							if (!self._isOverflowing(colNode)) {
 								// fits in this column
 								placed = true;
+								self._setLandscapeDividerHidden(pageEl, false);
 								// After placing, determine next column following left-to-right flow
 								if (hasTriedScaling) {
 									// This was a scaled question - column is likely full
@@ -820,6 +857,7 @@
 								if (scaled && !self._isOverflowing(colNode)) {
 									// Successfully scaled and fits now
 									placed = true;
+									self._setLandscapeDividerHidden(pageEl, false);
 									// After scaling, move to next column in natural flow
 									if (attemptColumn === 'left') {
 										pagesState.currentColumn = 'right';
@@ -833,7 +871,19 @@
 							}
 
 							// doesn't fit; remove and try next
+							const shouldStartNewPageFromEmptyLandscapeTop =
+								attemptColumn === 'left' &&
+								self._isEmptyLandscapeTopColumnArea(pageEl, questionEl.wrapper);
 							questionEl.wrapper.remove();
+							if (shouldStartNewPageFromEmptyLandscapeTop) {
+								self._setLandscapeDividerHidden(pageEl, true);
+								self._startNewQuestionPage(root, pagesState, testColor, test);
+								attemptColumn = 'left';
+								hasTriedScaling = false;
+								tryPlacement();
+								return;
+							}
+
 							if (attemptColumn === 'left') {
 								attemptColumn = 'right';
 								hasTriedScaling = false; // Reset scaling flag for new column

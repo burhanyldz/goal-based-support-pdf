@@ -1167,6 +1167,27 @@ body.theme-lgs-say .cover-page .legal-notice {
 .page:not(.cover-page):not(.answer-key) .content.has-landscape.landscape-bottom .divider {
   align-self: flex-start;
 }
+.page:not(.cover-page):not(.answer-key) .content.has-landscape.landscape-top {
+  align-items: flex-end;
+}
+.page:not(.cover-page):not(.answer-key) .content.has-landscape.landscape-top .left-column,
+.page:not(.cover-page):not(.answer-key) .content.has-landscape.landscape-top .right-column,
+.page:not(.cover-page):not(.answer-key) .content.has-landscape.landscape-top .divider {
+  height: calc(100% - var(--landscape-reserved-height, 0px));
+  max-height: calc(100% - var(--landscape-reserved-height, 0px));
+}
+.page:not(.cover-page):not(.answer-key) .content.has-landscape.landscape-top .divider {
+  align-self: flex-end;
+}
+.page:not(.cover-page):not(.answer-key) .content.has-landscape .divider .divider-text {
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%) rotate(270deg);
+  transform-origin: center;
+}
+.page:not(.cover-page):not(.answer-key) .content.landscape-divider-hidden .divider {
+  visibility: hidden;
+}
 .page:not(.cover-page):not(.answer-key) .content > .landscape-question {
   position: absolute;
   left: 10mm;

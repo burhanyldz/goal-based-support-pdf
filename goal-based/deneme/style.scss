@@ -1315,6 +1315,38 @@ body.theme-lgs-say {
       }
     }
 
+    &.has-landscape.landscape-top {
+      align-items: flex-end;
+
+      .left-column,
+      .right-column,
+      .divider {
+        height: calc(100% - var(--landscape-reserved-height, 0px));
+        max-height: calc(100% - var(--landscape-reserved-height, 0px));
+      }
+
+      .divider {
+        align-self: flex-end;
+      }
+    }
+
+    &.has-landscape {
+      .divider {
+        .divider-text {
+          top: 50%;
+          left: 50%;
+          transform: translate(-50%, -50%) rotate(270deg);
+          transform-origin: center;
+        }
+      }
+    }
+
+    &.landscape-divider-hidden {
+      .divider {
+        visibility: hidden;
+      }
+    }
+
     > .landscape-question {
       position: absolute;
       left: 10mm;
